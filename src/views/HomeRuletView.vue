@@ -1,6 +1,6 @@
 <template>
   <div class="relative m-0 flex min-h-screen flex-col justify-center items-center">
-    <audio id="cancion"></audio>
+    <Background />
     <div class="relative">
       <canvas ref="canvasRef" width="500" height="500" class="relative"></canvas>
 
@@ -231,6 +231,7 @@ import { toast } from 'vue-sonner'
 
 // Lucide icons
 import { Users, Hash, X, RotateCcw } from 'lucide-vue-next'
+import Background from '@/components/backgrounds/background.vue'
 
 // Refs
 const canvasRef = ref(null)
