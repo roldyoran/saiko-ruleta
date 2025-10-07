@@ -1,6 +1,6 @@
 <template>
       <!--- Animación de olas --->
-  <div class="waves-container">
+  <div class="waves-container min-h-screen w-full  animate-gradient">
     <div class="wave"></div>
     <div class="wave"></div>
     <div class="wave"></div>
@@ -19,6 +19,15 @@
     100% {
       background-position: 0% 0%;
     }
+  }
+
+  /* Apply a zinc-tone animated gradient to the background container */
+  .animate-gradient {
+    /* Very dark zinc-like tones for a deeper background */
+    background: linear-gradient(120deg, #05060a 0%, #022425 25%, #11151b 50%, #141920 75%, #1a1f22 100%);
+    background-size: 400% 400%;
+    /* even slower, subtle transition for a darker atmosphere */
+    animation: gradient 30s ease-in-out infinite;
   }
 
   /* Wave Styles */

@@ -177,7 +177,7 @@
           v-model="numOptions"
           :min="2"
           :max="44"
-          class="flex-1 bg-zinc-800 rounded-md"
+          class="flex-1 text-xl border-none shadow-sm font-bold bg-pink-900 hover:bg-pink-700 rounded-md "
           @update:model-value="updateOptions"
         >
           <NumberFieldContent>
@@ -193,9 +193,8 @@
         <Button
           @click="handleSpin"
           :disabled="isNamesMode && namesList.length < 2"
-          variant="default"
-          size="lg"
-          class="flex-1"
+          size="xl"
+          class="flex-1 font-bold rounded-lg text-lg shadow-sm"
         >
           <RotateCcw class="mr-2 h-4 w-4" />
           GIRAR
