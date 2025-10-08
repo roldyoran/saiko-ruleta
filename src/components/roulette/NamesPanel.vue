@@ -1,7 +1,7 @@
 <template>
   <Card
     v-if="showNamesList && isNamesMode"
-    class="fixed top-20 right-4 z-40 w-80 p-4 bg-background/90 backdrop-blur-lg shadow-lg"
+    class="fixed top-20 right-4 z-40 w-80 p-4 bg-background/95 backdrop-blur-lg shadow-lg"
   >
     <div class="space-y-4">
       <div class="flex items-center justify-between">
