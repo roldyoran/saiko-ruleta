@@ -1,5 +1,8 @@
 <template>
-  <Card v-if="showNamesList && isNamesMode" class="fixed top-20 right-4 z-40 w-80 p-4 bg-background/80 backdrop-blur-xl shadow-lg">
+  <Card
+    v-if="showNamesList && isNamesMode"
+    class="fixed top-20 right-4 z-40 w-80 p-4 bg-background/90 backdrop-blur-lg shadow-lg"
+  >
     <div class="space-y-4">
       <div class="flex items-center justify-between">
         <h3 class="text-lg font-semibold">Lista de Nombres</h3>
@@ -35,7 +38,7 @@
             id="newNameInput"
             v-model="newName"
             @keydown.ctrl.enter.prevent="addName"
-            placeholder="Ingresa un nombre o pega varios separados por 'Enter'... (Ctrl+Enter para agregar)"
+            placeholder="Ingresa un nombre o pega varios separados por 'Enter'... (Ctrl+Enter para agregar todos de una)"
             class="flex-1 rounded-md bg-transparent border p-2 min-h-[3rem] resize-y"
             rows="3"
           ></textarea>

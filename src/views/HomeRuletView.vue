@@ -2,52 +2,54 @@
   <div class="relative m-0 flex min-h-screen flex-col justify-center items-center">
     <Background />
 
-  <!-- Icon navigation for testing -->
-  <IconNav class="absolute top-7 left-4 z-40" />
+    <!-- Icon navigation for testing -->
+    <IconNav class="absolute top-7 left-4 z-40" />
 
-  
-  
-  <!-- Componente Principal de la Ruleta (wrapper relativo para posicionar el carousel) -->
-  <div class="relative">
-    <RouletteWheel
-      ref="rouletteWheelRef"
-      :options="options"
-      :is-names-mode="isNamesMode"
-      :is-showing-winner="isShowingWinner"
-      :current-winner="currentWinner"
-      @winner-selected="handleWinnerSelected"
-    />
+    <!-- Componente Principal de la Ruleta (wrapper relativo para posicionar el carousel) -->
+    <div class="relative">
+      <RouletteWheel
+        ref="rouletteWheelRef"
+        :options="options"
+        :is-names-mode="isNamesMode"
+        :is-showing-winner="isShowingWinner"
+        :current-winner="currentWinner"
+        @winner-selected="handleWinnerSelected"
+      />
 
-    <!-- Carousel centrado horizontalmente respecto a la ruleta -->
-    <div class="absolute hidden md:block left-[750px] -translate-x-1/2 -top-4 z-30 w-60 bg-transparent p-2 rounded">
-      <ImageCarousel
-        ref="carouselLeftRef"
-        :images="carouselImages"
-        :interval="4000"
-        :fadeDuration="fadeDuration"
-        :autoplay="true"
-        :pauseOnHover="false"
-        :showIndicators="false"
-        class="rounded-xl shadow-md"
-      />
+      <!-- Carousel centrado horizontalmente respecto a la ruleta -->
+      <div
+        class="absolute hidden md:block left-[750px] -translate-x-1/2 -top-4 z-30 w-60 bg-transparent p-2 rounded"
+      >
+        <ImageCarousel
+          ref="carouselLeftRef"
+          :images="carouselImages"
+          :interval="4000"
+          :fadeDuration="fadeDuration"
+          :autoplay="true"
+          :pauseOnHover="false"
+          :showIndicators="false"
+          class="rounded-xl shadow-md"
+        />
+      </div>
+      <!-- Duplicado del carousel, posicionado al lado derecho -->
+      <div
+        class="absolute hidden md:block right-[750px] translate-x-1/2 -top-4 z-30 w-60 bg-transparent p-2 rounded"
+      >
+        <ImageCarousel
+          ref="carouselRightRef"
+          :images="carouselImages"
+          :interval="4000"
+          :fadeDuration="fadeDuration"
+          :autoplay="true"
+          :pauseOnHover="false"
+          :showIndicators="false"
+          class="rounded-xl shadow-md"
+        />
+      </div>
     </div>
-    <!-- Duplicado del carousel, posicionado al lado derecho -->
-    <div class="absolute hidden md:block right-[750px] translate-x-1/2 -top-4 z-30 w-60 bg-transparent p-2 rounded">
-      <ImageCarousel
-        ref="carouselRightRef"
-        :images="carouselImages"
-        :interval="4000"
-        :fadeDuration="fadeDuration"
-        :autoplay="true"
-        :pauseOnHover="false"
-        :showIndicators="false"
-        class="rounded-xl shadow-md"
-      />
-    </div>
-  </div>
-      
-      <!-- Toggle de Modo -->
-      <ModeToggle :is-names-mode="isNamesMode" @toggle-mode="toggleNamesList" />
+
+    <!-- Toggle de Modo -->
+    <ModeToggle :is-names-mode="isNamesMode" @toggle-mode="toggleNamesList" />
 
     <!-- Panel de Nombres -->
     <NamesPanel

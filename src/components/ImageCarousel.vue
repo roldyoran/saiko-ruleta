@@ -7,7 +7,7 @@
     role="region"
     :aria-label="ariaLabel"
   >
-  <div class="image-stack" :style="{ '--fade-duration': fadeMs }">
+    <div class="image-stack" :style="{ '--fade-duration': fadeMs }">
       <img
         v-if="currentImage"
         :key="`current-${currentImageKey}`"
@@ -25,7 +25,7 @@
         class="image prev"
         :alt="`carousel image ${prevIndex + 1}`"
         draggable="false"
-        :class="{ 'fading': prevFading }"
+        :class="{ fading: prevFading }"
         :style="{ transitionDuration: fadeDuration + 'ms' }"
       />
 
@@ -41,7 +41,7 @@
       <button
         v-for="(img, i) in images"
         :key="i"
-        :class="['dot', { active: i === index } ]"
+        :class="['dot', { active: i === index }]"
         @click="goTo(i)"
         :aria-current="i === index ? 'true' : 'false'"
         :aria-label="`Go to image ${i + 1}`"
@@ -99,17 +99,20 @@ const rootRef = ref(null)
 
 const images = computed(() => props.images || [])
 
-const currentImage = computed(() => images.value.length ? images.value[index.value] : null)
+const currentImage = computed(() => (images.value.length ? images.value[index.value] : null))
 const currentImageKey = computed(() => `${index.value}-${currentImage.value}`)
 const fadeMs = computed(() => `${props.fadeDuration}ms`)
 
 function startTimer() {
   stopTimer()
   if (!props.autoplay) return
-  timerId.value = setInterval(() => {
-    if (props.pauseOnHover && hovering.value) return
-    next()
-  }, Math.max(100, props.interval))
+  timerId.value = setInterval(
+    () => {
+      if (props.pauseOnHover && hovering.value) return
+      next()
+    },
+    Math.max(100, props.interval),
+  )
 }
 
 function stopTimer() {
@@ -133,12 +136,9 @@ function next() {
     // Try Web Animations API for a smoother crossfade
     const prevImg = rootRef.value && rootRef.value.querySelector('.image.prev')
     if (prevImg && prevImg.animate) {
-      prevImg.animate([
-        { opacity: 1 },
-        { opacity: 0 }
-      ], {
+      prevImg.animate([{ opacity: 1 }, { opacity: 0 }], {
         duration: props.fadeDuration,
-        easing: 'ease'
+        easing: 'ease',
       })
       // cleanup after animation
       setTimeout(() => {
@@ -167,7 +167,10 @@ function prev() {
   nextTick(() => {
     const prevImg = rootRef.value && rootRef.value.querySelector('.image.prev')
     if (prevImg && prevImg.animate) {
-      prevImg.animate([{ opacity: 1 }, { opacity: 0 }], { duration: props.fadeDuration, easing: 'ease' })
+      prevImg.animate([{ opacity: 1 }, { opacity: 0 }], {
+        duration: props.fadeDuration,
+        easing: 'ease',
+      })
       setTimeout(() => {
         prevFading.value = false
         prevIndex.value = null
@@ -195,7 +198,10 @@ function goTo(i) {
   nextTick(() => {
     const prevImg = rootRef.value && rootRef.value.querySelector('.image.prev')
     if (prevImg && prevImg.animate) {
-      prevImg.animate([{ opacity: 1 }, { opacity: 0 }], { duration: props.fadeDuration, easing: 'ease' })
+      prevImg.animate([{ opacity: 1 }, { opacity: 0 }], {
+        duration: props.fadeDuration,
+        easing: 'ease',
+      })
       setTimeout(() => {
         prevFading.value = false
         prevIndex.value = null
@@ -221,19 +227,29 @@ function onMouseLeave() {
 // Expose methods so parent can control the carousel
 defineExpose({ next, prev, goTo })
 
-watch(() => props.images, (newVal) => {
-  // Reset index if current index out of bounds
-  if (!newVal || !newVal.length) {
-    index.value = 0
-  } else if (index.value >= newVal.length) {
-    index.value = 0
-  }
-  // restart timer so interval resets when images change
-  startTimer()
-}, { immediate: true })
+watch(
+  () => props.images,
+  (newVal) => {
+    // Reset index if current index out of bounds
+    if (!newVal || !newVal.length) {
+      index.value = 0
+    } else if (index.value >= newVal.length) {
+      index.value = 0
+    }
+    // restart timer so interval resets when images change
+    startTimer()
+  },
+  { immediate: true },
+)
 
-watch(() => props.interval, () => startTimer())
-watch(() => props.autoplay, () => startTimer())
+watch(
+  () => props.interval,
+  () => startTimer(),
+)
+watch(
+  () => props.autoplay,
+  () => startTimer(),
+)
 
 onMounted(() => startTimer())
 onBeforeUnmount(() => stopTimer())
@@ -301,7 +317,7 @@ onBeforeUnmount(() => stopTimer())
 }
 .ctrl {
   pointer-events: auto;
-  background: rgba(0,0,0,0.35);
+  background: rgba(0, 0, 0, 0.35);
   color: white;
   border: none;
   padding: 0.25rem 0.5rem;
@@ -322,8 +338,8 @@ onBeforeUnmount(() => stopTimer())
   width: 8px;
   height: 8px;
   border-radius: 9999px;
-  background: rgba(255,255,255,0.6);
-  border: 1px solid rgba(0,0,0,0.15);
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.15);
   padding: 0;
 }
 .dot.active {

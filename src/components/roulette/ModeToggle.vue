@@ -19,7 +19,7 @@
             <!-- <span>{{ isNamesMode ? 'Nombres' : 'Números' }}</span> -->
           </Badge>
           <div>
-            <Switch :model-value="isNamesMode" @update:model-value="toggleMode"  />
+            <Switch :model-value="isNamesMode" @update:model-value="toggleMode" />
           </div>
         </div>
       </transition>
