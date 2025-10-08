@@ -29,7 +29,7 @@ watch(isOpen, (v) => emit('update:open', v))
 
 // Rutas a mostrar en el menú (incluye index, excluye rutas dinámicas y catch-all)
 const navRoutes = computed(() =>
-  router.getRoutes().filter((r) => !r.path.includes(':') && r.name !== 'not-found')
+  router.getRoutes().filter((r) => !r.path.includes(':') && r.name !== 'not-found'),
 )
 
 function onGlobalKeydown(e: KeyboardEvent) {

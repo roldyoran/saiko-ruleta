@@ -28,8 +28,8 @@
       <!-- Paginación -->
       <PaginationControls v-model:current-page="currentPage" :total-pages="totalPages" />
 
-  <!-- Mensaje sin resultados -->
-  <AnimeEmpty v-if="filteredAnimes.length === 0" @clear-filters="clearFilters" />
+      <!-- Mensaje sin resultados -->
+      <AnimeEmpty v-if="filteredAnimes.length === 0" @clear-filters="clearFilters" />
 
       <!-- Tarjetas de animes -->
       <div
@@ -49,11 +49,15 @@
 
       <!-- Footer (shadcn Card) -->
       <Card class="mx-auto mt-12 mb-10 max-w-2xl">
-        <CardContent class="rounded-2xl px-6 py-4 text-center text-xs font-medium tracking-wide text-rose-200/70">
+        <CardContent
+          class="rounded-2xl px-6 py-4 text-center text-xs font-medium tracking-wide text-rose-200/70"
+        >
           Esta lista comprende todos los animes randoms vistos en el canal del Saiko y uno que otro
           anime visto fuera de la dinamica ( puede faltar alguno )
           <br /><br />
-          <span class="text-lg font-bold tracking-widest text-rose-400">VIVAN LAS LESBIANAS!!!!</span>
+          <span class="text-lg font-bold tracking-widest text-rose-400"
+            >VIVAN LAS LESBIANAS!!!!</span
+          >
         </CardContent>
       </Card>
     </div>
@@ -70,7 +74,6 @@ import AnimeError from '@/components/animelist/AnimeError.vue'
 import AnimeEmpty from '@/components/animelist/AnimeEmpty.vue'
 import { Card, CardContent } from '@/components/ui/card'
 import LavaLamp from '@/components/backgrounds/lavaLamp.vue'
-
 
 const animeData = ref([])
 const isLoading = ref(true)

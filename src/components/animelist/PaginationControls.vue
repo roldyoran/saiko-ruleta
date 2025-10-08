@@ -25,9 +25,9 @@
       </Button>
 
       <!-- Selector de página (desktop) -->
-      <div class="hidden items-center gap-3 px-4 sm:flex ">
+      <div class="hidden items-center gap-3 px-4 sm:flex">
         <span class="text-sm font-medium text-muted-foreground">Página</span>
-        <Select v-model:modelValue="localPage" >
+        <Select v-model:modelValue="localPage">
           <SelectTrigger class="min-w-[80px] border-2 border-pink-500/10">
             <SelectValue />
           </SelectTrigger>
