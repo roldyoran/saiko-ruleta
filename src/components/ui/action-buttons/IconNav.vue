@@ -35,21 +35,21 @@ const defaultItems: NavItem[] = [
     to: '/galeria',
     ariaLabel: 'Galería',
     icon: Image,
-    iconClass: 'text-purple-400 w-6 h-6',
+    iconClass: 'hover:text-purple-400 w-6 h-6',
     tooltip: 'Ver galería',
   },
   {
     to: '/animelist',
     ariaLabel: 'Animes vistos',
     icon: List,
-    iconClass: 'text-orange-400 w-6 h-6',
+    iconClass: 'hover:text-orange-400 w-6 h-6',
     tooltip: 'Lista de animes',
   },
   {
     to: '/bingo',
     ariaLabel: 'Bingo',
     icon: Dices,
-    iconClass: 'text-emerald-500 w-6 h-6',
+    iconClass: 'hover:text-emerald-500 w-6 h-6',
     tooltip: 'Jugar bingo',
   },
 ]
@@ -66,7 +66,7 @@ const items = props.items || defaultItems
             <RouterLink
               v-if="item.to"
               :to="item.to"
-              class="inline-flex items-center justify-center transition-transform hover:scale-125"
+              class="inline-flex items-center justify-center transition-all hover:scale-125"
               :aria-label="item.ariaLabel"
             >
               <component :is="item.icon" :class="item.iconClass || 'w-6 h-6 text-current'" />
@@ -77,7 +77,7 @@ const items = props.items || defaultItems
               :href="item.href"
               :target="item.targetBlank ? '_blank' : undefined"
               rel="noopener noreferrer"
-              class="inline-flex items-center justify-center transition-transform hover:scale-125"
+              class="inline-flex items-center justify-center transition-all hover:scale-125"
               :aria-label="item.ariaLabel"
             >
               <component :is="item.icon" :class="item.iconClass || 'w-6 h-6 text-current'" />
@@ -85,7 +85,7 @@ const items = props.items || defaultItems
 
             <button
               v-else
-              class="inline-flex items-center justify-center transition-transform hover:scale-125 bg-transparent border-0 p-0"
+              class="inline-flex items-center justify-center transition-all hover:scale-125 bg-transparent border-0 p-0"
               :aria-label="item.ariaLabel"
             >
               <component :is="item.icon" :class="item.iconClass || 'w-6 h-6 text-current'" />

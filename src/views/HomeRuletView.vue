@@ -16,8 +16,8 @@
         @winner-selected="handleWinnerSelected"
       />
       <!-- Imagenes personajes que acompañan ls ruleta -->
-      <div class="absolute left-[420px] top-72 -translate-y-1/2 z-20 w-32 md:w-52" >
-        <img src="/reigen_ag/Tania1_ruleta18.webp" alt="Tania">
+      <div class="absolute left-[420px] top-72 -translate-y-1/2 z-20 w-32 md:w-52">
+        <img src="/reigen_ag/Tania1_ruleta18.webp" alt="Tania" />
       </div>
       <!-- Carousel centrado horizontalmente respecto a la ruleta -->
       <div

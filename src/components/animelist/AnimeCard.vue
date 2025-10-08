@@ -19,7 +19,7 @@
             class="relative rounded-md px-3 py-1 text-xs font-extrabold whitespace-nowrap text-white shadow transition text-shadow-sm text-shadow-white/60"
             :class="notaBgClass(anime.nota)"
           >
-            {{ (anime.nota || "N/A").toUpperCase() }}
+            {{ (anime.nota || 'N/A').toUpperCase() }}
           </div>
         </div>
       </div>
@@ -35,75 +35,75 @@
 </template>
 
 <script setup>
-  const props = defineProps({
-    anime: { type: Object, required: true },
-    notaBgClass: { type: Function, required: true },
-  });
+const props = defineProps({
+  anime: { type: Object, required: true },
+  notaBgClass: { type: Function, required: true },
+})
 </script>
 
 <style scoped>
-  .py-3\.6 {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-  }
+.py-3\.6 {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
 
-  /* Sistema de esquinas redondeadas personalizadas */
-  [class*="rnd-"] {
-    position: relative;
-  }
+/* Sistema de esquinas redondeadas personalizadas */
+[class*='rnd-'] {
+  position: relative;
+}
 
-  [class*="rnd-"]:before,
-  [class*="rnd-"]:after {
-    content: "";
-    position: absolute;
-    mask: var(--ms) no-repeat;
-    mask-size: 100% 100%;
-    background-color: currentColor;
-  }
+[class*='rnd-']:before,
+[class*='rnd-']:after {
+  content: '';
+  position: absolute;
+  mask: var(--ms) no-repeat;
+  mask-size: 100% 100%;
+  background-color: currentColor;
+}
 
-  .rnd-bse:before,
-  .rnd-ase:after {
-    --ms: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 12 12'%3E%3Cpath fill='%23fff' d='M0 12h12C5.373 12 0 6.627 0 0v12z'/%3E%3C/svg%3E");
-  }
+.rnd-bse:before,
+.rnd-ase:after {
+  --ms: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 12 12'%3E%3Cpath fill='%23fff' d='M0 12h12C5.373 12 0 6.627 0 0v12z'/%3E%3C/svg%3E");
+}
 
-  .rnd-sm:before,
-  .rnd-sm:after {
-    width: 8px;
-    height: 8px;
-  }
+.rnd-sm:before,
+.rnd-sm:after {
+  width: 8px;
+  height: 8px;
+}
 
-  /* Posicionamiento de las esquinas redondeadas */
-  .rnd-bse:before {
-    bottom: 100%;
-    left: 0;
-    background-color: var(--color-background);
-  }
+/* Posicionamiento de las esquinas redondeadas */
+.rnd-bse:before {
+  bottom: 100%;
+  left: 0;
+  background-color: var(--color-background);
+}
 
-  .rnd-ase:after {
-    bottom: 0;
-    left: 100%;
-    background-color: var(--color-background);
-  }
+.rnd-ase:after {
+  bottom: 0;
+  left: 100%;
+  background-color: var(--color-background);
+}
 
-  /* Estilos específicos para las notas animadas */
-  .goty-gold-animated,
-  .god-tier-animated,
-  .bad-tier-animated,
-  .horrible-tier-animated,
-  .default-tier-animated {
-    position: relative !important;
-    overflow: visible !important;
-    display: inline-block;
-  }
+/* Estilos específicos para las notas animadas */
+.goty-gold-animated,
+.god-tier-animated,
+.bad-tier-animated,
+.horrible-tier-animated,
+.default-tier-animated {
+  position: relative !important;
+  overflow: visible !important;
+  display: inline-block;
+}
 
-  /* El texto debe estar por encima del efecto de brillo */
-  .goty-gold-animated {
-    z-index: 2;
-    position: relative;
-  }
+/* El texto debe estar por encima del efecto de brillo */
+.goty-gold-animated {
+  z-index: 2;
+  position: relative;
+}
 
-  /* Ajuste para el contenedor del fondo rojo */
-  .inline-block {
-    min-width: fit-content;
-  }
+/* Ajuste para el contenedor del fondo rojo */
+.inline-block {
+  min-width: fit-content;
+}
 </style>
