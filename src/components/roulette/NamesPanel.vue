@@ -1,5 +1,5 @@
 <template>
-  <Card v-if="showNamesList && isNamesMode" class="fixed top-20 right-4 z-40 w-80 p-4 bg-background/70 backdrop-blur-md shadow-lg">
+  <Card v-if="showNamesList && isNamesMode" class="fixed top-20 right-4 z-40 w-80 p-4 bg-background/80 backdrop-blur-xl shadow-lg">
     <div class="space-y-4">
       <div class="flex items-center justify-between">
         <h3 class="text-lg font-semibold">Lista de Nombres</h3>

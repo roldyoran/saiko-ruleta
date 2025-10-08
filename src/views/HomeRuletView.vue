@@ -5,20 +5,10 @@
   <!-- Icon navigation for testing -->
   <IconNav class="absolute top-7 left-4 z-40" />
 
-    <!-- Image Carousel -->
-    <div class="absolute top-5 left-16 z-30 w-60 bg-transparent p-2 rounded">
-      <ImageCarousel
-        ref="carouselRef"
-        :images="carouselImages"
-        :interval="4000"
-        :fadeDuration="fadeDuration"
-        :autoplay="true"
-        :pauseOnHover="false"
-        :showIndicators="false"
-      />
-    </div>
-
-    <!-- Componente Principal de la Ruleta -->
+  
+  
+  <!-- Componente Principal de la Ruleta (wrapper relativo para posicionar el carousel) -->
+  <div class="relative">
     <RouletteWheel
       ref="rouletteWheelRef"
       :options="options"
@@ -28,8 +18,36 @@
       @winner-selected="handleWinnerSelected"
     />
 
-    <!-- Toggle de Modo -->
-    <ModeToggle :is-names-mode="isNamesMode" @toggle-mode="toggleNamesList" />
+    <!-- Carousel centrado horizontalmente respecto a la ruleta -->
+    <div class="absolute hidden md:block left-[750px] -translate-x-1/2 -top-4 z-30 w-60 bg-transparent p-2 rounded">
+      <ImageCarousel
+        ref="carouselLeftRef"
+        :images="carouselImages"
+        :interval="4000"
+        :fadeDuration="fadeDuration"
+        :autoplay="true"
+        :pauseOnHover="false"
+        :showIndicators="false"
+        class="rounded-xl shadow-md"
+      />
+    </div>
+    <!-- Duplicado del carousel, posicionado al lado derecho -->
+    <div class="absolute hidden md:block right-[750px] translate-x-1/2 -top-4 z-30 w-60 bg-transparent p-2 rounded">
+      <ImageCarousel
+        ref="carouselRightRef"
+        :images="carouselImages"
+        :interval="4000"
+        :fadeDuration="fadeDuration"
+        :autoplay="true"
+        :pauseOnHover="false"
+        :showIndicators="false"
+        class="rounded-xl shadow-md"
+      />
+    </div>
+  </div>
+      
+      <!-- Toggle de Modo -->
+      <ModeToggle :is-names-mode="isNamesMode" @toggle-mode="toggleNamesList" />
 
     <!-- Panel de Nombres -->
     <NamesPanel
@@ -71,7 +89,9 @@ import ImageCarousel from '@/components/ImageCarousel.vue'
 // Refs de componentes
 const rouletteWheelRef = ref(null)
 const namesPanelRef = ref(null)
-const carouselRef = ref(null)
+const carouselLeftRef = ref(null)
+const carouselRightRef = ref(null)
+const carouselMobileRef = ref(null)
 
 // Carousel demo images
 // Note: replace these with your image URLs (relative to public/) when ready
@@ -80,7 +100,7 @@ const carouselImages = ref([
   '/carousel/tania.webp',
   '/carousel/tania2.webp',
 ])
-const currentCarouselIndex = ref(0)
+
 const fadeDuration = ref(1000)
 
 // Estado de la aplicación

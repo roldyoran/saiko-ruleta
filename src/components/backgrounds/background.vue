@@ -21,19 +21,21 @@
   }
 }
 
-/* Apply a zinc-tone animated gradient to the background container */
+/* Use theme variables (defined in src/assets/main.css) so the gradient
+   adapts to light/dark mode. The variables used are present in :root
+   and overridden in .dark (e.g. --background, --sidebar, --card, --muted,
+   --accent). */
 .animate-gradient {
-  /* Very dark zinc-like tones for a deeper background */
   background: linear-gradient(
     120deg,
-    #05060a 0%,
-    #022425 25%,
-    #11151b 50%,
-    #141920 75%,
-    #151616 100%
+    var(--background) 0%,
+    var(--sidebar) 25%,
+    var(--card) 50%,
+    var(--muted) 75%,
+    var(--card) 100%
   );
   background-size: 500% 500%;
-  /* even slower, subtle transition for a darker atmosphere */
+  /* keep a slow, subtle transition that matches the original feel */
   animation: gradient 30s ease-in-out infinite;
 }
 
@@ -47,7 +49,10 @@
 }
 
 .wave {
-  background: rgb(255 255 255 / 4%);
+  /* Fallback for older browsers, then prefer a theme-aware color using color-mix */
+  background: rgba(255, 255, 255, 0.04);
+  /* subtle wave highlight using the popover-foreground color with low alpha */
+  background: color-mix(in srgb, var(--popover-foreground) 6%, transparent);
   border-radius: 1000% 1000% 0 0;
   position: fixed;
   width: 200%;

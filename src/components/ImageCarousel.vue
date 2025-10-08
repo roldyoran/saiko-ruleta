@@ -248,7 +248,7 @@ onBeforeUnmount(() => stopTimer())
   /* min-height: 100%; */
   /* keep a stable height using aspect-ratio; fallback min-height for older browsers */
   /* aspect-ratio: 16 / 9; */
-  min-height: 600px;
+  min-height: 580px;
   background: transparent;
 }
 .image-stack {
