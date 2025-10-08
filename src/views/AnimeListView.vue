@@ -1,5 +1,5 @@
 <template>
-  <div class="body-two flex min-h-screen flex-col items-center px-6 md:px-0">
+  <div class="body-two bg-background flex min-h-screen flex-col items-center px-6 md:px-0">
     <h1
       class="mt-8 mb-10  text-center text-4xl font-extrabold text-white drop-shadow-lg select-none md:text-6xl tracking-wider"
     >
