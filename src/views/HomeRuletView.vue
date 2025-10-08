@@ -284,6 +284,10 @@ onMounted(() => {
   // Inicializar con opciones por defecto
   updateOptions(numOptions.value)
 
+  // Mostrar notificación con el atajo para abrir el menú
+  // (mensaje pequeño al entrar a la vista)
+  // toast.info('Presiona Ctrl+i para abrir el menú')
+
   // Event listeners para integración con speech.js
   window.addEventListener('ruleta-spin', handleSpinFromSpeech)
   window.addEventListener('ruleta-update-options', handleUpdateOptionsFromSpeechWrapper)

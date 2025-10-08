@@ -106,13 +106,13 @@ button {
 
 .dark {
   /* Background: Ultra deep space with subtle purple tint */
-  --background: #100d11;
+  --background: #110d10;
   --foreground: #f1f3f7;
 
   /* Cards / popovers: Much darker with purple undertones */
-  --card: #0b0a10;
+  --card: #100a0d;
   --card-foreground: #e2e8f0;
-  --popover: #080710;
+  --popover: #10070c;
   --popover-foreground: #f1f5f9;
 
   /* Primary: Vibrant electric pink */
@@ -124,7 +124,7 @@ button {
   --secondary-foreground: #ffffff;
 
   /* Muted: Darker with purple undertones */
-  --muted: #0f0d18;
+  --muted: #180d12;
   --muted-foreground: #d1a3d1;
 
   /* Accent: Bright magenta */
@@ -136,9 +136,9 @@ button {
   --destructive-foreground: #fef2f2;
 
   /* Borders / inputs: Darker purple-gray */
-  --border: #1a1625;
-  --input: #0e0c18;
-  --ring: #f255f7;
+  --border: #301920;
+  --input: rgb(92, 32, 55);
+  --ring: #f755a1;
 
   /* Charts: Pink-Purple-Red spectrum */
   --chart-1: #ff3d8b;
@@ -148,19 +148,19 @@ button {
   --chart-5: #dc2626;
 
   /* Sidebar: Ultra deep space with pink-purple accents */
-  --sidebar: #070610;
+  --sidebar: #10060c;
   --sidebar-foreground: #f1f5f9;
   --sidebar-primary: #ff3d8b;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #f43f5e;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #1a1625;
-  --sidebar-ring: #e879f9;
+  --sidebar-border: #25161c;
+  --sidebar-ring: #af347c;
 
   /* Scrollbar: Ultra dark neon-style */
-  --scrollbar-bg: #050508;
+  --scrollbar-bg: #130a0f;
   --scrollbar-thumb: #f755c6;
-  --scrollbar-thumb-hover: #fc84e8;
+  --scrollbar-thumb-hover: #fc84ac;
 }
 
 @layer base {

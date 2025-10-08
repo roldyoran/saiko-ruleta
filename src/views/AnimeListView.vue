@@ -1,9 +1,9 @@
 <template>
-  <div class="body-two flex min-h-screen flex-col items-center px-6 md:px-0">
+  <div class="flex min-h-screen flex-col items-center px-6 md:px-0">
     <!-- Lava lamp background (gooey blobs) -->
     <LavaLamp />
     <h1
-      class="mt-8 mb-10 text-center text-4xl font-extrabold text-white drop-shadow-lg select-none md:text-6xl tracking-wider"
+      class="mt-8 mb-10 text-center text-4xl font-extrabold drop-shadow-lg select-none md:text-6xl tracking-wider bg-gradient-to-r from-rose-400 via-pink-400 to-orange-400 bg-clip-text text-transparent"
     >
       Animes Vistos
     </h1>
@@ -48,7 +48,7 @@
       <PaginationControls v-model:current-page="currentPage" :total-pages="totalPages" />
 
       <!-- Footer (shadcn Card) -->
-      <Card class="mx-auto mt-12 mb-10 max-w-2xl">
+      <Card class="mx-auto mt-12 mb-10 max-w-2xl bg-opacity-60 backdrop-blur-sm shadow-lg">
         <CardContent
           class="rounded-2xl px-6 py-4 text-center text-xs font-medium tracking-wide text-rose-200/70"
         >
@@ -231,18 +231,6 @@ function clearFilters() {
 </script>
 
 <style>
-/* Scrollbar personalizada */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #fb923c, #ea580c);
-  border-radius: 8px;
-}
-::-webkit-scrollbar-track {
-  background: #27272a;
-}
-
 /* Animaciones */
 @keyframes fadeInScale {
   from {
