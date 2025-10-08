@@ -1,5 +1,7 @@
 <template>
-  <div class="body-two bg-background flex min-h-screen flex-col items-center px-6 md:px-0">
+  <div class="body-two flex min-h-screen flex-col items-center px-6 md:px-0">
+    <!-- Lava lamp background (gooey blobs) -->
+    <LavaLamp />
     <h1
       class="mt-8 mb-10 text-center text-4xl font-extrabold text-white drop-shadow-lg select-none md:text-6xl tracking-wider"
     >
@@ -67,6 +69,7 @@ import AnimeLoader from '@/components/animelist/AnimeLoader.vue'
 import AnimeError from '@/components/animelist/AnimeError.vue'
 import AnimeEmpty from '@/components/animelist/AnimeEmpty.vue'
 import { Card, CardContent } from '@/components/ui/card'
+import LavaLamp from '@/components/backgrounds/lavaLamp.vue'
 
 
 const animeData = ref([])

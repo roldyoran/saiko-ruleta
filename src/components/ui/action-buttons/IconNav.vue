@@ -32,7 +32,7 @@ const defaultItems: NavItem[] = [
   },
   //   { ariaLabel: 'Play music', icon: Play, iconClass: 'text-cyan-500 w-6 h-6', tooltip: 'Reproducir música' },
   {
-    to: '/galeria',
+    to: '/gallery',
     ariaLabel: 'Galería',
     icon: Image,
     iconClass: 'hover:text-purple-400 w-6 h-6',

@@ -1,32 +1,23 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterView } from 'vue-router'
+import { ref } from 'vue'
 
-import { Button } from '@/components/ui/button'
+import SheetMenu from '@/components/SheetMenu.vue'
+
 import { Toaster } from '@/components/ui/sonner'
 import 'vue-sonner/style.css'
+
+// Control de apertura del Sheet (solo por atajo)
+const isSheetOpen = ref(false)
+
+// Nota: el atajo y la lógica del menú ahora están en `SheetMenu.vue`.
 </script>
 
 <template>
-  <!-- <header>
-    <div class="wrapper">
-      <nav>
-        <Button as-child>
-          <RouterLink to="/">Home</RouterLink>
-        </Button>
-        <Button as-child>
-          <RouterLink to="/galeria">About</RouterLink>
-        </Button>
-        <Button as-child>
-          <RouterLink to="/animelist">AnimeList</RouterLink>
-        </Button>
-        <Button as-child>
-          <RouterLink to="/bingo">Bingo</RouterLink>
-        </Button>
-        
-      </nav>
-    </div>
-  </header> -->
-
   <RouterView />
+
+  <!-- Sheet lateral (moved to component) -->
+  <SheetMenu v-model:open="isSheetOpen" />
+
   <Toaster class="pointer-events-auto" />
 </template>

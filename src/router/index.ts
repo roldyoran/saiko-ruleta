@@ -14,8 +14,8 @@ const router = createRouter({
       component: HomeView,
     },
     {
-      path: '/galeria',
-      name: 'galley',
+      path: '/gallery',
+      name: 'gallery',
       component: GalleryView,
     },
     {
