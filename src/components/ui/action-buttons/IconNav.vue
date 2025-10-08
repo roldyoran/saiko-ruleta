@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
-import { Instagram, Play, Image, List, Dice1 } from 'lucide-vue-next'
+import { Instagram, Play, Image, List, Dices } from 'lucide-vue-next'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface NavItem {
@@ -48,7 +48,7 @@ const defaultItems: NavItem[] = [
   {
     to: '/bingo',
     ariaLabel: 'Bingo',
-    icon: Dice1,
+    icon: Dices,
     iconClass: 'text-emerald-500 w-6 h-6',
     tooltip: 'Jugar bingo',
   },
@@ -92,7 +92,7 @@ const items = props.items || defaultItems
             </button>
           </TooltipTrigger>
 
-          <TooltipContent side="right" class="opacity-90">
+          <TooltipContent side="right" class="opacity-95">
             {{ item.tooltip || item.ariaLabel }}
           </TooltipContent>
         </Tooltip>

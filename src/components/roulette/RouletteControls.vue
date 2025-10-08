@@ -1,5 +1,4 @@
 <template>
-  <TooltipProvider>
     <div class="mt-4 flex w-max-4xl flex-col gap-4 px-2 sm:flex-row">
       <!-- Control de cantidad (visible solo en modo números) -->
       <NumberField
@@ -7,7 +6,7 @@
         :model-value="numOptions"
         :min="2"
         :max="44"
-        class="flex-1 text-xl border-none shadow-sm font-bold bg-pink-900 hover:bg-pink-700 rounded-md transition-all"
+        class="flex-1  border-none shadow-sm font-bold bg-pink-900 hover:bg-pink-700 rounded-md transition-all"
         @update:model-value="updateOptions"
       >
         <NumberFieldContent>
@@ -28,7 +27,6 @@
         GIRAR
       </Button>
     </div>
-  </TooltipProvider>
 </template>
 
 <script setup>
