@@ -108,45 +108,45 @@ button {
   /* Background: Ultra deep space with subtle purple tint */
   --background: #050508;
   --foreground: #f1f3f7;
-  
+
   /* Cards / popovers: Much darker with purple undertones */
   --card: #0b0a10;
   --card-foreground: #e2e8f0;
   --popover: #080710;
   --popover-foreground: #f1f5f9;
-  
+
   /* Primary: Vibrant electric pink */
   --primary: #ff3d8b;
   --primary-foreground: #ffffff;
-  
+
   /* Secondary: Deep rose */
   --secondary: #f43f5e;
   --secondary-foreground: #ffffff;
-  
+
   /* Muted: Darker with purple undertones */
   --muted: #0f0d18;
   --muted-foreground: #d1a3d1;
-  
+
   /* Accent: Bright magenta */
-  --accent: #e879f9;
+  --accent: #f97999;
   --accent-foreground: #ffffff;
-  
+
   /* Destructive: Vibrant red */
   --destructive: #ef4444;
   --destructive-foreground: #fef2f2;
-  
+
   /* Borders / inputs: Darker purple-gray */
   --border: #1a1625;
   --input: #0e0c18;
-  --ring: #a855f7;
-  
+  --ring: #f255f7;
+
   /* Charts: Pink-Purple-Red spectrum */
   --chart-1: #ff3d8b;
   --chart-2: #f43f5e;
   --chart-3: #e879f9;
   --chart-4: #c084fc;
   --chart-5: #dc2626;
-  
+
   /* Sidebar: Ultra deep space with pink-purple accents */
   --sidebar: #070610;
   --sidebar-foreground: #f1f5f9;
@@ -156,11 +156,11 @@ button {
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #1a1625;
   --sidebar-ring: #e879f9;
-  
+
   /* Scrollbar: Ultra dark neon-style */
   --scrollbar-bg: #050508;
-  --scrollbar-thumb: #a855f7;
-  --scrollbar-thumb-hover: #c084fc;
+  --scrollbar-thumb: #f755c6;
+  --scrollbar-thumb-hover: #fc84e8;
 }
 
 @layer base {
@@ -170,7 +170,7 @@ button {
   body {
     @apply bg-background text-foreground;
   }
-  
+
   /* Global custom scrollbars (WebKit + Firefox) */
   html {
     scrollbar-width: thin;
@@ -196,4 +196,3 @@ button {
     background: var(--scrollbar-thumb-hover);
   }
 }
-
