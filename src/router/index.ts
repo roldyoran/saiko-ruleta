@@ -12,26 +12,31 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
+      meta: { title: 'Ruleta — Inicio' },
     },
     {
       path: '/gallery',
       name: 'gallery',
       component: GalleryView,
+      meta: { title: 'Galería' },
     },
     {
       path: '/animelist',
       name: 'animelist',
       component: AnimeListView,
+      meta: { title: 'Lista de Anime' },
     },
     {
       path: '/bingo',
       name: 'bingo',
       component: BingoView,
+      meta: { title: 'Bingo' },
     },
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: PageNotFoundView,
+      meta: { title: 'Página no encontrada' },
     },
   ],
 })
