@@ -1,6 +1,6 @@
 <template>
   <div class="relative">
-    <canvas ref="canvasRef" width="500" height="500" class="relative"></canvas>
+    <canvas ref="canvasRef" width="500" height="500" class="relative w-64 h-64 md:w-[500px] md:h-[500px]"></canvas>
 
     <!-- Mostrar ganador -->
     <transition name="fade-scale">

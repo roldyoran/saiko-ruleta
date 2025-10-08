@@ -1,12 +1,25 @@
 <template>
   <div class="group flex flex-col overflow-hidden rounded-xl tracking-widest transition-all">
     <div class="relative">
-      <img
-        :src="anime.url"
-        :alt="anime.nombre"
-        class="aspect-[2/3] w-full rounded-xl object-cover transition duration-300"
-        loading="lazy"
-      />
+      <!-- Contenedor con aspect-ratio para mantener siempre el mismo tamaño -->
+      <div class="relative aspect-[2/3] w-full rounded-xl overflow-hidden bg-transparent">
+        <img
+          ref="imgEl"
+          :src="anime.url"
+          :alt="anime.nombre"
+          class="w-full h-full object-cover transition duration-300"
+          loading="lazy"
+          @load="onLoad"
+          @error="onError"
+        />
+
+        <!-- Skeleton que se muestra mientras la imagen carga (mismo tamaño) -->
+        <div
+          v-show="!loaded"
+          class="absolute inset-0 flex items-center justify-center rounded-xl bg-zinc-700/30 animate-pulse"
+          aria-hidden="true"
+        ></div>
+      </div>
 
       <!-- Fondo de la nota -->
       <div class="absolute bottom-0 left-0">
@@ -35,9 +48,30 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
+
 const props = defineProps({
   anime: { type: Object, required: true },
   notaBgClass: { type: Function, required: true },
+})
+
+// Estado local para controlar el skeleton
+const loaded = ref(false)
+const imgEl = ref(null)
+const onLoad = () => {
+  loaded.value = true
+}
+const onError = () => {
+  // Ocultamos el skeleton incluso si hay un error para evitar bloquear la UI.
+  // Opcional: aquí se podría establecer una imagen fallback.
+  loaded.value = true
+}
+
+onMounted(() => {
+  // Si la imagen ya está en caché, marcar como cargada para ocultar el skeleton
+  if (imgEl.value && imgEl.value.complete) {
+    loaded.value = true
+  }
 })
 </script>
 

@@ -112,9 +112,6 @@ if (annyang) {
     }
   })
 
-  annyang.start()
-  console.log('Comandos de voz activados')
-
   // Funciones auxiliares
   function spinRuleta() {
     window.dispatchEvent(new CustomEvent('ruleta-spin'))
@@ -131,6 +128,32 @@ if (annyang) {
   function updateOptions(num) {
     window.dispatchEvent(new CustomEvent('ruleta-update-options', { detail: num }))
   }
+
+  // Exportar funciones para controlar el reconocimiento de voz
+  window.speechRecognition = {
+    start() {
+      if (annyang) {
+        annyang.start()
+        console.log('Comandos de voz activados en HomeRuletView')
+      }
+    },
+    stop() {
+      if (annyang) {
+        annyang.abort()
+        console.log('Comandos de voz desactivados')
+      }
+    }
+  }
 } else {
-  alert('El reconocimiento de voz no es compatible con tu navegador.')
+  console.warn('El reconocimiento de voz no es compatible con tu navegador.')
+  
+  // Crear objeto dummy si annyang no está disponible
+  window.speechRecognition = {
+    start() {
+      console.warn('Reconocimiento de voz no disponible')
+    },
+    stop() {
+      console.warn('Reconocimiento de voz no disponible')
+    }
+  }
 }
