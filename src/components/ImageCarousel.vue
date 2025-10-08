@@ -1,6 +1,7 @@
 <template>
   <div
     class="image-carousel"
+    ref="rootRef"
     @mouseenter="onMouseEnter"
     @mouseleave="onMouseLeave"
     role="region"
@@ -94,6 +95,7 @@ const timerId = ref(null)
 const hovering = ref(false)
 const prevIndex = ref(null)
 const prevFading = ref(false)
+const rootRef = ref(null)
 
 const images = computed(() => props.images || [])
 
@@ -128,12 +130,29 @@ function next() {
 
   // ensure DOM updated so CSS transition will apply
   nextTick(() => {
-    prevFading.value = true
-    // after fadeDuration, clear prev image
-    setTimeout(() => {
-      prevFading.value = false
-      prevIndex.value = null
-    }, props.fadeDuration)
+    // Try Web Animations API for a smoother crossfade
+    const prevImg = rootRef.value && rootRef.value.querySelector('.image.prev')
+    if (prevImg && prevImg.animate) {
+      prevImg.animate([
+        { opacity: 1 },
+        { opacity: 0 }
+      ], {
+        duration: props.fadeDuration,
+        easing: 'ease'
+      })
+      // cleanup after animation
+      setTimeout(() => {
+        prevFading.value = false
+        prevIndex.value = null
+      }, props.fadeDuration)
+    } else {
+      // fallback to CSS class
+      prevFading.value = true
+      setTimeout(() => {
+        prevFading.value = false
+        prevIndex.value = null
+      }, props.fadeDuration)
+    }
   })
 }
 
@@ -146,11 +165,20 @@ function prev() {
   emit('change', index.value)
 
   nextTick(() => {
-    prevFading.value = true
-    setTimeout(() => {
-      prevFading.value = false
-      prevIndex.value = null
-    }, props.fadeDuration)
+    const prevImg = rootRef.value && rootRef.value.querySelector('.image.prev')
+    if (prevImg && prevImg.animate) {
+      prevImg.animate([{ opacity: 1 }, { opacity: 0 }], { duration: props.fadeDuration, easing: 'ease' })
+      setTimeout(() => {
+        prevFading.value = false
+        prevIndex.value = null
+      }, props.fadeDuration)
+    } else {
+      prevFading.value = true
+      setTimeout(() => {
+        prevFading.value = false
+        prevIndex.value = null
+      }, props.fadeDuration)
+    }
   })
 }
 
@@ -165,11 +193,20 @@ function goTo(i) {
   emit('change', index.value)
 
   nextTick(() => {
-    prevFading.value = true
-    setTimeout(() => {
-      prevFading.value = false
-      prevIndex.value = null
-    }, props.fadeDuration)
+    const prevImg = rootRef.value && rootRef.value.querySelector('.image.prev')
+    if (prevImg && prevImg.animate) {
+      prevImg.animate([{ opacity: 1 }, { opacity: 0 }], { duration: props.fadeDuration, easing: 'ease' })
+      setTimeout(() => {
+        prevFading.value = false
+        prevIndex.value = null
+      }, props.fadeDuration)
+    } else {
+      prevFading.value = true
+      setTimeout(() => {
+        prevFading.value = false
+        prevIndex.value = null
+      }, props.fadeDuration)
+    }
   })
 }
 
@@ -229,6 +266,8 @@ onBeforeUnmount(() => stopTimer())
   opacity: 1;
   transition-property: opacity;
   transition-duration: var(--fade-duration, 300ms);
+  will-change: opacity, transform;
+  transform: translateZ(0);
 }
 .image-stack .image.current {
   z-index: 0; /* current sits below previous during fade */

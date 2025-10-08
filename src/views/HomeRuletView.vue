@@ -5,7 +5,7 @@
   <!-- Icon navigation for testing -->
   <IconNav class="absolute top-7 left-4 z-40" />
 
-    <!-- Demo Image Carousel -->
+    <!-- Image Carousel -->
     <div class="absolute top-5 left-16 z-30 w-60 bg-transparent p-2 rounded">
       <ImageCarousel
         ref="carouselRef"
