@@ -38,7 +38,7 @@
         <ImageCarousel
           ref="carouselLeftRef"
           :images="carouselImages"
-          :interval="4000"
+          :interval="6000"
           :fadeDuration="fadeDuration"
           :autoplay="true"
           :pauseOnHover="false"
@@ -53,7 +53,7 @@
         <ImageCarousel
           ref="carouselRightRef"
           :images="carouselImages"
-          :interval="4000"
+          :interval="6000"
           :fadeDuration="fadeDuration"
           :autoplay="true"
           :pauseOnHover="false"

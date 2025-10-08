@@ -72,7 +72,7 @@ const props = defineProps({
   },
   pauseOnHover: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   showIndicators: {
     type: Boolean,
@@ -108,7 +108,6 @@ function startTimer() {
   if (!props.autoplay) return
   timerId.value = setInterval(
     () => {
-      if (props.pauseOnHover && hovering.value) return
       next()
     },
     Math.max(100, props.interval),
@@ -217,11 +216,11 @@ function goTo(i) {
 }
 
 function onMouseEnter() {
-  if (props.pauseOnHover) hovering.value = true
+  // Pause functionality removed
 }
 
 function onMouseLeave() {
-  if (props.pauseOnHover) hovering.value = false
+  // Pause functionality removed
 }
 
 // Expose methods so parent can control the carousel
