@@ -224,30 +224,6 @@
 </script>
 
 <style>
-  /* .body-two {
-    font-family: "OpenSans-Medium", Courier, monospace;
-  }
-   */
-
-  /* Loader personalizado */
-  .loader {
-    width: 60px;
-    height: 60px;
-    border: 4px solid #27272a;
-    border-top: 4px solid #fb923c;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-
   /* Scrollbar personalizada */
   ::-webkit-scrollbar {
     width: 8px;
