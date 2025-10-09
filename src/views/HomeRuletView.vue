@@ -33,7 +33,7 @@
       </div>
       <!-- Carousel centrado horizontalmente respecto a la ruleta -->
       <div
-        class="absolute hidden lg:block left-[750px] -translate-x-1/2 -top-4 z-20 w-60 bg-transparent p-2 rounded"
+        class="absolute hidden lg:block left-[750px] -translate-x-1/2 -bottom-8 z-20"
       >
         <ImageCarousel
           ref="carouselLeftRef"
@@ -41,13 +41,14 @@
           :interval="6000"
           :fade-duration="fadeDuration"
           :autoplay="true"
+          :use-staggered-animation="true"
+          :stagger-delay="5"
           :show-indicators="false"
-          class="rounded-xl shadow-md"
         />
       </div>
       <!-- Duplicado del carousel, posicionado al lado derecho -->
       <div
-        class="absolute hidden lg:block right-[750px] translate-x-1/2 -top-4 z-20 w-60 bg-transparent p-2 rounded"
+        class="absolute hidden lg:block right-[750px] translate-x-1/2 -bottom-8 z-20"
       >
         <ImageCarousel
           ref="carouselRightRef"
@@ -55,8 +56,9 @@
           :interval="6000"
           :fade-duration="fadeDuration"
           :autoplay="true"
+          :use-staggered-animation="true"
+          :stagger-delay="5"
           :show-indicators="false"
-          class="rounded-xl shadow-md"
         />
       </div>
     </div>
@@ -128,7 +130,7 @@ const carouselImages = ref([
   '/carousel/tania2.webp',
 ])
 
-const fadeDuration = ref(1000)
+const fadeDuration = ref(1500)
 
 // Sistema de imágenes de Tania optimizado
 const TANIA_IMAGES = {

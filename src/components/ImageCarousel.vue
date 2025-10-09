@@ -10,7 +10,7 @@
         v-if="currentImage"
         :key="`current-${currentImageKey}`"
         :src="currentImage"
-        class="image current"
+        class="image current absolute h-full w-full object-cover"
         :alt="`carousel image ${index + 1}`"
         draggable="false"
         loading="eager"
@@ -25,7 +25,7 @@
         v-if="prevIndex !== null && images[prevIndex]"
         :key="`prev-${prevIndex}-${images[prevIndex]}`"
         :src="images[prevIndex]"
-        class="image prev"
+        class="image prev absolute h-full w-full object-cover"
         :alt="`carousel image ${prevIndex + 1}`"
         draggable="false"
         loading="eager"
@@ -73,6 +73,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
+import { animate, stagger, delay, spring } from 'motion'
 
 const props = defineProps({
   images: {
@@ -91,7 +92,14 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-
+  useStaggeredAnimation: {
+    type: Boolean,
+    default: false, // Enable your staggered animation pattern
+  },
+  staggerDelay: {
+    type: Number,
+    default: 5, // Stagger delay in seconds (matching your example)
+  },
   showIndicators: {
     type: Boolean,
     default: true,
@@ -139,6 +147,32 @@ function preloadNextImages() {
   }
 }
 
+// Staggered animation similar to your example
+function startStaggeredAnimation() {
+  const carouselImages = rootRef.value?.querySelectorAll('.image')
+  if (!carouselImages || carouselImages.length === 0) return
+  
+  delay(() => {
+    // Apply the fade-in animation with stagger
+    animate(carouselImages, { opacity: [0, 1] }, { duration: 1, delay: stagger(props.staggerDelay) });
+  }, props.staggerDelay);
+  
+  // Apply the fade-out animation for all images
+  animate(carouselImages, { opacity: [1, 0], duration: 1 });
+}
+
+// Auto-start staggered animation with interval (similar to your setInterval pattern)
+function startStaggeredInterval() {
+  if (!props.useStaggeredAnimation || !props.autoplay) return
+  
+  // Initial animation
+  startStaggeredAnimation()
+  
+  // Repeat animation (21 seconds in your example, but using the interval prop for flexibility)
+  const staggerInterval = Math.max(props.interval * 8, 21000) // Default to 21s like your example
+  setInterval(startStaggeredAnimation, staggerInterval)
+}
+
 function startTimer() {
   stopTimer()
   if (!props.autoplay) return
@@ -173,48 +207,72 @@ function triggerTransition() {
   // Prevent rapid clicks during animation
   if (isAnimating.value) return false
   
+  // If staggered animation is enabled, use the staggered pattern instead
+  if (props.useStaggeredAnimation) {
+    startStaggeredAnimation()
+    // Set a timeout to clear animation state based on stagger timing
+    animationTimeoutId.value = setTimeout(() => {
+      clearAnimationState()
+    }, (props.staggerDelay * 1000) + (props.fadeDuration * 2))
+    isAnimating.value = true
+    return true
+  }
+  
   isAnimating.value = true
   
   nextTick(() => {
     const currentImg = rootRef.value?.querySelector('.image.current')
     const prevImg = rootRef.value?.querySelector('.image.prev')
     
-    if (currentImg && prevImg && currentImg.animate && prevImg.animate) {
-      // Use Web Animations API for smoother crossfade
-      const fadeInAnimation = currentImg.animate(
-        [{ opacity: 0 }, { opacity: 1 }], 
-        {
-          duration: props.fadeDuration,
-          easing: 'cubic-bezier(0.4, 0, 0.2, 1)', // More natural easing
-          fill: 'forwards'
-        }
-      )
-      
-      const fadeOutAnimation = prevImg.animate(
-        [{ opacity: 1 }, { opacity: 0 }], 
-        {
-          duration: props.fadeDuration,
-          easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
-          fill: 'forwards'
-        }
-      )
-      
-      // Use Promise.all for better synchronization
-      Promise.all([
-        fadeInAnimation.finished,
-        fadeOutAnimation.finished
-      ]).then(() => {
-        clearAnimationState()
-      }).catch(() => {
-        // Fallback cleanup
-        clearAnimationState()
-      })
-      
-      // Safety timeout
-      animationTimeoutId.value = setTimeout(() => {
-        clearAnimationState()
-      }, props.fadeDuration + 100)
-      
+    if (currentImg && prevImg) {
+      try {
+        // Use motion library for smoother crossfade animations
+        const fadeInPromise = animate(
+          currentImg, 
+          { opacity: [0, 1] }, 
+          { 
+            duration: props.fadeDuration / 1000, // motion uses seconds
+            easing: spring({ stiffness: 300, damping: 30 })
+          }
+        )
+        
+        const fadeOutPromise = animate(
+          prevImg, 
+          { opacity: [1, 0] }, 
+          { 
+            duration: props.fadeDuration / 1000, // motion uses seconds
+            easing: spring({ stiffness: 300, damping: 30 })
+          }
+        )
+        
+        // Use Promise.all for better synchronization
+        Promise.all([
+          fadeInPromise.finished,
+          fadeOutPromise.finished
+        ]).then(() => {
+          clearAnimationState()
+        }).catch(() => {
+          // Fallback cleanup
+          clearAnimationState()
+        })
+        
+        // Safety timeout
+        animationTimeoutId.value = setTimeout(() => {
+          clearAnimationState()
+        }, props.fadeDuration + 100)
+        
+      } catch (error) {
+        console.warn('Motion animation failed, using CSS fallback:', error)
+        // Enhanced CSS fallback with better timing
+        prevFading.value = true
+        
+        // Use requestAnimationFrame for smoother timing
+        requestAnimationFrame(() => {
+          animationTimeoutId.value = setTimeout(() => {
+            clearAnimationState()
+          }, props.fadeDuration)
+        })
+      }
     } else {
       // Enhanced CSS fallback with better timing
       prevFading.value = true
@@ -300,7 +358,11 @@ watch(
 )
 
 onMounted(() => {
-  startTimer()
+  if (props.useStaggeredAnimation) {
+    startStaggeredInterval()
+  } else {
+    startTimer()
+  }
   preloadNextImages()
 })
 onBeforeUnmount(() => {
@@ -315,9 +377,10 @@ onBeforeUnmount(() => {
   position: relative;
   display: block;
   overflow: hidden;
-  width: 100%;
-  min-height: 580px;
-  background: transparent;
+  height: 500px;
+  width: 190px;
+  background: rgb(31, 41, 55); /* bg-gray-800 equivalent */
+  border-radius: 0.5rem; /* rounded-lg equivalent */
   contain: layout style paint;
   isolation: isolate;
 }
@@ -328,10 +391,8 @@ onBeforeUnmount(() => {
 }
 .image-stack .image {
   position: absolute;
-  inset: 0;
-  display: block;
-  width: 100%;
   height: 100%;
+  width: 100%;
   object-fit: cover;
   user-select: none;
   opacity: 1;
