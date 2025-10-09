@@ -117,8 +117,8 @@ if (annyang) {
     window.dispatchEvent(new CustomEvent('ruleta-spin'))
     setTimeout(() => window.dispatchEvent(new CustomEvent('ruleta-spin')), 1200)
     setTimeout(() => window.dispatchEvent(new CustomEvent('ruleta-spin')), 1500)
-    setTimeout(() => window.dispatchEvent(new CustomEvent('ruleta-spin')), 1900)
-    setTimeout(() => window.dispatchEvent(new CustomEvent('ruleta-spin')), 2200)
+    setTimeout(() => window.dispatchEvent(new CustomEvent('ruleta-spin')), 2100)
+    setTimeout(() => window.dispatchEvent(new CustomEvent('ruleta-spin')), 2300)
   }
 
   function playAudio(audioFile) {
