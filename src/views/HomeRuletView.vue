@@ -434,10 +434,7 @@ onMounted(async () => {
   // Cargar speech.js de forma diferida (mejora bundle inicial) y activar reconocimiento de voz
   try {
     await import('@/scripts/speech.js')
-    // Iniciar reconocimiento de voz solo en esta vista
-    if (window.speechRecognition) {
-      window.speechRecognition.start()
-    }
+    
   } catch (err) {
     console.warn('No se pudo cargar speech.js de forma diferida:', err)
   }
@@ -449,11 +446,7 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
-  // Detener reconocimiento de voz al salir de esta vista
-  if (window.speechRecognition) {
-    window.speechRecognition.stop()
-  }
-
+  
   // Limpiar event listeners
   window.removeEventListener('ruleta-spin', handleSpinFromSpeech)
   window.removeEventListener('ruleta-update-options', handleUpdateOptionsFromSpeechWrapper)
@@ -464,20 +457,6 @@ onUnmounted(() => {
   taniaImageManager.cleanup()
 })
 
-// Hooks adicionales para keep-alive (si se usa en el router)
-onActivated(() => {
-  // Reactivar reconocimiento de voz si la vista se reactiva
-  if (window.speechRecognition) {
-    window.speechRecognition.start()
-  }
-})
-
-onDeactivated(() => {
-  // Desactivar reconocimiento de voz si la vista se desactiva
-  if (window.speechRecognition) {
-    window.speechRecognition.stop()
-  }
-})
 
 // Métodos expuestos al componente padre
 defineExpose({

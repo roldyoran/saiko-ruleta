@@ -1,9 +1,9 @@
-import annyang from 'annyang'
+import annyang from "annyang";
 
 if (annyang) {
   // Función para eliminar tildes
   function eliminarTildes(texto) {
-    return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   }
 
   // Definir comandos
@@ -15,16 +15,16 @@ if (annyang) {
     tiralo: () => spinRuleta(),
 
     // Comandos para el troleo "depilate"
-    'te amo': () => playAudio('depilate.mp3'),
-    depilate: () => playAudio('depilate.mp3'),
+    "te amo": () => playAudio("depilate.mp3"),
+    depilate: () => playAudio("depilate.mp3"),
 
     // Comando para actualizar opciones
     actualizalo: actualizarOpciones,
     actualiza: actualizarOpciones,
-  }
+  };
 
   function actualizarOpciones() {
-    const transcription = eliminarTildes(phrases[0].toLowerCase())
+    const transcription = eliminarTildes(phrases[0].toLowerCase());
     const numeros = {
       dos: 2,
       tres: 3,
@@ -55,105 +55,82 @@ if (annyang) {
       veintiocho: 28,
       veintinueve: 29,
       treinta: 30,
-      'treinta y uno': 31,
-      'treinta y dos': 32,
-      'treinta y tres': 33,
-      'treinta y cuatro': 34,
-      'treinta y cinco': 35,
-      'treinta y seis': 36,
-      'treinta y siete': 37,
-      'treinta y ocho': 38,
-      'treinta y nueve': 39,
+      "treinta y uno": 31,
+      "treinta y dos": 32,
+      "treinta y tres": 33,
+      "treinta y cuatro": 34,
+      "treinta y cinco": 35,
+      "treinta y seis": 36,
+      "treinta y siete": 37,
+      "treinta y ocho": 38,
+      "treinta y nueve": 39,
       cuarenta: 40,
-      'cuarenta y uno': 41,
-      'cuarenta y dos': 42,
-      'cuarenta y tres': 43,
-      'cuarenta y cuatro': 44,
-    }
+      "cuarenta y uno": 41,
+      "cuarenta y dos": 42,
+      "cuarenta y tres": 43,
+      "cuarenta y cuatro": 44,
+    };
 
     // Buscar números escritos
     for (const [palabra, numero] of Object.entries(numeros)) {
       if (transcription.includes(palabra)) {
-        updateOptions(numero)
-        return
+        updateOptions(numero);
+        return;
       }
     }
 
     // Buscar números en dígitos
-    const numeroDigito = transcription.match(/\b([2-9]|[1-3][0-9]|4[0-4])\b/)
+    const numeroDigito = transcription.match(/\b([2-9]|[1-3][0-9]|4[0-4])\b/);
     if (numeroDigito) {
-      const num = parseInt(numeroDigito[0])
+      const num = parseInt(numeroDigito[0]);
       if (num >= 2 && num <= 44) {
-        updateOptions(num)
+        updateOptions(num);
       }
     }
   }
 
   // Añadir comandos y empezar
-  annyang.addCommands(commands)
-  annyang.setLanguage('es-ES')
+  annyang.addCommands(commands);
+  annyang.setLanguage("es-ES");
 
   // Variable global para almacenar la última transcripción
-  let phrases = []
+  let phrases = [];
 
   // Agregar evento para mostrar la transcripción y ejecutar comandos
-  annyang.addCallback('result', function (currentPhrases) {
-    phrases = currentPhrases
-    const transcription = eliminarTildes(phrases[0].toLowerCase())
-    console.log('Transcripción:', transcription)
+  annyang.addCallback("result", function (currentPhrases) {
+    phrases = currentPhrases;
+    const transcription = eliminarTildes(phrases[0].toLowerCase());
+    console.log("Transcripción:", transcription);
 
     // Revisar si la transcripción contiene alguno de los comandos
     for (const [command, action] of Object.entries(commands)) {
       if (transcription.includes(eliminarTildes(command.toLowerCase()))) {
-        console.log('Comando detectado:', command)
-        action()
-        break // Ejecutar solo el primer comando que coincida
+        console.log("Comando detectado:", command);
+        action();
+        break; // Ejecutar solo el primer comando que coincida
       }
     }
-  })
+  });
+
+  annyang.start();
+  console.log("Comandos de voz activados");
 
   // Funciones auxiliares
   function spinRuleta() {
-    window.dispatchEvent(new CustomEvent('ruleta-spin'))
-    setTimeout(() => window.dispatchEvent(new CustomEvent('ruleta-spin')), 1200)
-    setTimeout(() => window.dispatchEvent(new CustomEvent('ruleta-spin')), 1500)
-    setTimeout(() => window.dispatchEvent(new CustomEvent('ruleta-spin')), 2100)
-    setTimeout(() => window.dispatchEvent(new CustomEvent('ruleta-spin')), 2300)
+    window.dispatchEvent(new CustomEvent("ruleta-spin"));
+    setTimeout(() => window.dispatchEvent(new CustomEvent("ruleta-spin")), 1200);
+    setTimeout(() => window.dispatchEvent(new CustomEvent("ruleta-spin")), 1500);
+    setTimeout(() => window.dispatchEvent(new CustomEvent("ruleta-spin")), 1900);
+    setTimeout(() => window.dispatchEvent(new CustomEvent("ruleta-spin")), 2200);
   }
 
   function playAudio(audioFile) {
-    window.dispatchEvent(new CustomEvent('ruleta-play-audio', { detail: audioFile }))
+    window.dispatchEvent(new CustomEvent("ruleta-play-audio", { detail: audioFile }));
   }
 
   function updateOptions(num) {
-    window.dispatchEvent(new CustomEvent('ruleta-update-options', { detail: num }))
-  }
-
-  // Exportar funciones para controlar el reconocimiento de voz
-  window.speechRecognition = {
-    start() {
-      if (annyang) {
-        annyang.start()
-        console.log('Comandos de voz activados en HomeRuletView')
-      }
-    },
-    stop() {
-      if (annyang) {
-        annyang.abort()
-        console.log('Comandos de voz desactivados')
-      }
-    }
+    window.dispatchEvent(new CustomEvent("ruleta-update-options", { detail: num }));
   }
 } else {
-  console.warn('El reconocimiento de voz no es compatible con tu navegador.')
-  
-  // Crear objeto dummy si annyang no está disponible
-  window.speechRecognition = {
-    start() {
-      console.warn('Reconocimiento de voz no disponible')
-    },
-    stop() {
-      console.warn('Reconocimiento de voz no disponible')
-    }
-  }
+  alert("El reconocimiento de voz no es compatible con tu navegador.");
 }
