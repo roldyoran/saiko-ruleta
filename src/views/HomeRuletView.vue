@@ -39,10 +39,9 @@
           ref="carouselLeftRef"
           :images="carouselImages"
           :interval="6000"
-          :fadeDuration="fadeDuration"
+          :fade-duration="fadeDuration"
           :autoplay="true"
-          :pauseOnHover="false"
-          :showIndicators="false"
+          :show-indicators="false"
           class="rounded-xl shadow-md"
         />
       </div>
@@ -54,10 +53,9 @@
           ref="carouselRightRef"
           :images="carouselImages"
           :interval="6000"
-          :fadeDuration="fadeDuration"
+          :fade-duration="fadeDuration"
           :autoplay="true"
-          :pauseOnHover="false"
-          :showIndicators="false"
+          :show-indicators="false"
           class="rounded-xl shadow-md"
         />
       </div>
@@ -123,6 +121,8 @@ const taniaImgRef = ref(null)
 // Carousel demo images
 // Note: replace these with your image URLs (relative to public/) when ready
 const carouselImages = ref([
+  '/carousel/tagoDaki.webp',
+  '/carousel/tania4.webp',
   '/carousel/dj_picado.webp',
   '/carousel/tania.webp',
   '/carousel/tania2.webp',

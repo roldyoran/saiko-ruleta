@@ -2,8 +2,6 @@
   <div
     class="image-carousel"
     ref="rootRef"
-    @mouseenter="onMouseEnter"
-    @mouseleave="onMouseLeave"
     role="region"
     :aria-label="ariaLabel"
   >
@@ -15,7 +13,12 @@
         class="image current"
         :alt="`carousel image ${index + 1}`"
         draggable="false"
-        :style="{ transitionDuration: fadeDuration + 'ms' }"
+        loading="eager"
+        decoding="sync"
+        :style="{ 
+          transitionDuration: fadeDuration + 'ms',
+          animationDuration: fadeDuration + 'ms'
+        }"
       />
 
       <img
@@ -25,16 +28,42 @@
         class="image prev"
         :alt="`carousel image ${prevIndex + 1}`"
         draggable="false"
+        loading="eager"
+        decoding="sync"
         :class="{ fading: prevFading }"
-        :style="{ transitionDuration: fadeDuration + 'ms' }"
+        :style="{ 
+          transitionDuration: fadeDuration + 'ms',
+          animationDuration: fadeDuration + 'ms'
+        }"
       />
+      
+      <!-- Preload next images for smoother transitions -->
+      <template v-if="images.length > 1">
+        <link 
+          v-for="(img, i) in preloadImages" 
+          :key="`preload-${i}`" 
+          rel="preload" 
+          as="image" 
+          :href="img"
+        />
+      </template>
 
       <div v-if="!currentImage" class="empty">No images</div>
     </div>
 
     <div v-if="showControls" class="controls">
-      <button class="ctrl prev" @click="prev" aria-label="Previous image">‹</button>
-      <button class="ctrl next" @click="next" aria-label="Next image">›</button>
+      <button 
+        class="ctrl prev" 
+        @click="prev" 
+        :disabled="isAnimating"
+        aria-label="Previous image"
+      >‹</button>
+      <button 
+        class="ctrl next" 
+        @click="next" 
+        :disabled="isAnimating"
+        aria-label="Next image"
+      >›</button>
     </div>
 
     <div v-if="showIndicators" class="indicators">
@@ -43,6 +72,7 @@
         :key="i"
         :class="['dot', { active: i === index }]"
         @click="goTo(i)"
+        :disabled="isAnimating"
         :aria-current="i === index ? 'true' : 'false'"
         :aria-label="`Go to image ${i + 1}`"
       />
@@ -60,20 +90,17 @@ const props = defineProps({
   },
   interval: {
     type: Number,
-    default: 1000, // ms
+    default: 2500, // Longer interval for better UX
   },
   fadeDuration: {
     type: Number,
-    default: 300,
+    default: 600, // Increased for smoother transition
   },
   autoplay: {
     type: Boolean,
     default: true,
   },
-  pauseOnHover: {
-    type: Boolean,
-    default: false,
-  },
+
   showIndicators: {
     type: Boolean,
     default: true,
@@ -92,16 +119,30 @@ const emit = defineEmits(['update:currentIndex', 'change'])
 
 const index = ref(0)
 const timerId = ref(null)
-const hovering = ref(false)
 const prevIndex = ref(null)
 const prevFading = ref(false)
 const rootRef = ref(null)
+const isAnimating = ref(false)
+const animationTimeoutId = ref(null)
 
 const images = computed(() => props.images || [])
 
 const currentImage = computed(() => (images.value.length ? images.value[index.value] : null))
 const currentImageKey = computed(() => `${index.value}-${currentImage.value}`)
 const fadeMs = computed(() => `${props.fadeDuration}ms`)
+
+// Preload next 2-3 images for smoother transitions
+const preloadImages = computed(() => {
+  if (!images.value.length) return []
+  const preloadList = []
+  for (let i = 1; i <= 3; i++) {
+    const nextIndex = (index.value + i) % images.value.length
+    if (images.value[nextIndex] && !preloadList.includes(images.value[nextIndex])) {
+      preloadList.push(images.value[nextIndex])
+    }
+  }
+  return preloadList
+})
 
 function startTimer() {
   stopTimer()
@@ -121,107 +162,119 @@ function stopTimer() {
   }
 }
 
+
+
+function clearAnimationState() {
+  if (animationTimeoutId.value) {
+    clearTimeout(animationTimeoutId.value)
+    animationTimeoutId.value = null
+  }
+  prevFading.value = false
+  prevIndex.value = null
+  isAnimating.value = false
+}
+
+function triggerTransition() {
+  // Prevent rapid clicks during animation
+  if (isAnimating.value) return false
+  
+  isAnimating.value = true
+  
+  nextTick(() => {
+    const currentImg = rootRef.value?.querySelector('.image.current')
+    const prevImg = rootRef.value?.querySelector('.image.prev')
+    
+    if (currentImg && prevImg && currentImg.animate && prevImg.animate) {
+      // Use Web Animations API for smoother crossfade
+      const fadeInAnimation = currentImg.animate(
+        [{ opacity: 0 }, { opacity: 1 }], 
+        {
+          duration: props.fadeDuration,
+          easing: 'cubic-bezier(0.4, 0, 0.2, 1)', // More natural easing
+          fill: 'forwards'
+        }
+      )
+      
+      const fadeOutAnimation = prevImg.animate(
+        [{ opacity: 1 }, { opacity: 0 }], 
+        {
+          duration: props.fadeDuration,
+          easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+          fill: 'forwards'
+        }
+      )
+      
+      // Use Promise.all for better synchronization
+      Promise.all([
+        fadeInAnimation.finished,
+        fadeOutAnimation.finished
+      ]).then(() => {
+        clearAnimationState()
+      }).catch(() => {
+        // Fallback cleanup
+        clearAnimationState()
+      })
+      
+      // Safety timeout
+      animationTimeoutId.value = setTimeout(() => {
+        clearAnimationState()
+      }, props.fadeDuration + 100)
+      
+    } else {
+      // Enhanced CSS fallback with better timing
+      prevFading.value = true
+      
+      // Use requestAnimationFrame for smoother timing
+      requestAnimationFrame(() => {
+        animationTimeoutId.value = setTimeout(() => {
+          clearAnimationState()
+        }, props.fadeDuration)
+      })
+    }
+  })
+  
+  return true
+}
+
 function next() {
-  if (!images.value.length) return
-  // prepare crossfade: show prev image (current), advance index, then trigger fade in next tick
+  if (!images.value.length || isAnimating.value) return
+  
   prevIndex.value = index.value
   prevFading.value = false
   index.value = (index.value + 1) % images.value.length
   emit('update:currentIndex', index.value)
   emit('change', index.value)
-
-  // ensure DOM updated so CSS transition will apply
-  nextTick(() => {
-    // Try Web Animations API for a smoother crossfade
-    const prevImg = rootRef.value && rootRef.value.querySelector('.image.prev')
-    if (prevImg && prevImg.animate) {
-      prevImg.animate([{ opacity: 1 }, { opacity: 0 }], {
-        duration: props.fadeDuration,
-        easing: 'ease',
-      })
-      // cleanup after animation
-      setTimeout(() => {
-        prevFading.value = false
-        prevIndex.value = null
-      }, props.fadeDuration)
-    } else {
-      // fallback to CSS class
-      prevFading.value = true
-      setTimeout(() => {
-        prevFading.value = false
-        prevIndex.value = null
-      }, props.fadeDuration)
-    }
-  })
+  
+  triggerTransition()
 }
 
 function prev() {
-  if (!images.value.length) return
+  if (!images.value.length || isAnimating.value) return
+  
   prevIndex.value = index.value
   prevFading.value = false
   index.value = (index.value - 1 + images.value.length) % images.value.length
   emit('update:currentIndex', index.value)
   emit('change', index.value)
-
-  nextTick(() => {
-    const prevImg = rootRef.value && rootRef.value.querySelector('.image.prev')
-    if (prevImg && prevImg.animate) {
-      prevImg.animate([{ opacity: 1 }, { opacity: 0 }], {
-        duration: props.fadeDuration,
-        easing: 'ease',
-      })
-      setTimeout(() => {
-        prevFading.value = false
-        prevIndex.value = null
-      }, props.fadeDuration)
-    } else {
-      prevFading.value = true
-      setTimeout(() => {
-        prevFading.value = false
-        prevIndex.value = null
-      }, props.fadeDuration)
-    }
-  })
+  
+  triggerTransition()
 }
 
 function goTo(i) {
-  if (!images.value.length) return
+  if (!images.value.length || isAnimating.value) return
+  
   const target = Math.max(0, Math.min(i, images.value.length - 1))
   if (target === index.value) return
+  
   prevIndex.value = index.value
   prevFading.value = false
   index.value = target
   emit('update:currentIndex', index.value)
   emit('change', index.value)
-
-  nextTick(() => {
-    const prevImg = rootRef.value && rootRef.value.querySelector('.image.prev')
-    if (prevImg && prevImg.animate) {
-      prevImg.animate([{ opacity: 1 }, { opacity: 0 }], {
-        duration: props.fadeDuration,
-        easing: 'ease',
-      })
-      setTimeout(() => {
-        prevFading.value = false
-        prevIndex.value = null
-      }, props.fadeDuration)
-    } else {
-      prevFading.value = true
-      setTimeout(() => {
-        prevFading.value = false
-        prevIndex.value = null
-      }, props.fadeDuration)
-    }
-  })
+  
+  triggerTransition()
 }
 
-function onMouseEnter() {
-  // Pause functionality removed
-}
-
-function onMouseLeave() {
-  // Pause functionality removed
-}
 
 // Expose methods so parent can control the carousel
 defineExpose({ next, prev, goTo })
@@ -251,7 +304,10 @@ watch(
 )
 
 onMounted(() => startTimer())
-onBeforeUnmount(() => stopTimer())
+onBeforeUnmount(() => {
+  stopTimer()
+  clearAnimationState()
+})
 </script>
 
 <style scoped>
@@ -260,15 +316,15 @@ onBeforeUnmount(() => stopTimer())
   display: block;
   overflow: hidden;
   width: 100%;
-  /* min-height: 100%; */
-  /* keep a stable height using aspect-ratio; fallback min-height for older browsers */
-  /* aspect-ratio: 16 / 9; */
   min-height: 580px;
   background: transparent;
+  contain: layout style paint;
+  isolation: isolate;
 }
 .image-stack {
   position: absolute;
   inset: 0;
+  perspective: 1000px;
 }
 .image-stack .image {
   position: absolute;
@@ -279,21 +335,48 @@ onBeforeUnmount(() => stopTimer())
   object-fit: cover;
   user-select: none;
   opacity: 1;
-  transition-property: opacity;
+  transition-property: opacity, transform;
   transition-duration: var(--fade-duration, 300ms);
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   will-change: opacity, transform;
   transform: translateZ(0);
+  backface-visibility: hidden;
+  image-rendering: optimizeQuality;
 }
 .image-stack .image.current {
-  z-index: 0; /* current sits below previous during fade */
-  opacity: 1;
+  z-index: 1; /* current image sits above */
+  opacity: 0; /* starts hidden, fades in */
+  animation: fadeIn var(--fade-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 .image-stack .image.prev {
-  z-index: 1; /* previous image sits on top and fades out */
+  z-index: 0; /* previous image sits below */
   opacity: 1;
 }
 .image-stack .image.prev.fading {
   opacity: 0;
+  animation: fadeOut var(--fade-duration, 300ms) cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateZ(0) scale(1.02);
+  }
+  to {
+    opacity: 1;
+    transform: translateZ(0) scale(1);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateZ(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateZ(0) scale(0.98);
+  }
 }
 .image-carousel .empty {
   position: absolute;
@@ -323,6 +406,15 @@ onBeforeUnmount(() => stopTimer())
   margin: 0.5rem;
   border-radius: 4px;
   font-size: 1.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.ctrl:hover {
+  background: rgba(0, 0, 0, 0.55);
+}
+.ctrl:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .indicators {
@@ -340,6 +432,15 @@ onBeforeUnmount(() => stopTimer())
   background: rgba(255, 255, 255, 0.6);
   border: 1px solid rgba(0, 0, 0, 0.15);
   padding: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.dot:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
+.dot:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .dot.active {
   background: white;
