@@ -12,7 +12,7 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
-      meta: { title: 'Ruleta — Inicio' },
+      meta: { title: 'Ruleta-Home' },
     },
     {
       path: '/gallery',

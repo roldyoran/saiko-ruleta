@@ -105,62 +105,62 @@ button {
 }
 
 .dark {
-  /* Background: Ultra deep space with subtle purple tint */
-  --background: #110d10;
-  --foreground: #f1f3f7;
+  /* Background: Rose-tinted zinc inspired ultra dark */
+  --background: #0a0a0b;
+  --foreground: #fafafa;
 
-  /* Cards / popovers: Much darker with purple undertones */
-  --card: #100a0d;
-  --card-foreground: #e2e8f0;
-  --popover: #10070c;
-  --popover-foreground: #f1f5f9;
+  /* Cards / popovers: Rose-zinc medium dark */
+  --card: #141417;
+  --card-foreground: #fafafa;
+  --popover: #141417;
+  --popover-foreground: #fafafa;
 
-  /* Primary: Vibrant electric pink */
-  --primary: #ff3d8b;
-  --primary-foreground: #ffffff;
+  /* Primary: Vibrant rose accent */
+  --primary: #e6315e;
+  --primary-foreground: #fafafa;
 
-  /* Secondary: Deep rose */
-  --secondary: #f43f5e;
-  --secondary-foreground: #ffffff;
+  /* Secondary: Rose-tinted zinc medium */
+  --secondary: #491527;
+  --secondary-foreground: #d4d4d8;
 
-  /* Muted: Darker with purple undertones */
-  --muted: #180d12;
-  --muted-foreground: #d1a3d1;
+  /* Muted: Optimized for ghost buttons */
+  --muted: #2a2729;
+  --muted-foreground: #d4d4d8;
 
-  /* Accent: Bright magenta */
-  --accent: #f97999;
-  --accent-foreground: #ffffff;
+  /* Accent: Perfect for ghost button hover */
+  --accent: #851c3f;
+  --accent-foreground: #fafafa;
 
-  /* Destructive: Vibrant red */
-  --destructive: #ef4444;
-  --destructive-foreground: #fef2f2;
+  /* Destructive: Rose red */
+  --destructive: #770655;
+  --destructive-foreground: #fafafa;
 
-  /* Borders / inputs: Darker purple-gray */
-  --border: #301920;
-  --input: rgb(92, 32, 55);
-  --ring: #f755a1;
+  /* Borders / inputs: Rose-zinc subtle */
+  --border: #27272a;
+  --input: #2e1d25;
+  --ring: #f43f5e;
 
-  /* Charts: Pink-Purple-Red spectrum */
-  --chart-1: #ff3d8b;
-  --chart-2: #f43f5e;
-  --chart-3: #e879f9;
-  --chart-4: #c084fc;
-  --chart-5: #dc2626;
+  /* Charts: Rose-zinc harmonious palette */
+  --chart-1: #f43f5e;
+  --chart-2: #fb7185;
+  --chart-3: #fda4af;
+  --chart-4: #a1a1aa;
+  --chart-5: #e11d48;
 
-  /* Sidebar: Ultra deep space with pink-purple accents */
-  --sidebar: #10060c;
-  --sidebar-foreground: #f1f5f9;
-  --sidebar-primary: #ff3d8b;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f43f5e;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #25161c;
-  --sidebar-ring: #af347c;
+  /* Sidebar: Deep rose-zinc */
+  --sidebar: #0f0f11;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #f43f5e;
+  --sidebar-primary-foreground: #fafafa;
+  --sidebar-accent: #fb7185;
+  --sidebar-accent-foreground: #18181b;
+  --sidebar-border: #27272a;
+  --sidebar-ring: #f43f5e;
 
-  /* Scrollbar: Ultra dark neon-style */
-  --scrollbar-bg: #130a0f;
-  --scrollbar-thumb: #f755c6;
-  --scrollbar-thumb-hover: #fc84ac;
+  /* Scrollbar: Rose-zinc elegant */
+  --scrollbar-bg: #18181b;
+  --scrollbar-thumb: #f43f5e;
+  --scrollbar-thumb-hover: #fb7185;
 }
 
 @layer base {
