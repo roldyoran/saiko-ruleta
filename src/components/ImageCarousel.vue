@@ -37,16 +37,7 @@
         }"
       />
       
-      <!-- Preload next images for smoother transitions -->
-      <template v-if="images.length > 1">
-        <link 
-          v-for="(img, i) in preloadImages" 
-          :key="`preload-${i}`" 
-          rel="preload" 
-          as="image" 
-          :href="img"
-        />
-      </template>
+
 
       <div v-if="!currentImage" class="empty">No images</div>
     </div>
@@ -124,6 +115,7 @@ const prevFading = ref(false)
 const rootRef = ref(null)
 const isAnimating = ref(false)
 const animationTimeoutId = ref(null)
+const preloadedImages = new Set()
 
 const images = computed(() => props.images || [])
 
@@ -131,18 +123,21 @@ const currentImage = computed(() => (images.value.length ? images.value[index.va
 const currentImageKey = computed(() => `${index.value}-${currentImage.value}`)
 const fadeMs = computed(() => `${props.fadeDuration}ms`)
 
-// Preload next 2-3 images for smoother transitions
-const preloadImages = computed(() => {
-  if (!images.value.length) return []
-  const preloadList = []
+// Preload next images using JavaScript (avoids browser warnings)
+function preloadNextImages() {
+  if (!images.value.length) return
+  
   for (let i = 1; i <= 3; i++) {
     const nextIndex = (index.value + i) % images.value.length
-    if (images.value[nextIndex] && !preloadList.includes(images.value[nextIndex])) {
-      preloadList.push(images.value[nextIndex])
+    const imageSrc = images.value[nextIndex]
+    
+    if (imageSrc && !preloadedImages.has(imageSrc)) {
+      const img = new Image()
+      img.src = imageSrc
+      preloadedImages.add(imageSrc)
     }
   }
-  return preloadList
-})
+}
 
 function startTimer() {
   stopTimer()
@@ -246,6 +241,7 @@ function next() {
   emit('change', index.value)
   
   triggerTransition()
+  preloadNextImages()
 }
 
 function prev() {
@@ -303,10 +299,14 @@ watch(
   () => startTimer(),
 )
 
-onMounted(() => startTimer())
+onMounted(() => {
+  startTimer()
+  preloadNextImages()
+})
 onBeforeUnmount(() => {
   stopTimer()
   clearAnimationState()
+  preloadedImages.clear()
 })
 </script>
 
