@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen p-4">
+  <div class="min-h-screen p-4 mb-6 bingo-root">
     <div class="mx-auto max-w-6xl">
       <h1 class="mb-6 text-center text-5xl font-bold">Bingo</h1>
 
@@ -121,7 +121,7 @@
               <div
                 v-for="(option, index) in options"
                 :key="index"
-                class="group relative flex items-center justify-between rounded-md border bg-card px-3 py-2 transition-colors hover:bg-accent"
+                class="group relative flex items-center justify-between rounded-md border bg-card px-3 py-2 transition-colors hover:bg-accent/25"
               >
                 <span class="truncate pr-2 text-sm">{{ option }}</span>
                 <Button
@@ -274,7 +274,7 @@
                 :data-cell="index"
                 class="group cell relative flex cursor-pointer items-center justify-center overflow-hidden rounded border bg-card transition-all duration-200 hover:bg-accent focus:outline-none"
                 :class="{
-                  'bg-accent border-accent-foreground': cell.marked,
+                  'bg-accent border-accent/80': cell.marked,
                   'hover:scale-[1.02]': !cell.marked,
                   'scale-[0.98]': cell.marked
                 }"
@@ -298,6 +298,11 @@
           <div class="flex justify-center gap-2">
             <Button v-if="bingoGrid.length > 0" @click="shuffleBingo" variant="ghost" size="sm" title="Reordenar las opciones actuales">
               <Shuffle class="mr-1 h-3 w-3" /> Reordenar
+            </Button>
+
+            <!-- Toggle center free space (only meaningful for odd-sized boards) -->
+            <Button v-if="boardSize % 2 === 1" @click="toggleCenterFree" :variant="centerFreeEnabled ? 'default' : 'outline'" size="sm" title="Forzar Espacio Libre en el centro">
+              {{ centerFreeEnabled ? 'Espacio Libre: ON' : 'Forzar Espacio Libre' }}
             </Button>
 
             <Button v-if="bingoGrid.length > 0" @click="saveBoard" variant="outline" size="sm" title="Guardar tablero en local">
@@ -326,7 +331,8 @@
 
         <div class="absolute left-4 right-4 top-4 z-10 flex items-center justify-between">
           <div>
-            <h2 class="text-xl font-bold">Tablero de Bingo</h2>
+            <!-- Slightly smaller header so the larger grid has more room -->
+            <h2 class="text-lg font-bold">Tablero de Bingo</h2>
             <p class="text-sm text-muted-foreground">Marcados: {{ markedCells }} / {{ totalCells }}</p>
           </div>
           <Button @click="closeFullscreen" variant="secondary"><X class="mr-2 h-4 w-4" /> Cerrar</Button>
@@ -334,7 +340,7 @@
 
         <div class="flex justify-center items-center w-full h-full pt-16 pb-4">
           <div class="grid gap-2" :style="{ gridTemplateColumns: `repeat(${boardSize}, 1fr)`, gridTemplateRows: `repeat(${boardSize}, 1fr)`, width: `${fullscreenGridSize}px`, height: `${fullscreenGridSize}px` }">
-            <div v-for="(cell, index) in bingoGrid" :key="index" @click="toggleCell(index)" class="group relative flex cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 bg-card shadow-sm transition-all duration-200 hover:bg-accent" :class="{ 'bg-accent border-accent-foreground': cell.marked, 'hover:scale-[1.02]': !cell.marked, 'scale-[0.99]': cell.marked }">
+            <div v-for="(cell, index) in bingoGrid" :key="index" @click="toggleCell(index)" class="group relative flex cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 bg-card shadow-sm transition-all duration-200 hover:bg-accent" :class="{ 'bg-accent border-accent/80': cell.marked, 'hover:scale-[1.02]': !cell.marked, 'scale-[0.99]': cell.marked }">
               <span class="select-none break-words p-2 text-center font-medium leading-tight hyphens-auto" :style="getFullscreenTextStyle(cell.text)">{{ cell.text }}</span>
               <div v-if="cell.marked" class="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <X class="text-destructive font-bold opacity-90 drop-shadow-xl" :style="getFullscreenMarkStyle()" stroke-width="3" />
@@ -380,6 +386,7 @@ import { toast } from 'vue-sonner'
 interface BingoCell {
   text: string
   marked: boolean
+  free?: boolean
 }
 
 // Estado reactivo
@@ -391,6 +398,10 @@ const boardSize = ref(5)
 const boardSizeSlider = ref([5]) // Para el slider que requiere array
 const bingoGrid = ref<BingoCell[]>([])
 const showFullscreen = ref(false)
+// whether user requested a forced center free space (persists until toggled off)
+const centerFreeEnabled = ref(false)
+// store previous center text so we can restore when disabling the free space
+const centerPrevText = ref<string | null>(null)
 const shareLink = ref('')
 const copied = ref(false)
 const savedBoard = ref(false)
@@ -404,12 +415,28 @@ const totalCells = computed(() => boardSize.value * boardSize.value)
 const markedCells = computed(() => bingoGrid.value.filter(cell => cell.marked).length)
 const canGenerateBingo = computed(() => options.value.length >= totalCells.value)
 const hasExtraOptions = computed(() => options.value.length > totalCells.value)
+const centerIndex = computed(() => {
+  // row-major index of center when boardSize is odd
+  if (boardSize.value % 2 === 0) return -1
+  const mid = Math.floor(boardSize.value / 2)
+  return mid * boardSize.value + mid
+})
+const canHaveCenterFree = computed(() => boardSize.value % 2 === 1 && bingoGrid.value.length === totalCells.value)
+const hasCenterFree = computed(() => {
+  const ci = centerIndex.value
+  if (ci < 0) return false
+  const cell = bingoGrid.value[ci]
+  if (!cell) return false
+  return !!cell.free
+})
 const fullscreenGridSize = computed(() => {
   // Use reactive windowSize so the grid and font sizes update on resize
   const w = windowSize.value.width || 0
   const h = windowSize.value.height || 0
-  const size = Math.min(Math.max(h - 150, 0), Math.max(w - 100, 0), 900) * 0.9
-  return Math.max(500, size)
+  // Increase available space slightly so fullscreen feels larger while clamping to sensible bounds
+  const size = Math.min(Math.max(h - 140, 0), Math.max(w - 80, 0), 980) * 0.95
+  // raise minimum so small devices still show a usable grid
+  return Math.max(520, size)
 })
 
 // UI helpers
@@ -669,7 +696,9 @@ const clearAllOptions = (): void => {
 
 // Funciones del tablero
 const toggleCell = (index: number): void => {
+  // Prevent toggling a forced free center cell
   if (bingoGrid.value[index]) {
+    if (bingoGrid.value[index].free) return
     bingoGrid.value[index].marked = !bingoGrid.value[index].marked
   }
 }
@@ -683,6 +712,18 @@ const generateBingo = (): void => {
     marked: false
   }))
   
+  // If center free was requested and the board size allows it, apply it
+  if (centerFreeEnabled.value && boardSize.value % 2 === 1) {
+    const ci = centerIndex.value
+    if (ci >= 0 && bingoGrid.value[ci]) {
+      // save previous text to allow restore
+      centerPrevText.value = bingoGrid.value[ci].text
+      bingoGrid.value[ci].text = 'ESPACIO LIBRE'
+      bingoGrid.value[ci].marked = true
+      bingoGrid.value[ci].free = true
+    }
+  }
+
   shareLink.value = ''
   toast.success('Tablero generado')
 }
@@ -697,6 +738,16 @@ const shuffleBingo = (): void => {
     const texts = bingoGrid.value.map(cell => cell.text)
     const shuffled = [...texts].sort(() => Math.random() - 0.5)
     bingoGrid.value = shuffled.map(text => ({ text, marked: false }))
+    // If center free requested, set it after shuffle
+    if (centerFreeEnabled.value && boardSize.value % 2 === 1) {
+      const ci = centerIndex.value
+      if (ci >= 0 && bingoGrid.value[ci]) {
+        centerPrevText.value = bingoGrid.value[ci].text
+        bingoGrid.value[ci].text = 'ESPACIO LIBRE'
+        bingoGrid.value[ci].marked = true
+        bingoGrid.value[ci].free = true
+      }
+    }
     toast.info('Tablero reordenado')
   }
   
@@ -708,8 +759,39 @@ const resetBingo = (): void => {
   bingoGrid.value = []
   showFullscreen.value = false
   shareLink.value = ''
+  // clearing board should also clear center free flag
+  centerFreeEnabled.value = false
+  centerPrevText.value = null
   localStorage.removeItem('bingoGrid')
   toast.info('Tablero restablecido')
+}
+
+const toggleCenterFree = (): void => {
+  // Only applicable for odd board sizes
+  if (boardSize.value % 2 === 0) return
+
+  centerFreeEnabled.value = !centerFreeEnabled.value
+
+  const ci = centerIndex.value
+  if (centerFreeEnabled.value) {
+    // enable: ensure grid exists and set the center
+    if (ci >= 0 && bingoGrid.value[ci]) {
+      centerPrevText.value = bingoGrid.value[ci].text
+      bingoGrid.value[ci].text = 'ESPACIO LIBRE'
+      bingoGrid.value[ci].marked = true
+      bingoGrid.value[ci].free = true
+    }
+  } else {
+    // disable: restore previous text if known
+    if (ci >= 0 && bingoGrid.value[ci]) {
+      bingoGrid.value[ci].free = false
+      bingoGrid.value[ci].marked = false
+      if (centerPrevText.value !== null) {
+        bingoGrid.value[ci].text = centerPrevText.value
+      }
+      centerPrevText.value = null
+    }
+  }
 }
 
 // debug watch removed
@@ -788,8 +870,8 @@ const getFullscreenTextStyle = (text: string): CSSProperties => {
   // Calculate a font size based on the available cell size and text length
   const cellSize = fullscreenGridSize.value / Math.max(boardSize.value, 1)
 
-  // base font is a fraction of the cell size
-  let fontSize = cellSize * 0.20
+  // base font is a fraction of the cell size (slightly reduced so longer strings fit)
+  let fontSize = cellSize * 0.165
 
   // reduce font size for very long strings
   if (text.length > 80) fontSize *= 0.55
@@ -904,6 +986,10 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.bingo-root {
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
 /* Responsive small screens: make grid narrower */
 @media (max-width: 640px) {
   .grid[style] {
