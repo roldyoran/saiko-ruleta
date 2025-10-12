@@ -163,20 +163,26 @@
       class="fixed inset-0 bg-zinc-950/80 backdrop-blur-lg z-50 flex items-center justify-center" 
       @click.self="closeFullscreen"
     >
-      <div class="absolute top-0 left-0 w-sm hidden md:block">
-        <img 
-          src="https://github.com/roldyoran/Saiko_Ruleta/blob/main/public/reigen_ag/stickers/leji_halo.gif?raw=true" 
-          alt="leji girando" 
-        />
-      </div>
-      <div class="absolute bottom-0 right-8 w-64 hidden md:block">
-        <img 
-          src="https://github.com/roldyoran/Saiko_Ruleta/blob/main/public/roldyoran/DJ_RULETA.webp?raw=true" 
-          alt="DJRULETA" 
-          class="w-full h-auto" 
-          style="transform: scaleX(-1);" 
-        />
-      </div>
+    <div class="absolute top-0 left-0 w-sm hidden md:block">
+      <img 
+        loading="lazy"
+        decoding="async"
+        fetchpriority="low"
+        src="https://github.com/roldyoran/Saiko_Ruleta/blob/main/public/reigen_ag/stickers/leji_halo.gif?raw=true" 
+        alt="leji girando" 
+      />
+    </div>
+    <div class="absolute bottom-0 right-8 w-64 hidden md:block">
+      <img 
+        loading="lazy"
+        decoding="async"
+        fetchpriority="low"
+        src="https://github.com/roldyoran/Saiko_Ruleta/blob/main/public/roldyoran/DJ_RULETA.webp?raw=true" 
+        alt="DJRULETA" 
+        class="w-full h-auto" 
+        style="transform: scaleX(-1);" 
+      />
+    </div>
 
       <div class="absolute left-4 right-4 top-4 z-10 flex items-center justify-between">
         <div>
@@ -436,7 +442,7 @@ onUnmounted(() => {
   justify-content: center;
   font-weight: 900;
   opacity: 0.98;
-  color: #dc2626;
+  color: #e41e1e;
   filter: drop-shadow(0 10px 26px rgba(0,0,0,0.72));
   line-height: 1;
 }
