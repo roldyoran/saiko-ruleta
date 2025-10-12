@@ -300,10 +300,7 @@
               <Shuffle class="mr-1 h-3 w-3" /> Reordenar
             </Button>
 
-            <!-- Toggle center free space (only meaningful for odd-sized boards) -->
-            <Button v-if="boardSize % 2 === 1" @click="toggleCenterFree" :variant="centerFreeEnabled ? 'default' : 'outline'" size="sm" title="Forzar Espacio Libre en el centro">
-              {{ centerFreeEnabled ? 'Espacio Libre: ON' : 'Forzar Espacio Libre' }}
-            </Button>
+            <!-- (center free-space removed) -->
 
             <Button v-if="bingoGrid.length > 0" @click="saveBoard" variant="outline" size="sm" title="Guardar tablero en local">
               <Save class="mr-1 h-3 w-3" /> Guardar
@@ -386,7 +383,6 @@ import { toast } from 'vue-sonner'
 interface BingoCell {
   text: string
   marked: boolean
-  free?: boolean
 }
 
 // Estado reactivo
@@ -398,10 +394,7 @@ const boardSize = ref(5)
 const boardSizeSlider = ref([5]) // Para el slider que requiere array
 const bingoGrid = ref<BingoCell[]>([])
 const showFullscreen = ref(false)
-// whether user requested a forced center free space (persists until toggled off)
-const centerFreeEnabled = ref(false)
-// store previous center text so we can restore when disabling the free space
-const centerPrevText = ref<string | null>(null)
+// (center free-space feature removed)
 const shareLink = ref('')
 const copied = ref(false)
 const savedBoard = ref(false)
@@ -415,20 +408,7 @@ const totalCells = computed(() => boardSize.value * boardSize.value)
 const markedCells = computed(() => bingoGrid.value.filter(cell => cell.marked).length)
 const canGenerateBingo = computed(() => options.value.length >= totalCells.value)
 const hasExtraOptions = computed(() => options.value.length > totalCells.value)
-const centerIndex = computed(() => {
-  // row-major index of center when boardSize is odd
-  if (boardSize.value % 2 === 0) return -1
-  const mid = Math.floor(boardSize.value / 2)
-  return mid * boardSize.value + mid
-})
-const canHaveCenterFree = computed(() => boardSize.value % 2 === 1 && bingoGrid.value.length === totalCells.value)
-const hasCenterFree = computed(() => {
-  const ci = centerIndex.value
-  if (ci < 0) return false
-  const cell = bingoGrid.value[ci]
-  if (!cell) return false
-  return !!cell.free
-})
+
 const fullscreenGridSize = computed(() => {
   // Use reactive windowSize so the grid and font sizes update on resize
   const w = windowSize.value.width || 0
@@ -696,9 +676,7 @@ const clearAllOptions = (): void => {
 
 // Funciones del tablero
 const toggleCell = (index: number): void => {
-  // Prevent toggling a forced free center cell
   if (bingoGrid.value[index]) {
-    if (bingoGrid.value[index].free) return
     bingoGrid.value[index].marked = !bingoGrid.value[index].marked
   }
 }
@@ -712,17 +690,7 @@ const generateBingo = (): void => {
     marked: false
   }))
   
-  // If center free was requested and the board size allows it, apply it
-  if (centerFreeEnabled.value && boardSize.value % 2 === 1) {
-    const ci = centerIndex.value
-    if (ci >= 0 && bingoGrid.value[ci]) {
-      // save previous text to allow restore
-      centerPrevText.value = bingoGrid.value[ci].text
-      bingoGrid.value[ci].text = 'ESPACIO LIBRE'
-      bingoGrid.value[ci].marked = true
-      bingoGrid.value[ci].free = true
-    }
-  }
+  // (center free-space feature removed)
 
   shareLink.value = ''
   toast.success('Tablero generado')
@@ -738,16 +706,7 @@ const shuffleBingo = (): void => {
     const texts = bingoGrid.value.map(cell => cell.text)
     const shuffled = [...texts].sort(() => Math.random() - 0.5)
     bingoGrid.value = shuffled.map(text => ({ text, marked: false }))
-    // If center free requested, set it after shuffle
-    if (centerFreeEnabled.value && boardSize.value % 2 === 1) {
-      const ci = centerIndex.value
-      if (ci >= 0 && bingoGrid.value[ci]) {
-        centerPrevText.value = bingoGrid.value[ci].text
-        bingoGrid.value[ci].text = 'ESPACIO LIBRE'
-        bingoGrid.value[ci].marked = true
-        bingoGrid.value[ci].free = true
-      }
-    }
+    // (center free-space feature removed)
     toast.info('Tablero reordenado')
   }
   
@@ -759,40 +718,12 @@ const resetBingo = (): void => {
   bingoGrid.value = []
   showFullscreen.value = false
   shareLink.value = ''
-  // clearing board should also clear center free flag
-  centerFreeEnabled.value = false
-  centerPrevText.value = null
+  // clearing board
   localStorage.removeItem('bingoGrid')
   toast.info('Tablero restablecido')
 }
 
-const toggleCenterFree = (): void => {
-  // Only applicable for odd board sizes
-  if (boardSize.value % 2 === 0) return
-
-  centerFreeEnabled.value = !centerFreeEnabled.value
-
-  const ci = centerIndex.value
-  if (centerFreeEnabled.value) {
-    // enable: ensure grid exists and set the center
-    if (ci >= 0 && bingoGrid.value[ci]) {
-      centerPrevText.value = bingoGrid.value[ci].text
-      bingoGrid.value[ci].text = 'ESPACIO LIBRE'
-      bingoGrid.value[ci].marked = true
-      bingoGrid.value[ci].free = true
-    }
-  } else {
-    // disable: restore previous text if known
-    if (ci >= 0 && bingoGrid.value[ci]) {
-      bingoGrid.value[ci].free = false
-      bingoGrid.value[ci].marked = false
-      if (centerPrevText.value !== null) {
-        bingoGrid.value[ci].text = centerPrevText.value
-      }
-      centerPrevText.value = null
-    }
-  }
-}
+// center-free feature removed
 
 // debug watch removed
 
