@@ -13,216 +13,44 @@
         </CardHeader>
 
         <CardContent class="space-y-6">
-          <!-- Tamaño del bingo -->
-          <div>
-            <Label class="mb-2 block">Tamaño del tablero (cuadrado):</Label>
-            <div class="max-w-xs">
-              <div class="flex items-center gap-3">
-                <Input
-                  id="boardSizeInput"
-                  v-model="boardSize"
-                  type="number"
-                  :min="2"
-                  :max="10"
-                  aria-label="Tamaño del tablero (número)"
-                  class="w-20"
-                  placeholder="Ej: 5"
-                />
+          <!-- Configuración del tablero -->
+          <BingoConfigPanel
+            :board-size="boardSize"
+            :board-size-slider="boardSizeSlider"
+            :options-count="options.length"
+            :can-generate-bingo="canGenerateBingo"
+            @update:board-size="boardSize = $event"
+            @update:board-size-slider="boardSizeSlider = $event"
+            @generate-bingo="generateBingo"
+            @clear-all-options="clearAllOptions"
+          />
 
-                <Slider
-                  v-model="boardSizeSlider"
-                  :min="2"
-                  :max="10"
-                  :step="1"
-                  aria-label="Tamaño del tablero (deslizador)"
-                  class="w-full"
-                />
-              </div>
-              <p class="mt-1 text-xs text-muted-foreground">
-                Un tablero de {{ boardSize }}x{{ boardSize }} necesita {{ totalCells }} opciones
-              </p>
-            </div>
-          </div>
-
-          <!-- Agregar opciones -->
-          <div>
-            <Label class="mb-2 block">Agregar opción:</Label>
-            <div class="flex w-full items-start gap-2">
-              <div class="flex-1">
-                <Input
-                  v-if="!multiLineMode"
-                  v-model="newOption"
-                  @keypress.enter.prevent="addOption"
-                  type="text"
-                  placeholder="Escribe una opción..."
-                  class="w-full"
-                />
-
-                <Textarea
-                  v-else
-                  v-model="multiText"
-                  @keydown.ctrl.enter.prevent="addOption"
-                  placeholder="Pega o escribe opciones, una por línea (Ctrl+Enter para añadir)"
-                  class="min-h-[60px]"
-                />
-              </div>
-
-              <div class="flex flex-col gap-2">
-                <Button
-                  @click="addOption"
-                  variant="secondary"
-                  class="whitespace-nowrap"
-                  title="Agregar opción(es)"
-                >
-                  <Plus class="mr-2 h-4 w-4" />
-                  Agregar
-                </Button>
-
-                <Button
-                  @click="multiLineMode = !multiLineMode"
-                  :variant="multiLineMode ? 'default' : 'outline'"
-                  size="sm"
-                  :title="multiLineMode ? 'Modo línea' : 'Modo multilínea'"
-                >
-                  <FileText class="mr-1 h-3 w-3" />
-                  {{ multiLineMode ? 'Línea' : 'Multi' }}
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Lista de opciones y progreso -->
-          <div>
-            <div class="mb-2 flex items-center justify-between">
-              <h3 class="text-lg font-medium">
-                Opciones ({{ options.length }})
-                <Badge v-if="hasExtraOptions" variant="secondary" class="ml-2">+{{ options.length - totalCells }} extra</Badge>
-              </h3>
-            </div>
-
-            <div class="mb-3" aria-hidden="true">
-              <Progress :model-value="percentOptions" class="h-2" />
-              <div class="mt-1 flex justify-between text-xs text-muted-foreground">
-                <span>{{ options.length }} disponibles</span>
-                <span>{{ totalCells }} necesarias</span>
-              </div>
-            </div>
-
-            <div
-              v-if="options.length > 0"
-              class="grid gap-2"
-              :class="{
-                'grid-cols-1': options.length <= 5,
-                'grid-cols-2': options.length > 5 && options.length <= 15,
-                'grid-cols-3': options.length > 15 && options.length <= 30,
-                'grid-cols-4': options.length > 30
-              }"
-            >
-              <div
-                v-for="(option, index) in options"
-                :key="index"
-                class="group relative flex items-center justify-between rounded-md border bg-card px-3 py-2 transition-colors hover:bg-accent/25"
-              >
-                <span class="truncate pr-2 text-sm">{{ option }}</span>
-                <Button
-                  @click="removeOption(index)"
-                  variant="ghost"
-                  size="sm"
-                  class="h-7 w-7 p-0"
-                  title="Eliminar opción"
-                >
-                  <X class="h-4 w-4" />
-                </Button>
-
-                <div
-                  v-if="option.length > 40"
-                  class="pointer-events-none absolute left-1/2 top-full z-50 mt-2 w-64 max-w-[60vw] -translate-x-1/2 transform break-words rounded border bg-popover p-2 text-sm text-popover-foreground shadow-lg opacity-0 group-hover:opacity-100"
-                >
-                  {{ option }}
-                </div>
-              </div>
-            </div>
-
-            <div v-else class="rounded-lg border-2 border-dashed bg-muted/50 py-6 text-center">
-              <FileQuestion class="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
-              <p class="text-sm text-muted-foreground">No hay opciones agregadas</p>
-              <p class="mt-1 text-xs text-muted-foreground">Agrega al menos {{ totalCells }} opciones para generar el bingo</p>
-              <p class="mt-2 text-xs text-muted-foreground/70">Consejo: puedes pegar varias líneas en el modo 'Multi' para añadir varias opciones a la vez.</p>
-            </div>
-
-            <div v-if="hasExtraOptions && bingoGrid.length === 0" class="mt-2 rounded-lg border bg-muted/30 p-3">
-              <p class="text-sm">
-                <Lightbulb class="mr-2 inline h-4 w-4" />
-                <strong>¡Genial!</strong> Tienes {{ options.length - totalCells }} opciones extra. Cada vez que generes o reordenes el tablero, se seleccionarán {{ totalCells }} opciones aleatorias.
-              </p>
-            </div>
-          </div>
-
-          <!-- Botones de acción (principal) -->
-          <div class="flex flex-wrap gap-4" role="toolbar" aria-label="Acciones principales">
-            <Button
-              @click="generateBingo"
-              :disabled="!canGenerateBingo"
-              aria-label="Generar bingo"
-              class="px-6 py-3"
-            >
-              <Dice6 class="mr-2 h-4 w-4" />
-              Generar Bingo
-            </Button>
-
-            <Button
-              @click="clearAllOptions"
-              variant="destructive"
-              aria-label="Limpiar todas las opciones"
-              class="px-4 py-3"
-            >
-              <Trash2 class="mr-2 h-4 w-4" />
-              Limpiar Opciones
-            </Button>
-
-            <div class="ml-auto flex items-center gap-2 text-xs">
-              <Badge variant="outline">Opciones: {{ options.length }}</Badge>
-              <Badge variant="outline">Necesarias: {{ totalCells }}</Badge>
-            </div>
-          </div>
+          <!-- Gestión de opciones -->
+          <BingoOptionsManager
+            :options="options"
+            :new-option="newOption"
+            :multi-text="multiText"
+            :multi-line-mode="multiLineMode"
+            :total-cells="totalCells"
+            :bingo-grid-length="bingoGrid.length"
+            @update:new-option="newOption = $event"
+            @update:multi-text="multiText = $event"
+            @add-option="addOption"
+            @remove-option="removeOption"
+            @toggle-multi-line-mode="multiLineMode = !multiLineMode"
+          />
         </CardContent>
 
         <CardFooter class="flex-col items-start space-y-4">
-          <!-- Sección de compartir -->
-          <div class="w-full">
-            <h3 class="mb-2 flex items-center text-sm font-medium">
-              <Link class="mr-2 h-4 w-4" />
-              Compartir Opciones
-            </h3>
-
-            <div class="mb-2 flex gap-2">
-              <Button @click="generateOptionsLink" variant="secondary" size="sm">
-                <Share class="mr-1 h-3 w-3" />
-                Compartir Opciones
-              </Button>
-
-              <Button
-                v-if="bingoGrid.length > 0"
-                @click="generateBoardLink"
-                variant="secondary"
-                size="sm"
-                title="Compartir el tablero (incluye marcas)"
-              >
-                <Share class="mr-1 h-3 w-3" />
-                Compartir Tablero
-              </Button>
-
-              <Button v-if="shareLink" @click="copyToClipboard" variant="outline" size="sm" :class="{ 'bg-accent': copied }">
-                <Copy class="mr-1 h-3 w-3" />
-                {{ copied ? 'Copiado' : 'Copiar' }}
-              </Button>
-            </div>
-
-            <div class="space-y-1">
-              <Input :model-value="shareLink" readonly class="text-xs" />
-              <p class="text-xs text-muted-foreground">Comparte este enlace para que otros puedan usar las mismas opciones</p>
-            </div>
-          </div>
+          <!-- Panel de compartir -->
+          <BingoSharePanel
+            :share-link="shareLink"
+            :copied="copied"
+            :has-bingo-grid="bingoGrid.length > 0"
+            @generate-options-link="generateOptionsLink"
+            @generate-board-link="generateBoardLink"
+            @copy-to-clipboard="copyToClipboard"
+          />
         </CardFooter>
 
         <!-- Area de estado accesible -->
@@ -232,153 +60,33 @@
         </div>
       </Card>
 
-      <!-- Vista previa del Tablero de Bingo (siempre visible) -->
-      <Card>
-        <CardHeader>
-          <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <CardTitle class="text-xl">
-              Tablero de Bingo
-              <Badge variant="secondary" class="ml-2">{{ boardSize }}x{{ boardSize }}</Badge>
-            </CardTitle>
-
-            <div class="flex items-center gap-4">
-              <div class="text-sm text-muted-foreground">Marcados: {{ markedCells }} / {{ totalCells }}</div>
-              <Button @click="openFullscreen" :disabled="bingoGrid.length === 0" variant="secondary" class="gap-2">
-                <Maximize class="h-4 w-4" />
-                Pantalla Completa
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-
-        <CardContent>
-          <!-- Contenido del tablero o placeholder -->
-          <div class="flex justify-center items-center">
-            <div v-if="bingoGrid.length > 0"
-              class="grid gap-1 preview-grid"
-              :style="{ 
-                gridTemplateColumns: `repeat(${boardSize}, 1fr)`,
-                gridTemplateRows: `repeat(${boardSize}, 1fr)`,
-                width: previewGridSize + 'px',
-                height: previewGridSize + 'px'
-              }"
-            >
-              <div
-                v-for="(cell, index) in bingoGrid"
-                :key="index"
-                @click="toggleCell(index)"
-                @keydown="handleCellKey(index, $event)"
-                tabindex="0"
-                role="button"
-                :aria-pressed="cell.marked"
-                :data-cell="index"
-                class="group cell relative flex cursor-pointer items-center justify-center overflow-hidden rounded border bg-card transition-all duration-200 hover:bg-accent focus:outline-none"
-                :class="{
-                  'bg-accent border-accent/80': cell.marked,
-                  'hover:scale-[1.02]': !cell.marked,
-                  'scale-[0.98]': cell.marked
-                }"
-              >
-                <span :style="getPreviewTextStyle(cell.text)" class="select-none break-words px-1 text-center font-medium leading-tight hyphens-auto">{{ cell.text }}</span>
-                <div v-if="cell.marked" class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <X class="x-mark text-destructive" stroke-width="2.5" />
-                </div>
-              </div>
-            </div>
-
-            <div v-else class="w-full max-w-[720px] rounded-lg border bg-muted/30 py-12 text-center">
-              <Grid3X3 class="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-              <p class="text-lg">No hay un tablero generado</p>
-              <p class="mt-2 text-sm text-muted-foreground">Genera un bingo desde la sección de configuración o carga uno guardado.</p>
-            </div>
-          </div>
-        </CardContent>
-
-        <CardFooter class="flex flex-col items-center gap-2">
-          <div class="flex justify-center gap-2">
-            <Button v-if="bingoGrid.length > 0" @click="shuffleBingo" variant="ghost" size="sm" title="Reordenar las opciones actuales">
-              <Shuffle class="mr-1 h-3 w-3" /> Reordenar
-            </Button>
-
-            <!-- (center free-space removed) -->
-
-            <Button v-if="bingoGrid.length > 0" @click="saveBoard" variant="outline" size="sm" title="Guardar tablero en local">
-              <Save class="mr-1 h-3 w-3" /> Guardar
-            </Button>
-
-            <Button v-if="bingoGrid.length > 0" @click="resetBingo" variant="ghost" size="sm">
-              <Trash2 class="mr-1 h-3 w-3" /> Limpiar
-            </Button>
-          </div>
-
-          <div v-if="savedBoard" class="mt-1 flex items-center text-sm text-green-600 dark:text-green-400">
-            <CheckCircle class="mr-1 h-3 w-3" /> Tablero guardado correctamente
-          </div>
-        </CardFooter>
-      </Card>
-
-      <!-- Modal de pantalla completa -->
-      <div v-if="showFullscreen" class="fixed inset-0 bg-zinc-950/80 backdrop-blur-lg z-50 flex items-center justify-center" @click.self="closeFullscreen">
-        <div class="absolute top-0 left-0 w-sm hidden md:block">
-          <img src="https://github.com/roldyoran/Saiko_Ruleta/blob/main/public/reigen_ag/stickers/leji_halo.gif?raw=true" alt="leji girando" />
-        </div>
-        <div class="absolute bottom-0 right-8 w-64 hidden md:block">
-          <img src="https://github.com/roldyoran/Saiko_Ruleta/blob/main/public/roldyoran/DJ_RULETA.webp?raw=true" alt="DJRULETA" class="w-full h-auto" style="transform: scaleX(-1);" />
-        </div>
-
-        <div class="absolute left-4 right-4 top-4 z-10 flex items-center justify-between">
-          <div>
-            <!-- Slightly smaller header so the larger grid has more room -->
-            <h2 class="text-lg font-bold">Tablero de Bingo</h2>
-            <p class="text-sm text-muted-foreground">Marcados: {{ markedCells }} / {{ totalCells }}</p>
-          </div>
-          <Button @click="closeFullscreen" variant="secondary"><X class="mr-2 h-4 w-4" /> Cerrar</Button>
-        </div>
-
-        <div class="flex justify-center items-center w-full h-full pt-16 pb-4">
-          <div class="grid gap-2" :style="{ gridTemplateColumns: `repeat(${boardSize}, 1fr)`, gridTemplateRows: `repeat(${boardSize}, 1fr)`, width: `${fullscreenGridSize}px`, height: `${fullscreenGridSize}px` }">
-            <div v-for="(cell, index) in bingoGrid" :key="index" @click="toggleCell(index)" class="group relative flex cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 bg-card shadow-sm transition-all duration-200 hover:bg-accent" :class="{ 'bg-accent border-accent/80': cell.marked, 'hover:scale-[1.02]': !cell.marked, 'scale-[0.99]': cell.marked }">
-              <span class="select-none break-words p-2 text-center font-medium leading-tight hyphens-auto" :style="getFullscreenTextStyle(cell.text)">{{ cell.text }}</span>
-              <div v-if="cell.marked" class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <X class="text-destructive font-bold opacity-90 drop-shadow-xl" :style="getFullscreenMarkStyle()" stroke-width="3" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- Tablero de Bingo -->
+      <BingoBoard
+        :bingo-grid="bingoGrid"
+        :board-size="boardSize"
+        :saved-board="savedBoard"
+        @toggle-cell="toggleCell"
+        @shuffle-bingo="shuffleBingo"
+        @save-board="saveBoard"
+        @reset-bingo="resetBingo"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch, type CSSProperties, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
-import { Slider } from '@/components/ui/slider'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
-import { 
-  X, 
-  Plus, 
-  FileText, 
-  FileQuestion, 
-  Lightbulb, 
-  Dice6, 
-  Trash2, 
-  Link, 
-  Share, 
-  Copy, 
-  Maximize, 
-  Grid3X3, 
-  Shuffle, 
-  Save, 
-  CheckCircle,
-  Settings
-} from 'lucide-vue-next'
+import { Settings } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
+
+// Importar los nuevos componentes
+import {
+  BingoConfigPanel,
+  BingoOptionsManager,
+  BingoSharePanel,
+  BingoBoard
+} from '@/components/bingo'
 
 interface BingoCell {
   text: string
@@ -393,52 +101,14 @@ const multiText = ref('')
 const boardSize = ref(5)
 const boardSizeSlider = ref([5]) // Para el slider que requiere array
 const bingoGrid = ref<BingoCell[]>([])
-const showFullscreen = ref(false)
-// (center free-space feature removed)
 const shareLink = ref('')
 const copied = ref(false)
 const savedBoard = ref(false)
-// restoredNotice removed after debugging
 const isRestoring = ref(false)
-// Reactive window size so fullscreen layout recalculates on resize
-const windowSize = ref({ width: typeof window !== 'undefined' ? window.innerWidth : 0, height: typeof window !== 'undefined' ? window.innerHeight : 0 })
 
 // Computed properties
 const totalCells = computed(() => boardSize.value * boardSize.value)
-const markedCells = computed(() => bingoGrid.value.filter(cell => cell.marked).length)
 const canGenerateBingo = computed(() => options.value.length >= totalCells.value)
-const hasExtraOptions = computed(() => options.value.length > totalCells.value)
-
-const fullscreenGridSize = computed(() => {
-  // Use reactive windowSize so the grid and font sizes update on resize
-  const w = windowSize.value.width || 0
-  const h = windowSize.value.height || 0
-  // Increase available space slightly so fullscreen feels larger while clamping to sensible bounds
-  const size = Math.min(Math.max(h - 140, 0), Math.max(w - 80, 0), 980) * 0.95
-  // raise minimum so small devices still show a usable grid
-  return Math.max(520, size)
-})
-
-// UI helpers
-const percentOptions = computed(() => {
-  if (totalCells.value <= 0) return 0
-  const pct = Math.round((options.value.length / totalCells.value) * 100)
-  return Math.min(100, Math.max(0, pct))
-})
-
-// Compute a preview grid size that fits nicely in common viewports while keeping square cells
-const previewGridSize = computed(() => {
-  const maxPreview = 520
-  const minPreview = 200
-  const w = windowSize.value.width || 800
-  const h = windowSize.value.height || 600
-
-  // prefer width but also respect height
-  const candidate = Math.min(maxPreview, Math.max(minPreview, Math.min(w * 0.7, h * 0.55)))
-  // snap to cell size to avoid fractional pixels
-  const cell = Math.max(24, Math.floor(candidate / Math.max(boardSize.value, 1)))
-  return cell * boardSize.value
-})
 
 // debug helpers removed
 
@@ -689,8 +359,6 @@ const generateBingo = (): void => {
     text,
     marked: false
   }))
-  
-  // (center free-space feature removed)
 
   shareLink.value = ''
   toast.success('Tablero generado')
@@ -699,14 +367,14 @@ const generateBingo = (): void => {
 const shuffleBingo = (): void => {
   if (bingoGrid.value.length === 0 || !canGenerateBingo.value) return
   
-  if (hasExtraOptions.value) {
+  const hasExtraOptions = options.value.length > totalCells.value
+  if (hasExtraOptions) {
     generateBingo()
     toast.info('Tablero reordenado usando opciones extra')
   } else {
     const texts = bingoGrid.value.map(cell => cell.text)
     const shuffled = [...texts].sort(() => Math.random() - 0.5)
     bingoGrid.value = shuffled.map(text => ({ text, marked: false }))
-    // (center free-space feature removed)
     toast.info('Tablero reordenado')
   }
   
@@ -716,39 +384,9 @@ const shuffleBingo = (): void => {
 const resetBingo = (): void => {
   console.info('resetBingo() called — clearing bingoGrid (previous length:', bingoGrid.value.length, ')')
   bingoGrid.value = []
-  showFullscreen.value = false
   shareLink.value = ''
-  // clearing board
   localStorage.removeItem('bingoGrid')
   toast.info('Tablero restablecido')
-}
-
-// center-free feature removed
-
-// debug watch removed
-
-// Funciones de pantalla completa
-const openFullscreen = (): void => {
-  showFullscreen.value = true
-  document.body.style.overflow = 'hidden'
-}
-
-const closeFullscreen = (): void => {
-  showFullscreen.value = false
-  document.body.style.overflow = 'auto'
-}
-
-const handleKeyPress = (event: KeyboardEvent): void => {
-  if (event.key === 'Escape' && showFullscreen.value) {
-    closeFullscreen()
-  }
-}
-
-// update windowSize on resize so computed values recalc
-const handleResize = (): void => {
-  if (typeof window === 'undefined') return
-  windowSize.value.width = window.innerWidth
-  windowSize.value.height = window.innerHeight
 }
 
 // Funciones para compartir
@@ -796,78 +434,7 @@ const copyToClipboard = async (): Promise<void> => {
   }
 }
 
-// Estilos dinámicos para pantalla completa
-const getFullscreenTextStyle = (text: string): CSSProperties => {
-  // Calculate a font size based on the available cell size and text length
-  const cellSize = fullscreenGridSize.value / Math.max(boardSize.value, 1)
 
-  // base font is a fraction of the cell size (slightly reduced so longer strings fit)
-  let fontSize = cellSize * 0.165
-
-  // reduce font size for very long strings
-  if (text.length > 80) fontSize *= 0.55
-  else if (text.length > 60) fontSize *= 0.65
-  else if (text.length > 40) fontSize *= 0.75
-  else if (text.length > 25) fontSize *= 0.85
-
-  // clamp font size to reasonable bounds
-  fontSize = Math.max(10, Math.min(fontSize, 40))
-
-  return {
-    fontSize: `${fontSize}px`,
-    lineHeight: `${Math.max(fontSize * 1.05, 12)}px`,
-    whiteSpace: 'normal',
-    overflowWrap: 'break-word' as any,
-    wordBreak: 'break-word' as any,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    textAlign: 'center',
-    padding: '6px'
-  } as CSSProperties
-}
-
-const getFullscreenMarkStyle = () => {
-  const cellSize = fullscreenGridSize.value / Math.max(boardSize.value, 1)
-  // ensure a bold, very large mark in fullscreen; keep a sensible minimum
-  const size = Math.max(cellSize * 0.9, 64)
-  // return explicit width/height so SVG icons scale correctly
-  return { width: `${size}px`, height: `${size}px`, color: '#dc2626' }
-}
-
-// Keyboard navigation between cells + space/enter handling
-const handleCellKey = (index: number, event: KeyboardEvent): void => {
-  const cols = boardSize.value
-  if (event.key === 'Enter' || event.key === ' ') {
-    event.preventDefault()
-    toggleCell(index)
-    return
-  }
-
-  // Arrow navigation
-  let targetIndex: number | null = null
-  if (event.key === 'ArrowRight') targetIndex = (index + 1) % bingoGrid.value.length
-  else if (event.key === 'ArrowLeft') targetIndex = (index - 1 + bingoGrid.value.length) % bingoGrid.value.length
-  else if (event.key === 'ArrowDown') targetIndex = Math.min(bingoGrid.value.length - 1, index + cols)
-  else if (event.key === 'ArrowUp') targetIndex = Math.max(0, index - cols)
-
-  if (targetIndex !== null) {
-    event.preventDefault()
-    // focus the target cell
-    const el = document.querySelector(`[data-cell=\"${targetIndex}\"]`) as HTMLElement | null
-    if (el) el.focus()
-  }
-}
-
-// Preview text sizing: similar to fullscreen but tighter bounds
-const getPreviewTextStyle = (text: string): CSSProperties => {
-  const gridPx = previewGridSize.value
-  const cellSize = gridPx / Math.max(boardSize.value, 1)
-  let fontSize = Math.min(18, Math.max(11, Math.floor(cellSize * 0.15)))
-  if (text.length > 80) fontSize = Math.max(10, Math.floor(fontSize * 0.6))
-  else if (text.length > 50) fontSize = Math.max(11, Math.floor(fontSize * 0.75))
-  return { fontSize: `${fontSize}px`, lineHeight: '1.05', padding: '6px', textAlign: 'center' } as CSSProperties
-}
 
 // Watchers
 watch([options, boardSize, bingoGrid], () => {
@@ -901,15 +468,9 @@ onMounted(() => {
   // Then, if there's a shared bingo param, apply it (but don't clear saved board automatically)
   const bingoParam = new URLSearchParams(window.location.search).get('bingo')
   if (bingoParam) loadFromUrl()
-
-  document.addEventListener('keydown', handleKeyPress)
-  // listen for resize so fullscreen sizes update live
-  window.addEventListener('resize', handleResize)
 })
 
 onUnmounted(() => {
-  document.removeEventListener('keydown', handleKeyPress)
-  window.removeEventListener('resize', handleResize)
   document.body.style.overflow = 'auto'
 })
 
@@ -921,49 +482,10 @@ onUnmounted(() => {
   font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
 }
 
-/* Responsive small screens: make grid narrower */
+/* Responsive small screens */
 @media (max-width: 640px) {
-  .grid[style] {
-    width: 90vw !important;
-    height: 90vw !important;
-  }
   .text-5xl { 
     font-size: 2rem;
   }
-}
-
-.x-mark {
-  /* Make the X very prominent in preview — use explicit size so SVG scales well */
-  width: 5.5rem;
-  height: 5.5rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 900;
-  opacity: 0.98;
-  /* Intense red similar to Tailwind red-600 */
-  color: #dc2626;
-  filter: drop-shadow(0 10px 26px rgba(0,0,0,0.72));
-  line-height: 1;
-}
-
-.preview-grid { 
-  border-radius: 8px; 
-  overflow: hidden; 
-}
-
-.cell {
-  padding: 6px;
-  min-width: 0;
-}
-
-.cell:focus {
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 8px 20px rgba(2,6,23,0.5), 0 0 0 4px hsl(var(--ring) / 0.2);
-}
-
-/* Toolbar tweaks */
-[role="toolbar"] button { 
-  min-width: 120px;
 }
 </style>
