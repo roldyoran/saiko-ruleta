@@ -168,7 +168,7 @@
         loading="lazy"
         decoding="async"
         fetchpriority="low"
-        src="https://github.com/roldyoran/Saiko_Ruleta/blob/main/public/reigen_ag/stickers/leji_halo.gif?raw=true" 
+        src="/reigen_ag/stickers/leji_halo.gif" 
         alt="leji girando" 
       />
     </div>
@@ -177,7 +177,7 @@
         loading="lazy"
         decoding="async"
         fetchpriority="low"
-        src="https://github.com/roldyoran/Saiko_Ruleta/blob/main/public/roldyoran/DJ_RULETA.webp?raw=true" 
+        src="/roldyoran/DJ_RULETA.webp" 
         alt="DJRULETA" 
         class="w-full h-auto" 
         style="transform: scaleX(-1);" 
