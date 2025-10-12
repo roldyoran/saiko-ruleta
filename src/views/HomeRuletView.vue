@@ -33,7 +33,7 @@
       </div>
       <!-- Carousel centrado horizontalmente respecto a la ruleta -->
       <div
-        class="absolute hidden lg:block left-[750px] -translate-x-1/2 -bottom-8 z-20"
+        class="absolute hidden lg:block left-[730px] -translate-x-1/2 -bottom-8 z-20"
       >
         <ImageCarousel
           ref="carouselLeftRef"
@@ -48,7 +48,7 @@
       </div>
       <!-- Duplicado del carousel, posicionado al lado derecho -->
       <div
-        class="absolute hidden lg:block right-[750px] translate-x-1/2 -bottom-8 z-20"
+        class="absolute hidden lg:block right-[730px] translate-x-1/2 -bottom-8 z-20"
       >
         <ImageCarousel
           ref="carouselRightRef"
