@@ -15,6 +15,13 @@ const props = defineProps<ToasterProps>()
       '--normal-border': 'var(--border)',
       '--success-bg': 'var(--popover)',
       '--success-text': 'white',
+      '--info-bg': 'var(--popover)',
+      '--info-text': 'var(--popover-foreground)',
+      '--warning-bg': 'var(--popover)',
+      '--warning-text': 'var(--popover-foreground)',
+      '--error-bg': 'var(--popover)',
+      '--error-text': 'var(--popover-foreground)',
+      '--border': 'var(--ring)',
     }"
   />
 </template>
