@@ -21,7 +21,7 @@ const props = defineProps<ToasterProps>()
       '--warning-text': 'var(--popover-foreground)',
       '--error-bg': 'var(--popover)',
       '--error-text': 'var(--popover-foreground)',
-      '--border': 'var(--ring)',
+      '--border': 'color-mix(in srgb, var(--ring) 40%, transparent)',
     }"
   />
 </template>
