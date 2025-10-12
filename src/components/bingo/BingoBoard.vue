@@ -38,25 +38,51 @@
           <div
             v-for="(cell, index) in bingoGrid"
             :key="index"
-            @click="$emit('toggleCell', index)"
+            :draggable="isDragMode"
+            @click="!isDragMode && $emit('toggleCell', index)"
             @keydown="handleCellKey(index, $event)"
+            @dragstart="isDragMode && $emit('dragStart', index, $event)"
+            @dragover="isDragMode && $emit('dragOver', index, $event)"
+            @dragleave="isDragMode && $emit('dragLeave')"
+            @drop="isDragMode && $emit('drop', index, $event)"
+            @dragend="isDragMode && $emit('dragEnd')"
             tabindex="0"
             role="button"
             :aria-pressed="cell.marked"
             :data-cell="index"
-            class="group cell relative flex cursor-pointer items-center justify-center overflow-hidden rounded border bg-card transition-all duration-200 hover:bg-accent focus:outline-none"
+            class="group cell relative flex items-center justify-center overflow-hidden rounded border bg-card transition-all duration-200 focus:outline-none"
             :class="{
               'bg-accent border-accent/80': cell.marked,
-              'hover:scale-[1.02]': !cell.marked,
-              'scale-[0.98]': cell.marked
+              'hover:scale-[1.02]': !cell.marked && !isDragMode,
+              'scale-[0.98]': cell.marked,
+              'cursor-pointer': !isDragMode,
+              'cursor-move': isDragMode,
+              'hover:bg-accent': !isDragMode,
+              'hover:bg-blue-50 dark:hover:bg-blue-950': isDragMode && dragOverIndex !== index,
+              'opacity-50': isDragMode && draggedIndex === index,
+              'ring-2 ring-blue-400 ring-offset-1': isDragMode && draggedIndex === index,
+              'border-blue-300': isDragMode,
+              'shadow-lg': isDragMode && draggedIndex === index,
+              'bg-green-100 dark:bg-green-900 border-green-400 ring-2 ring-green-400': isDragMode && dragOverIndex === index && draggedIndex !== index,
+              'scale-105': isDragMode && dragOverIndex === index && draggedIndex !== index
             }"
           >
+            <!-- Indicador de drag handle cuando está en modo drag -->
+            <div 
+              v-if="isDragMode" 
+              class="absolute top-1 right-1 text-muted-foreground opacity-60"
+            >
+              <GripVertical class="h-3 w-3" />
+            </div>
+            
             <span 
               :style="getPreviewTextStyle(cell.text)" 
-              class="select-none break-words px-1 text-center font-medium leading-tight hyphens-auto"
+              class="break-words px-1 text-center font-medium leading-tight hyphens-auto"
+              :class="{ 'select-none': !isDragMode, 'pointer-events-none': isDragMode }"
             >
               {{ cell.text }}
             </span>
+            
             <div 
               v-if="cell.marked" 
               class="absolute inset-0 flex items-center justify-center pointer-events-none"
@@ -77,15 +103,27 @@
     </CardContent>
 
     <CardFooter class="flex flex-col items-center gap-2">
-      <div class="flex justify-center gap-2">
+      <div class="flex justify-center gap-2 flex-wrap">
         <Button 
           v-if="bingoGrid.length > 0" 
           @click="$emit('shuffleBingo')" 
           variant="ghost" 
           size="sm" 
           title="Reordenar las opciones actuales"
+          :disabled="isDragMode"
         >
           <Shuffle class="mr-1 h-3 w-3" /> Reordenar
+        </Button>
+
+        <Button 
+          v-if="bingoGrid.length > 0" 
+          @click="$emit('toggleDragMode')" 
+          :variant="isDragMode ? 'default' : 'outline'" 
+          size="sm" 
+          :title="isDragMode ? 'Desactivar modo reordenamiento' : 'Activar modo reordenamiento'"
+        >
+          <Move class="mr-1 h-3 w-3" /> 
+          {{ isDragMode ? 'Salir Reorden' : 'Reordenar Manual' }}
         </Button>
 
         <Button 
@@ -103,9 +141,15 @@
           @click="$emit('resetBingo')" 
           variant="ghost" 
           size="sm"
+          :disabled="isDragMode"
         >
           <Trash2 class="mr-1 h-3 w-3" /> Limpiar
         </Button>
+      </div>
+
+      <!-- Mensaje informativo del modo drag -->
+      <div v-if="isDragMode" class="mt-1 flex items-center text-sm text-blue-600 dark:text-blue-400">
+        <Move class="mr-1 h-3 w-3" /> Arrastra una celda hacia otra para intercambiar sus posiciones
       </div>
 
       <div v-if="savedBoard" class="mt-1 flex items-center text-sm text-green-600 dark:text-green-400">
@@ -157,16 +201,41 @@
           <div 
             v-for="(cell, index) in bingoGrid" 
             :key="index" 
-            @click="$emit('toggleCell', index)" 
-            class="group relative flex cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 bg-card shadow-sm transition-all duration-200 hover:bg-accent" 
+            :draggable="isDragMode"
+            @click="!isDragMode && $emit('toggleCell', index)"
+            @dragstart="isDragMode && $emit('dragStart', index, $event)"
+            @dragover="isDragMode && $emit('dragOver', index, $event)"
+            @dragleave="isDragMode && $emit('dragLeave')"
+            @drop="isDragMode && $emit('drop', index, $event)"
+            @dragend="isDragMode && $emit('dragEnd')"
+            class="group relative flex items-center justify-center overflow-hidden rounded-lg border-2 bg-card shadow-sm transition-all duration-200" 
             :class="{ 
               'bg-accent border-accent/80': cell.marked, 
-              'hover:scale-[1.02]': !cell.marked, 
-              'scale-[0.99]': cell.marked 
+              'hover:scale-[1.02]': !cell.marked && !isDragMode, 
+              'scale-[0.99]': cell.marked,
+              'cursor-pointer': !isDragMode,
+              'cursor-move': isDragMode,
+              'hover:bg-accent': !isDragMode,
+              'hover:bg-blue-50 dark:hover:bg-blue-950': isDragMode && dragOverIndex !== index,
+              'opacity-50': isDragMode && draggedIndex === index,
+              'ring-4 ring-blue-400 ring-offset-2': isDragMode && draggedIndex === index,
+              'border-blue-300': isDragMode,
+              'shadow-xl': isDragMode && draggedIndex === index,
+              'bg-green-100 dark:bg-green-900 border-green-400 ring-4 ring-green-400': isDragMode && dragOverIndex === index && draggedIndex !== index,
+              'scale-105': isDragMode && dragOverIndex === index && draggedIndex !== index
             }"
           >
+            <!-- Indicador de drag handle para pantalla completa -->
+            <div 
+              v-if="isDragMode" 
+              class="absolute top-2 right-2 text-muted-foreground opacity-70"
+            >
+              <GripVertical class="h-6 w-6" />
+            </div>
+            
             <span 
-              class="select-none break-words p-2 text-center font-medium leading-tight hyphens-auto" 
+              class="break-words p-2 text-center font-medium leading-tight hyphens-auto" 
+              :class="{ 'select-none': !isDragMode, 'pointer-events-none': isDragMode }"
               :style="getFullscreenTextStyle(cell.text)"
             >
               {{ cell.text }}
@@ -200,7 +269,9 @@ import {
   Shuffle, 
   Save, 
   CheckCircle,
-  Trash2
+  Trash2,
+  Move,
+  GripVertical
 } from 'lucide-vue-next'
 
 interface BingoCell {
@@ -212,6 +283,9 @@ interface Props {
   bingoGrid: BingoCell[]
   boardSize: number
   savedBoard: boolean
+  isDragMode: boolean
+  draggedIndex: number | null
+  dragOverIndex: number | null
 }
 
 const props = defineProps<Props>()
@@ -221,6 +295,12 @@ const emit = defineEmits<{
   'shuffleBingo': []
   'saveBoard': []
   'resetBingo': []
+  'toggleDragMode': []
+  'dragStart': [index: number, event: DragEvent]
+  'dragOver': [index: number, event: DragEvent]
+  'dragLeave': []
+  'drop': [index: number, event: DragEvent]
+  'dragEnd': []
 }>()
 
 const showFullscreen = ref(false)
@@ -276,7 +356,9 @@ const handleCellKey = (index: number, event: KeyboardEvent): void => {
   const cols = props.boardSize
   if (event.key === 'Enter' || event.key === ' ') {
     event.preventDefault()
-    emit('toggleCell', index)
+    if (!props.isDragMode) {
+      emit('toggleCell', index)
+    }
     return
   }
 
@@ -367,10 +449,57 @@ onUnmounted(() => {
 .cell {
   padding: 6px;
   min-width: 0;
+  position: relative;
 }
 
 .cell:focus {
   transform: translateY(-2px) scale(1.01);
   box-shadow: 0 8px 20px rgba(2,6,23,0.5), 0 0 0 4px hsl(var(--ring) / 0.2);
+}
+
+/* Estilos para drag and drop */
+.cell[draggable="true"] {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.cell[draggable="true"]:hover {
+  transform: translateY(-1px);
+}
+
+.cell[draggable="true"]:active {
+  transform: scale(0.98);
+}
+
+/* Indicador visual durante el drag */
+.cell.dragging {
+  opacity: 0.5;
+  transform: rotate(5deg) scale(0.95);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+/* Zona de intercambio disponible */
+.cell.drag-over {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgb(34, 197, 94);
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+}
+
+/* Animación suave para transiciones */
+.cell {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Estilos para el handle de drag */
+.drag-handle {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.cell:hover .drag-handle {
+  opacity: 1;
 }
 </style>

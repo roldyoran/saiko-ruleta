@@ -65,10 +65,19 @@
         :bingo-grid="bingoGrid"
         :board-size="boardSize"
         :saved-board="savedBoard"
+        :is-drag-mode="isDragMode"
+        :dragged-index="draggedIndex"
+        :drag-over-index="dragOverIndex"
         @toggle-cell="toggleCell"
         @shuffle-bingo="shuffleBingo"
         @save-board="saveBoard"
         @reset-bingo="resetBingo"
+        @toggle-drag-mode="toggleDragMode"
+        @drag-start="handleDragStart"
+        @drag-over="handleDragOver"
+        @drag-leave="handleDragLeave"
+        @drop="handleDrop"
+        @drag-end="handleDragEnd"
       />
     </div>
   </div>
@@ -105,6 +114,10 @@ const shareLink = ref('')
 const copied = ref(false)
 const savedBoard = ref(false)
 const isRestoring = ref(false)
+// Estado para drag and drop
+const isDragMode = ref(false)
+const draggedIndex = ref<number | null>(null)
+const dragOverIndex = ref<number | null>(null)
 
 // Computed properties
 const totalCells = computed(() => boardSize.value * boardSize.value)
@@ -387,6 +400,76 @@ const resetBingo = (): void => {
   shareLink.value = ''
   localStorage.removeItem('bingoGrid')
   toast.info('Tablero restablecido')
+}
+
+// Funciones de drag and drop
+const toggleDragMode = (): void => {
+  isDragMode.value = !isDragMode.value
+  draggedIndex.value = null
+  dragOverIndex.value = null
+  if (isDragMode.value) {
+    toast.info('Modo intercambio activado - Arrastra las celdas para intercambiar posiciones')
+  } else {
+    toast.info('Modo intercambio desactivado')
+  }
+}
+
+const handleDragStart = (index: number, event: DragEvent): void => {
+  if (!isDragMode.value) return
+  draggedIndex.value = index
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.setData('text/html', index.toString())
+  }
+}
+
+const handleDragOver = (targetIndex: number, event: DragEvent): void => {
+  if (!isDragMode.value) return
+  event.preventDefault()
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'move'
+  }
+  dragOverIndex.value = targetIndex
+}
+
+const handleDragLeave = (): void => {
+  dragOverIndex.value = null
+}
+
+const handleDrop = (targetIndex: number, event: DragEvent): void => {
+  if (!isDragMode.value || draggedIndex.value === null) return
+  
+  event.preventDefault()
+  const sourceIndex = draggedIndex.value
+  
+  if (sourceIndex !== targetIndex && 
+      sourceIndex >= 0 && sourceIndex < bingoGrid.value.length &&
+      targetIndex >= 0 && targetIndex < bingoGrid.value.length) {
+    
+    // Crear una copia del grid para intercambiar
+    const newGrid = [...bingoGrid.value]
+    
+    // Verificar que ambas celdas existen
+    const sourceCell = newGrid[sourceIndex]
+    const targetCell = newGrid[targetIndex]
+    
+    if (sourceCell && targetCell) {
+      // Intercambiar directamente las dos celdas
+      newGrid[sourceIndex] = targetCell
+      newGrid[targetIndex] = sourceCell
+      
+      bingoGrid.value = newGrid
+      toast.success('Celdas intercambiadas')
+    }
+  }
+  
+  draggedIndex.value = null
+  dragOverIndex.value = null
+}
+
+const handleDragEnd = (): void => {
+  draggedIndex.value = null
+  dragOverIndex.value = null
 }
 
 // Funciones para compartir
