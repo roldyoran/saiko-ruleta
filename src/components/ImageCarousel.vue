@@ -8,17 +8,15 @@
     <div class="image-stack" :style="{ '--fade-duration': fadeMs }">
       <img
         v-if="currentImage"
-        :key="`current-${currentImageKey}`"
+        :key="`current-${index}`"
         :src="currentImage"
         class="image current absolute h-full w-full object-cover"
         :alt="`carousel image ${index + 1}`"
         draggable="false"
         loading="eager"
         decoding="sync"
-        :style="{ 
-          transitionDuration: fadeDuration + 'ms',
-          animationDuration: fadeDuration + 'ms'
-        }"
+        :style="{ transitionDuration: fadeMs, animationDuration: fadeMs }"
+        @animationend="onImageAnimationEnd"
       />
 
       <img
@@ -30,14 +28,9 @@
         draggable="false"
         loading="eager"
         decoding="sync"
-        :class="{ fading: prevFading }"
-        :style="{ 
-          transitionDuration: fadeDuration + 'ms',
-          animationDuration: fadeDuration + 'ms'
-        }"
+        :style="{ transitionDuration: fadeMs, animationDuration: fadeMs }"
+        @animationend="onImageAnimationEnd"
       />
-      
-
 
       <div v-if="!currentImage" class="empty">No images</div>
     </div>
@@ -71,304 +64,132 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
-import { animate, stagger, delay, spring } from 'motion'
+<script setup lang="ts">
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick, type PropType } from 'vue'
 
 const props = defineProps({
-  images: {
-    type: Array,
-    default: () => [],
-  },
-  interval: {
-    type: Number,
-    default: 2500, // Longer interval for better UX
-  },
-  fadeDuration: {
-    type: Number,
-    default: 600, // Increased for smoother transition
-  },
-  autoplay: {
-    type: Boolean,
-    default: true,
-  },
-  useStaggeredAnimation: {
-    type: Boolean,
-    default: false, // Enable your staggered animation pattern
-  },
-  staggerDelay: {
-    type: Number,
-    default: 5, // Stagger delay in seconds (matching your example)
-  },
-  showIndicators: {
-    type: Boolean,
-    default: true,
-  },
-  showControls: {
-    type: Boolean,
-    default: false,
-  },
-  ariaLabel: {
-    type: String,
-    default: 'Image carousel',
-  },
+  images: { type: Array as PropType<string[]>, default: () => [] as string[] },
+  interval: { type: Number, default: 2500 },
+  fadeDuration: { type: Number, default: 600 },
+  autoplay: { type: Boolean, default: true },
+  showIndicators: { type: Boolean, default: true },
+  showControls: { type: Boolean, default: false },
+  ariaLabel: { type: String, default: 'Image carousel' },
 })
 
 const emit = defineEmits(['update:currentIndex', 'change'])
 
-const index = ref(0)
-const timerId = ref(null)
-const prevIndex = ref(null)
-const prevFading = ref(false)
-const rootRef = ref(null)
-const isAnimating = ref(false)
-const animationTimeoutId = ref(null)
-const preloadedImages = new Set()
+// State
+const index = ref<number>(0)
+const prevIndex = ref<number | null>(null)
+const isAnimating = ref<boolean>(false)
+const rootRef = ref<HTMLElement | null>(null)
+const timerId = ref<number | null>(null)
+const safetyTimeout = ref<number | null>(null)
+const preloaded = new Set<string>()
 
-const images = computed(() => props.images || [])
-
-const currentImage = computed(() => (images.value.length ? images.value[index.value] : null))
-const currentImageKey = computed(() => `${index.value}-${currentImage.value}`)
+const images = computed<string[]>(() => props.images || [])
+const currentImage = computed<string | null>(() => (images.value.length ? (images.value[index.value] ?? null) : null))
 const fadeMs = computed(() => `${props.fadeDuration}ms`)
 
-// Preload next images using JavaScript (avoids browser warnings)
-function preloadNextImages() {
+function preloadNearby(count = 2) {
   if (!images.value.length) return
-  
-  for (let i = 1; i <= 3; i++) {
-    const nextIndex = (index.value + i) % images.value.length
-    const imageSrc = images.value[nextIndex]
-    
-    if (imageSrc && !preloadedImages.has(imageSrc)) {
+  for (let i = 1; i <= count; i++) {
+    const idx = (index.value + i) % images.value.length
+    const src = images.value[idx]
+    if (src && !preloaded.has(src)) {
       const img = new Image()
-      img.src = imageSrc
-      preloadedImages.add(imageSrc)
+      img.src = src
+      preloaded.add(src)
     }
   }
 }
 
-// Staggered animation similar to your example
-function startStaggeredAnimation() {
-  const carouselImages = rootRef.value?.querySelectorAll('.image')
-  if (!carouselImages || carouselImages.length === 0) return
-  
-  delay(() => {
-    // Apply the fade-in animation with stagger
-    animate(carouselImages, { opacity: [0, 1] }, { duration: 1, delay: stagger(props.staggerDelay) });
-  }, props.staggerDelay);
-  
-  // Apply the fade-out animation for all images
-  animate(carouselImages, { opacity: [1, 0], duration: 1 });
+function clearSafetyTimeout() {
+  if (safetyTimeout.value) {
+    clearTimeout(safetyTimeout.value)
+    safetyTimeout.value = null
+  }
 }
 
-// Auto-start staggered animation with interval (similar to your setInterval pattern)
-function startStaggeredInterval() {
-  if (!props.useStaggeredAnimation || !props.autoplay) return
-  
-  // Initial animation
-  startStaggeredAnimation()
-  
-  // Repeat animation (21 seconds in your example, but using the interval prop for flexibility)
-  const staggerInterval = Math.max(props.interval * 8, 21000) // Default to 21s like your example
-  setInterval(startStaggeredAnimation, staggerInterval)
+function startAutoplay() {
+  stopAutoplay()
+  if (!props.autoplay || !images.value.length) return
+  timerId.value = window.setInterval(() => { go(1) }, Math.max(100, props.interval))
 }
 
-function startTimer() {
-  stopTimer()
-  if (!props.autoplay) return
-  timerId.value = setInterval(
-    () => {
-      next()
-    },
-    Math.max(100, props.interval),
-  )
-}
-
-function stopTimer() {
+function stopAutoplay() {
   if (timerId.value) {
     clearInterval(timerId.value)
     timerId.value = null
   }
 }
 
-
-
-function clearAnimationState() {
-  if (animationTimeoutId.value) {
-    clearTimeout(animationTimeoutId.value)
-    animationTimeoutId.value = null
-  }
-  prevFading.value = false
-  prevIndex.value = null
-  isAnimating.value = false
-}
-
-function triggerTransition() {
-  // Prevent rapid clicks during animation
+function beginTransition(newIndex: number) {
+  // If already animating, ignore calls
   if (isAnimating.value) return false
-  
-  // If staggered animation is enabled, use the staggered pattern instead
-  if (props.useStaggeredAnimation) {
-    startStaggeredAnimation()
-    // Set a timeout to clear animation state based on stagger timing
-    animationTimeoutId.value = setTimeout(() => {
-      clearAnimationState()
-    }, (props.staggerDelay * 1000) + (props.fadeDuration * 2))
-    isAnimating.value = true
-    return true
-  }
-  
+
+  prevIndex.value = index.value
+  index.value = newIndex
   isAnimating.value = true
-  
-  nextTick(() => {
-    const currentImg = rootRef.value?.querySelector('.image.current')
-    const prevImg = rootRef.value?.querySelector('.image.prev')
-    
-    if (currentImg && prevImg) {
-      try {
-        // Use motion library for smoother crossfade animations
-        const fadeInPromise = animate(
-          currentImg, 
-          { opacity: [0, 1] }, 
-          { 
-            duration: props.fadeDuration / 1000, // motion uses seconds
-            easing: spring({ stiffness: 300, damping: 30 })
-          }
-        )
-        
-        const fadeOutPromise = animate(
-          prevImg, 
-          { opacity: [1, 0] }, 
-          { 
-            duration: props.fadeDuration / 1000, // motion uses seconds
-            easing: spring({ stiffness: 300, damping: 30 })
-          }
-        )
-        
-        // Use Promise.all for better synchronization
-        Promise.all([
-          fadeInPromise.finished,
-          fadeOutPromise.finished
-        ]).then(() => {
-          clearAnimationState()
-        }).catch(() => {
-          // Fallback cleanup
-          clearAnimationState()
-        })
-        
-        // Safety timeout
-        animationTimeoutId.value = setTimeout(() => {
-          clearAnimationState()
-        }, props.fadeDuration + 100)
-        
-      } catch (error) {
-        console.warn('Motion animation failed, using CSS fallback:', error)
-        // Enhanced CSS fallback with better timing
-        prevFading.value = true
-        
-        // Use requestAnimationFrame for smoother timing
-        requestAnimationFrame(() => {
-          animationTimeoutId.value = setTimeout(() => {
-            clearAnimationState()
-          }, props.fadeDuration)
-        })
-      }
-    } else {
-      // Enhanced CSS fallback with better timing
-      prevFading.value = true
-      
-      // Use requestAnimationFrame for smoother timing
-      requestAnimationFrame(() => {
-        animationTimeoutId.value = setTimeout(() => {
-          clearAnimationState()
-        }, props.fadeDuration)
-      })
-    }
-  })
-  
+
+  // safety timeout in case animationend doesn't fire
+  clearSafetyTimeout()
+  safetyTimeout.value = window.setTimeout(() => {
+    isAnimating.value = false
+    prevIndex.value = null
+    clearSafetyTimeout()
+  }, props.fadeDuration + 120)
+
   return true
 }
 
-function next() {
-  if (!images.value.length || isAnimating.value) return
-  
-  prevIndex.value = index.value
-  prevFading.value = false
-  index.value = (index.value + 1) % images.value.length
-  emit('update:currentIndex', index.value)
-  emit('change', index.value)
-  
-  triggerTransition()
-  preloadNextImages()
+function go(delta: number) {
+  if (!images.value.length) return
+  const nextIndex = (index.value + delta + images.value.length) % images.value.length
+  if (nextIndex === index.value || isAnimating.value) return
+  const changed = beginTransition(nextIndex)
+  if (changed) {
+    emit('update:currentIndex', index.value)
+    emit('change', index.value)
+    nextTick(preloadNearby)
+  }
 }
 
-function prev() {
-  if (!images.value.length || isAnimating.value) return
-  
-  prevIndex.value = index.value
-  prevFading.value = false
-  index.value = (index.value - 1 + images.value.length) % images.value.length
-  emit('update:currentIndex', index.value)
-  emit('change', index.value)
-  
-  triggerTransition()
-}
+function next() { go(1) }
+function prev() { go(-1) }
+function goTo(i: number) { if (!images.value.length) return; if (i === index.value || isAnimating.value) return; beginTransition(Math.max(0, Math.min(i, images.value.length -1))); emit('update:currentIndex', index.value); emit('change', index.value); nextTick(preloadNearby) }
 
-function goTo(i) {
-  if (!images.value.length || isAnimating.value) return
-  
-  const target = Math.max(0, Math.min(i, images.value.length - 1))
-  if (target === index.value) return
-  
-  prevIndex.value = index.value
-  prevFading.value = false
-  index.value = target
-  emit('update:currentIndex', index.value)
-  emit('change', index.value)
-  
-  triggerTransition()
-}
-
-
-// Expose methods so parent can control the carousel
+// Expose controls
 defineExpose({ next, prev, goTo })
 
-watch(
-  () => props.images,
-  (newVal) => {
-    // Reset index if current index out of bounds
-    if (!newVal || !newVal.length) {
-      index.value = 0
-    } else if (index.value >= newVal.length) {
-      index.value = 0
-    }
-    // restart timer so interval resets when images change
-    startTimer()
-  },
-  { immediate: true },
-)
+function onImageAnimationEnd() {
+  isAnimating.value = false
+  prevIndex.value = null
+  clearSafetyTimeout()
+}
 
-watch(
-  () => props.interval,
-  () => startTimer(),
-)
-watch(
-  () => props.autoplay,
-  () => startTimer(),
-)
+watch(() => props.images, (nv) => {
+  if (!nv || !nv.length) {
+    index.value = 0
+  } else if (index.value >= nv.length) {
+    index.value = 0
+  }
+  startAutoplay()
+}, { immediate: true })
+
+watch(() => props.autoplay, startAutoplay)
+watch(() => props.interval, startAutoplay)
 
 onMounted(() => {
-  if (props.useStaggeredAnimation) {
-    startStaggeredInterval()
-  } else {
-    startTimer()
-  }
-  preloadNextImages()
+  startAutoplay()
+  preloadNearby()
 })
+
 onBeforeUnmount(() => {
-  stopTimer()
-  clearAnimationState()
-  preloadedImages.clear()
+  stopAutoplay()
+  clearSafetyTimeout()
+  preloaded.clear()
 })
 </script>
 
@@ -508,5 +329,4 @@ onBeforeUnmount(() => {
   transform: scale(1.15);
 }
 
-/* Note: manual crossfade uses .prev.fading (opacity -> 0) and --fade-duration */
 </style>

@@ -17,7 +17,7 @@
 
     <div
       v-if="error"
-      class="absolute inset-0 flex items-center justify-center bg-zinc-100 dark:bg-zinc-800"
+      class="absolute inset-0 flex items-center justify-center bg-zinc-100 dark:bg-zinc-950"
     >
       <span class="text-sm text-zinc-500 dark:text-zinc-300">Imagen no disponible</span>
     </div>
