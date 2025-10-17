@@ -1,6 +1,7 @@
 <template>
   <div class="relative m-0 flex min-h-screen flex-col justify-center items-center">
-    <Background />
+    <!-- <Background /> -->
+    <Christmas />
 
     <!-- Icon navigation for testing -->
     <IconNav class="absolute top-7 left-4 z-40" />
@@ -109,7 +110,8 @@ import RouletteControls from '@/components/roulette/RouletteControls.vue'
 import IconNav from '@/components/ui/action-buttons/IconNav.vue'
 
 // Lazy-load de componentes pesados para reducir bundle inicial
-const Background = defineAsyncComponent(() => import('@/components/backgrounds/background.vue'))
+// const Background = defineAsyncComponent(() => import('@/components/backgrounds/background.vue'))
+const Christmas = defineAsyncComponent(() => import('@/components/backgrounds/christmas.vue'))
 const ImageCarousel = defineAsyncComponent(() => import('@/components/ImageCarousel.vue'))
 
 // Refs de componentes
