@@ -105,62 +105,62 @@ button {
 }
 
 .dark {
-  /* Background: Ultra dark zinc-inspired */
-  --background: #0a0a0b;
-  --foreground: #f5f5f5; /* Más claro para mejor contraste */
+  /* Background: Ultra dark neutral con mejor contraste */
+  --background: #0a0a0a;
+  --foreground: #fafafa; /* Máximo contraste para texto */
 
-  /* Cards / popovers: Medium dark zinc */
-  --card: #141417;
-  --card-foreground: #f5f5f5; /* Más claro para mejor contraste */
-  --popover: #171416;
-  --popover-foreground: #f5f5f5; /* Más claro para mejor contraste */
+  /* Cards / popovers: Elevación sutil con mejor separación */
+  --card: #171717;
+  --card-foreground: #fafafa;
+  --popover: #1a1a1a;
+  --popover-foreground: #fafafa;
 
-  /* Primary: Vibrant rose accent */
-  --primary: #e6315e;
-  --primary-foreground: #ffffff; /* Blanco para mejor contraste */
+  /* Primary: Rose vibrante unificado */
+  --primary: #f43f5e;
+  --primary-foreground: #ffffff;
 
-  /* Secondary: Rose-tinted zinc medium */
-  --secondary: #5c102a;
-  --secondary-foreground: #e0e0e0; /* Más claro para mejor contraste */
+  /* Secondary: Rose oscuro con mejor contraste */
+  --secondary: #881337;
+  --secondary-foreground: #fdfdfd;
 
-  /* Muted: Optimized for ghost buttons */
-  --muted: #2a2729;
-  --muted-foreground: #cfcfcf; /* Más claro para mejor contraste */
+  /* Muted: Neutral balanceado para elementos secundarios */
+  --muted: #262626;
+  --muted-foreground: #d4d4d8;
 
-  /* Accent: Perfect for ghost button hover */
-  --accent: #851c3f;
-  --accent-foreground: #ffffff; /* Blanco para mejor contraste */
+  /* Accent: Rose intermedio para interacciones */
+  --accent: #be123c;
+  --accent-foreground: #ffffff;
 
-  /* Destructive: Rose red */
-  --destructive: #6e0021;
-  --destructive-foreground: #ffffff; /* Blanco para mejor contraste */
+  /* Destructive: Rose intenso para alertas */
+  --destructive: #991b1b;
+  --destructive-foreground: #fcf3f3;
 
-  /* Borders / inputs: Subtle rose-zinc */
-  --border: #3a3a3c; /* Más claro para mejor visibilidad */
-  --input: #3e2a35; /* Más claro para mejor visibilidad */
+  /* Borders / inputs: Neutral con sutil tinte rose */
+  --border: #404040;
+  --input: #262626;
   --ring: #f43f5e;
 
-  /* Charts: Harmonious rose-zinc palette */
+  /* Charts: Paleta rose cohesiva */
   --chart-1: #f43f5e;
   --chart-2: #fb7185;
   --chart-3: #fda4af;
-  --chart-4: #b1b1b8; /* Más claro para mejor contraste */
+  --chart-4: #fecdd3;
   --chart-5: #e11d48;
 
-  /* Sidebar: Deep rose-zinc */
-  --sidebar: #121214; /* Más oscuro para diferenciarse del fondo */
-  --sidebar-foreground: #f5f5f5; /* Más claro para mejor contraste */
+  /* Sidebar: Diferenciación clara con rose accent */
+  --sidebar: #0f0f0f;
+  --sidebar-foreground: #fafafa;
   --sidebar-primary: #f43f5e;
-  --sidebar-primary-foreground: #ffffff; /* Blanco para mejor contraste */
-  --sidebar-accent: #fb7185;
-  --sidebar-accent-foreground: #1a1a1d; /* Más oscuro para mejor contraste */
-  --sidebar-border: #3a3a3c; /* Más claro para mejor visibilidad */
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #be123c;
+  --sidebar-accent-foreground: #fda4af;
+  --sidebar-border: #404040;
   --sidebar-ring: #f43f5e;
 
-  /* Scrollbar: Elegant rose-zinc */
-  --scrollbar-bg: #1a1a1d; /* Más oscuro para diferenciarse del fondo */
-  --scrollbar-thumb: #f43f5e;
-  --scrollbar-thumb-hover: #fb7185;
+  /* Scrollbar: Rose elegante */
+  --scrollbar-bg: #171717;
+  --scrollbar-thumb: #be123c;
+  --scrollbar-thumb-hover: #f43f5e;
 }
 
 @layer base {

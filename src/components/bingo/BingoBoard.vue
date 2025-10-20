@@ -118,7 +118,7 @@
         <Button 
           v-if="bingoGrid.length > 0" 
           @click="$emit('toggleDragMode')" 
-          :variant="isDragMode ? 'default' : 'outline'" 
+          :variant="isDragMode ? 'default' : 'ghost'" 
           size="sm" 
           :title="isDragMode ? 'Desactivar modo reordenamiento' : 'Activar modo reordenamiento'"
         >
@@ -129,7 +129,7 @@
         <Button 
           v-if="bingoGrid.length > 0" 
           @click="$emit('saveBoard')" 
-          variant="outline" 
+          variant="ghost" 
           size="sm" 
           title="Guardar tablero en local"
         >
