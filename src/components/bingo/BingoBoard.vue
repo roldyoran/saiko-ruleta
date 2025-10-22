@@ -264,7 +264,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, type CSSProperties } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch, type CSSProperties } from 'vue'
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -279,6 +279,7 @@ import {
   Move,
   GripVertical
 } from 'lucide-vue-next'
+import confetti from 'canvas-confetti'
 
 interface BingoCell {
   text: string
@@ -335,6 +336,123 @@ const previewGridSize = computed(() => {
   const cell = Math.max(24, Math.floor(candidate / Math.max(props.boardSize, 1)))
   return cell * props.boardSize
 })
+
+// Bingo detection logic
+const checkForBingo = (grid: BingoCell[], size: number): { hasBingo: boolean, lines: number[][] } => {
+  const completedLines: number[][] = []
+  
+  // Check horizontal lines
+  for (let row = 0; row < size; row++) {
+    const line: number[] = []
+    let isComplete = true
+    
+    for (let col = 0; col < size; col++) {
+      const index = row * size + col
+      line.push(index)
+      if (!grid[index]?.marked) {
+        isComplete = false
+      }
+    }
+    
+    if (isComplete) {
+      completedLines.push(line)
+    }
+  }
+  
+  // Check vertical lines
+  for (let col = 0; col < size; col++) {
+    const line: number[] = []
+    let isComplete = true
+    
+    for (let row = 0; row < size; row++) {
+      const index = row * size + col
+      line.push(index)
+      if (!grid[index]?.marked) {
+        isComplete = false
+      }
+    }
+    
+    if (isComplete) {
+      completedLines.push(line)
+    }
+  }
+  
+  // Check main diagonal (top-left to bottom-right)
+  const mainDiagonal: number[] = []
+  let mainDiagComplete = true
+  for (let i = 0; i < size; i++) {
+    const index = i * size + i
+    mainDiagonal.push(index)
+    if (!grid[index]?.marked) {
+      mainDiagComplete = false
+    }
+  }
+  if (mainDiagComplete) {
+    completedLines.push(mainDiagonal)
+  }
+  
+  // Check anti-diagonal (top-right to bottom-left)
+  const antiDiagonal: number[] = []
+  let antiDiagComplete = true
+  for (let i = 0; i < size; i++) {
+    const index = i * size + (size - 1 - i)
+    antiDiagonal.push(index)
+    if (!grid[index]?.marked) {
+      antiDiagComplete = false
+    }
+  }
+  if (antiDiagComplete) {
+    completedLines.push(antiDiagonal)
+  }
+  
+  return {
+    hasBingo: completedLines.length > 0,
+    lines: completedLines
+  }
+}
+
+const previousCompletedLines = ref<Set<string>>(new Set())
+
+const triggerConfetti = () => {
+  confetti({
+    particleCount: 80,
+    spread: 70,
+    origin: { x: 0.05, y: 0.95 }
+  });
+  confetti({
+    particleCount: 80,
+    spread: 70,
+    origin: { x: 0.95, y: 0.95 }
+  });
+}
+
+// Watch for bingo completions
+watch(() => props.bingoGrid, (newGrid) => {
+  if (!newGrid || newGrid.length === 0) {
+    previousCompletedLines.value.clear()
+    return
+  }
+  
+  const { hasBingo, lines } = checkForBingo(newGrid, props.boardSize)
+  
+  if (hasBingo && lines.length > 0) {
+    const currentLines = new Set(lines.map(line => line.join(',')))
+    
+    // Check if there are new completed lines
+    const newLines = Array.from(currentLines).filter(line => !previousCompletedLines.value.has(line))
+    
+    if (newLines.length > 0) {
+      // New bingo line(s) completed!
+      triggerConfetti()
+      
+      // Update the set of completed lines
+      previousCompletedLines.value = currentLines
+    }
+  } else {
+    // No bingo, clear the previous lines
+    previousCompletedLines.value.clear()
+  }
+}, { deep: true })
 
 const openFullscreen = (): void => {
   showFullscreen.value = true
