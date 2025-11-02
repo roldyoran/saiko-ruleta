@@ -150,6 +150,15 @@ import {
   defineAsyncComponent,
 } from "vue";
 import {toast} from "vue-sonner";
+import { useAppMeta } from '@/composables/useAppMeta';
+
+// Composables
+const { updateMeta } = useAppMeta({
+  title: 'Inicio',
+  description: 'Ruleta interactiva para sorteos y entretenimiento. Perfecto para streamers y comunidades.',
+  keywords: ['ruleta', 'sorteo', 'streaming', 'juegos', 'entretenimiento'],
+  type: 'website'
+});
 
 // Componentes de la ruleta (carga prioritaria)
 import RouletteWheel from "@/components/roulette/RouletteWheel.vue";

@@ -88,6 +88,15 @@ import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
 import { Settings } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
+import { useAppMeta } from '@/composables/useAppMeta'
+
+// Configurar metadatos de la página
+const { updateMeta } = useAppMeta({
+  title: 'Bingo',
+  description: 'Crea y juega bingo personalizado con opciones personalizables. Perfecto para eventos y entretenimiento.',
+  keywords: ['bingo', 'juego', 'personalizable', 'entretenimiento', 'sorteo'],
+  type: 'website'
+});
 
 // Importar los nuevos componentes
 import {

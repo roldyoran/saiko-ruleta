@@ -86,6 +86,15 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import data from '@/assets/galeria.json'
 import LavaLamp from '@/components/backgrounds/lavaLamp.vue'
 import ImageSkeleton from '@/components/ImageSkeleton.vue'
+import { useAppMeta } from '@/composables/useAppMeta'
+
+// Configurar metadatos de la página
+const { updateMeta } = useAppMeta({
+  title: 'Galería',
+  description: 'Explora nuestra galería de imágenes organizadas por temporadas y creadores.',
+  keywords: ['galería', 'imágenes', 'fotos', 'temporadas', 'colección'],
+  type: 'website'
+});
 
 // Variables reactivas
 const showModal = ref(false)

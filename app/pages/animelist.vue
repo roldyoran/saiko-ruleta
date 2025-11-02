@@ -74,6 +74,15 @@ import AnimeError from '@/components/animelist/AnimeError.vue'
 import AnimeEmpty from '@/components/animelist/AnimeEmpty.vue'
 import { Card, CardContent } from '@/components/ui/card'
 import LavaLamp from '@/components/backgrounds/lavaLamp.vue'
+import { useAppMeta } from '@/composables/useAppMeta'
+
+// Configurar metadatos de la página
+const { updateMeta } = useAppMeta({
+  title: 'Lista de Animes',
+  description: 'Explora nuestra colección completa de animes vistos con filtros y búsqueda avanzada.',
+  keywords: ['anime', 'lista', 'manga', 'otaku', 'entretenimiento', 'series'],
+  type: 'website'
+});
 
 const animeData = ref([])
 const isLoading = ref(true)
