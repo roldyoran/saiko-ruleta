@@ -66,6 +66,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
+import { navigateTo, useRoute } from '#app'
 import PaginationControls from '@/components/animelist/PaginationControls.vue'
 import AnimeCard from '@/components/animelist/AnimeCard.vue'
 import AnimeFilters from '@/components/animelist/AnimeFilters.vue'
@@ -84,6 +85,9 @@ const { updateMeta } = useAppMeta({
   type: 'website'
 });
 
+// Usar composable de ruta de Nuxt
+const route = useRoute()
+
 const animeData = ref([])
 const isLoading = ref(true)
 const error = ref(null)
@@ -93,47 +97,35 @@ const categoryFilter = ref('todas')
 const currentPage = ref(0)
 const pageSize = 30
 
-// Función para obtener parámetros de la URL
-function getUrlParams() {
-  const urlParams = new URLSearchParams(window.location.search)
-  const pageFromUrl = parseInt(urlParams.get('page')) || 1
-  return {
-    search: urlParams.get('search') || '',
-    category: urlParams.get('category') || 'todas',
-    page: pageFromUrl > 0 ? pageFromUrl - 1 : 0, // Convertir de 1-indexed a 0-indexed
-  }
-}
-
-// Función para actualizar la URL
-function updateUrl() {
-  const params = new URLSearchParams()
+// Función para actualizar la URL usando composables de Nuxt (SSR compatible)
+async function updateUrl() {
+  const query = {}
 
   if (searchQuery.value.trim()) {
-    params.set('search', searchQuery.value.trim())
+    query.search = searchQuery.value.trim()
   }
 
   if (categoryFilter.value !== 'todas') {
-    params.set('category', categoryFilter.value)
+    query.category = categoryFilter.value
   }
 
   if (currentPage.value > 0) {
-    params.set('page', (currentPage.value + 1).toString())
+    query.page = (currentPage.value + 1).toString()
   }
 
-  const newUrl = params.toString()
-    ? `${window.location.pathname}?${params.toString()}`
-    : window.location.pathname
-
-  // Actualizar la URL sin recargar la página
-  window.history.replaceState({}, '', newUrl)
+  // Usar navigateTo de Nuxt para actualizar la URL
+  await navigateTo({ query }, { replace: true })
 }
 
-// Inicializar valores desde la URL
+// Inicializar valores desde la URL usando useRoute (SSR compatible)
 function initializeFromUrl() {
-  const params = getUrlParams()
-  searchQuery.value = params.search
-  categoryFilter.value = params.category
-  currentPage.value = params.page
+  const searchFromUrl = route.query.search?.toString() || ''
+  const categoryFromUrl = route.query.category?.toString() || 'todas'
+  const pageFromUrl = parseInt(route.query.page?.toString() || '1') || 1
+
+  searchQuery.value = searchFromUrl
+  categoryFilter.value = categoryFromUrl
+  currentPage.value = pageFromUrl > 0 ? pageFromUrl - 1 : 0 // Convertir de 1-indexed a 0-indexed
 }
 
 async function fetchAnimeData() {
@@ -156,16 +148,16 @@ async function fetchAnimeData() {
 }
 
 onMounted(async () => {
-  // Primero inicializar desde la URL
+  // Inicializar desde la URL usando useRoute (SSR compatible)
   initializeFromUrl()
 
-  // Luego cargar los datos
+  // Cargar los datos
   await fetchAnimeData()
 
-  // Escuchar cambios en la URL (para botón atrás/adelante del navegador)
-  window.addEventListener('popstate', () => {
+  // Watch para cambios en la ruta (reemplaza el popstate listener)
+  watch(() => route.query, () => {
     initializeFromUrl()
-  })
+  }, { deep: true })
 })
 
 // Función JavaScript actualizada
