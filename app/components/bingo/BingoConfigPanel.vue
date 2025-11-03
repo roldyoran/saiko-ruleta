@@ -1,5 +1,5 @@
 <template>
-  <Card>
+  <Card class="bg-neutral-800">
     <CardHeader>
       <CardTitle class="flex items-center text-xl">
         <Settings class="mr-2 h-5 w-5" />
@@ -55,7 +55,7 @@
 
         <Button
           @click="$emit('clearAllOptions')"
-          variant="destructive"
+          variant="ghost"
           aria-label="Limpiar todas las opciones"
           class="px-4 py-3"
         >
