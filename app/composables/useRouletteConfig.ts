@@ -22,8 +22,8 @@ export interface RouletteSettings {
 const DEFAULT_SETTINGS: RouletteSettings = {
   fontFamily: 'Arial, sans-serif',
   labelAlign: 'right',
-  fontSizeMax: 18,
-  labelRadius: 0.75,
+  fontSizeMax: 24,
+  labelRadius: 0.6,
   lineWidth: 6,
   lineColor: '#0a0a0a',
   spinDuration: 4500,
