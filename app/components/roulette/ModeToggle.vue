@@ -1,40 +1,61 @@
 <template>
   <RouletteConfigPanel
     ref="configPanelRef"
-    :prevent-close="preventClose"
+    :is-names-mode="isNamesMode"
     @update:open="onPanelChange"
+    @mode-change="(mode) => emit('mode-change', mode)"
+    @items-changed="() => emit('items-changed')"
+  />
+
+  <!-- Botón para abrir panel de configuración -->
+  <Card
+    v-if="!panelOpen"
+    class="fixed top-4 right-4 z-50 p-2 cursor-pointer"
+    @click="openPanel"
   >
-    <template #trigger="{ toggle }">
-      <Card
-        v-if="!panelOpen"
-        class="fixed top-4 right-4 z-50 p-2 cursor-pointer"
-        @click="toggle"
-      >
-        <Button
-          variant="ghost"
-          size="icon"
-          class="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
-        >
-          <Users class="h-3.5 w-3.5" />
-        </Button>
-      </Card>
-    </template>
-  </RouletteConfigPanel>
+    <Button
+      variant="ghost"
+      size="icon"
+      class="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+    >
+      <Users class="h-3.5 w-3.5" />
+    </Button>
+  </Card>
+
+  <!-- Botón para alternar modo (solo visible cuando hay items y el panel está cerrado) -->
+  <Card
+    v-if="!panelOpen && itemsCount >= 2"
+    class="fixed top-14 right-4 z-50 p-2 cursor-pointer"
+    @click="toggleMode"
+  >
+    <Button
+      variant="ghost"
+      size="icon"
+      class="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+      :title="isNamesMode ? 'Cambiar a modo números' : 'Cambiar a modo participantes'"
+    >
+      <component :is="isNamesMode ? Hash : Users" class="h-3.5 w-3.5" />
+    </Button>
+  </Card>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Users } from '@lucide/vue'
+import { Users, Hash } from '@lucide/vue'
 import RouletteConfigPanel from './RouletteConfigPanel.vue'
 
-const emit = defineEmits(['panel-open', 'panel-close'])
+const emit = defineEmits(['panel-open', 'panel-close', 'mode-change', 'items-changed'])
 
-defineProps({
-  preventClose: {
+const props = defineProps({
+  isNamesMode: {
     type: Boolean,
     default: false,
+  },
+  itemsCount: {
+    type: Number,
+    default: 0,
   },
 })
 
@@ -50,12 +71,17 @@ function onPanelChange(open) {
   }
 }
 
-defineExpose({
-  open: () => {
-    if (configPanelRef.value) {
-      configPanelRef.value.isOpen = true
-      configPanelRef.value.focusInput()
-    }
+function openPanel() {
+  if (configPanelRef.value) {
+    configPanelRef.value.open()
   }
+}
+
+function toggleMode() {
+  emit('mode-change', props.isNamesMode ? 'numbers' : 'names')
+}
+
+defineExpose({
+  open: openPanel,
 })
 </script>

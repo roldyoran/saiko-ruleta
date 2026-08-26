@@ -1,7 +1,4 @@
 <template>
-  <!-- Trigger slot -->
-  <slot name="trigger" :toggle="togglePanel" />
-
   <!-- Panel teleportado al body para evitar z-index issues, sin overlay que bloquee clicks -->
   <Teleport to="body">
     <!-- Panel lateral -->
@@ -27,6 +24,37 @@
         <!-- Contenido scrolleable -->
         <ScrollArea class="flex-1 overflow-y-auto">
           <div class="flex flex-col gap-4 px-5 py-4">
+
+            <!-- Modo de la Ruleta -->
+            <div class="space-y-2">
+              <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Modo de la Ruleta
+              </h3>
+              <div class="grid grid-cols-2 gap-2">
+                <button
+                  @click="$emit('mode-change', 'numbers')"
+                  class="flex items-center justify-center gap-1.5 text-xs font-medium py-2 px-3 rounded-lg border transition-all cursor-pointer"
+                  :class="!isNamesMode
+                    ? 'bg-foreground text-background border-foreground shadow-sm'
+                    : 'bg-muted/30 text-muted-foreground border-input/50 hover:bg-muted/50 hover:text-foreground'"
+                >
+                  <Hash class="h-3 w-3" />
+                  Números
+                </button>
+                <button
+                  @click="$emit('mode-change', 'names')"
+                  class="flex items-center justify-center gap-1.5 text-xs font-medium py-2 px-3 rounded-lg border transition-all cursor-pointer"
+                  :class="isNamesMode
+                    ? 'bg-foreground text-background border-foreground shadow-sm'
+                    : 'bg-muted/30 text-muted-foreground border-input/50 hover:bg-muted/50 hover:text-foreground'"
+                >
+                  <Users class="h-3 w-3" />
+                  Participantes
+                </button>
+              </div>
+            </div>
+
+            <Separator />
 
             <!-- Agregar Participante -->
             <div class="space-y-2">
@@ -286,7 +314,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
 import { toast } from 'vue-sonner'
-import { Download, Upload, Users, Trash2, X } from '@lucide/vue'
+import { Download, Upload, Users, Trash2, X, Hash } from '@lucide/vue'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -315,13 +343,13 @@ import { useRouletteConfig } from '@/composables/useRouletteConfig'
 const { items, settings, addItem, removeItem, updateItemColor, clearItems, setItems, exportConfig, importConfig } = useRouletteConfig()
 
 const props = defineProps({
-  preventClose: {
+  isNamesMode: {
     type: Boolean,
     default: false,
   },
 })
 
-const emit = defineEmits(['items-changed', 'update:open'])
+const emit = defineEmits(['items-changed', 'update:open', 'mode-change'])
 
 const isOpen = ref(false)
 const newName = ref('')
@@ -347,7 +375,6 @@ function onColorInput(event: Event, index: number) {
 const itemCount = computed(() => items.value.length)
 
 function togglePanel() {
-  if (isOpen.value && props.preventClose) return
   isOpen.value = !isOpen.value
   emit('update:open', isOpen.value)
 }
@@ -447,6 +474,9 @@ function focusInput() {
 defineExpose({
   isOpen,
   focusInput,
+  toggle: togglePanel,
+  open: () => { isOpen.value = true; emit('update:open', true) },
+  close: closePanel,
 })
 </script>
 

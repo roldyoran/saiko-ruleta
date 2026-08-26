@@ -31,13 +31,24 @@
           </p>
         </div>
 
-        <!-- Aceptar -->
-        <button
-          @click="close"
-          class="w-full mt-2 bg-neutral-100 hover:bg-white text-neutral-950 text-xs font-semibold py-3 px-4 rounded-xl shadow-md transition-colors cursor-pointer"
-        >
-          Aceptar
-        </button>
+        <!-- Botones de acción -->
+        <div class="flex gap-2 w-full mt-2">
+          <!-- Eliminar (solo en modo nombres) -->
+          <button
+            v-if="isNamesMode"
+            @click="removeWinner"
+            class="flex-1 bg-red-600 hover:bg-red-500 text-white text-xs font-semibold py-3 px-4 rounded-xl shadow-md transition-colors cursor-pointer"
+          >
+            Eliminar
+          </button>
+          <!-- Continuar -->
+          <button
+            @click="close"
+            class="flex-1 bg-neutral-100 hover:bg-white text-neutral-950 text-xs font-semibold py-3 px-4 rounded-xl shadow-md transition-colors cursor-pointer"
+          >
+            Continuar
+          </button>
+        </div>
       </div>
     </DialogContent>
   </Dialog>
@@ -61,10 +72,14 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'remove-winner'])
 
 const close = () => {
   emit('close')
+}
+
+const removeWinner = () => {
+  emit('remove-winner')
 }
 
 const handleOpenChange = (open) => {

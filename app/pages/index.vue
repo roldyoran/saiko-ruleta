@@ -132,9 +132,12 @@
 
     <!-- Panel de Participantes -->
     <ModeToggle
-      :prevent-close="isNamesMode && rouletteConfig.items.value.length >= 2"
+      :is-names-mode="isNamesMode"
+      :items-count="rouletteConfig.items.value.length"
       @panel-open="onPanelOpen"
       @panel-close="onPanelClose"
+      @mode-change="onChangeMode"
+      @items-changed="onItemsChanged"
     />
 
     <!-- Controles -->
@@ -160,6 +163,7 @@
       :winner="currentWinner"
       :is-names-mode="isNamesMode"
       @close="closeWinnerModal"
+      @remove-winner="handleRemoveWinner"
     />
 
     <!-- Las imágenes de Tania ahora se precargan directamente en el componente principal -->
@@ -267,15 +271,41 @@ const onItemsChanged = () => {
   if (rouletteConfig.items.value.length >= 2 && !isNamesMode.value) {
     isNamesMode.value = true;
   }
+  // Si se limpian todos los items, volver al modo números
+  if (rouletteConfig.items.value.length === 0 && isNamesMode.value) {
+    isNamesMode.value = false;
+  }
 };
+
+// Estado para recordar el modo antes de abrir el panel
+const previousMode = ref(false);
 
 // Eventos del panel de configuración
 const onPanelOpen = () => {
+  previousMode.value = isNamesMode.value;
   isNamesMode.value = true;
 };
 
 const onPanelClose = () => {
-  isNamesMode.value = false;
+  isNamesMode.value = previousMode.value;
+};
+
+// Cambiar modo (números ↔ nombres)
+const onChangeMode = (mode) => {
+  isNamesMode.value = mode === 'names';
+};
+
+// Eliminar ganador de la lista
+const handleRemoveWinner = () => {
+  if (!currentWinner.value) return;
+  const index = rouletteConfig.items.value.findIndex(
+    (i) => i.label.toUpperCase() === currentWinner.value.toUpperCase()
+  );
+  if (index !== -1) {
+    rouletteConfig.removeItem(index);
+    toast.success(`${currentWinner.value} eliminado`);
+  }
+  closeWinnerModal();
 };
 
 // Método para manejar cuando se selecciona un ganador
