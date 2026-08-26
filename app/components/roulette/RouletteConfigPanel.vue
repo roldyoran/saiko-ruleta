@@ -1,5 +1,5 @@
 <template>
-  <Sheet v-model:open="isOpen">
+  <Sheet v-model:open="isOpen" @update:open="onOpenChange">
     <SheetTrigger as-child>
       <slot name="trigger">
         <Button variant="outline" size="icon" class="h-8 w-8">
@@ -306,9 +306,9 @@ const nameInputRef = ref<HTMLInputElement | HTMLTextAreaElement | null>(null)
 
 const itemCount = computed(() => items.value.length)
 
-watch(isOpen, (val) => {
+function onOpenChange(val: boolean) {
   emit('update:open', val)
-})
+}
 
 watch(
   () => [...items.value],

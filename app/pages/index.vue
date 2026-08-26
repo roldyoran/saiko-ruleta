@@ -13,7 +13,7 @@
       <!-- Placeholder cuando modo nombres y menos de 2 participantes -->
       <div
         v-if="isNamesMode && rouletteConfig.items.value.length < 2"
-        class="flex flex-col items-center justify-center w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] rounded-full border-2 border-dashed border-muted-foreground/30 text-center p-8"
+        class="w-64 h-64 md:w-[500px] md:h-[500px] rounded-full border-2 border-dashed border-muted-foreground/30 flex flex-col items-center justify-center text-center p-8"
       >
         <Users class="h-12 w-12 text-muted-foreground/40 mb-4" />
         <p class="text-muted-foreground text-sm font-medium">

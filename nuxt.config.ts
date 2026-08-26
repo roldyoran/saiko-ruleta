@@ -41,8 +41,7 @@ export default defineNuxtConfig({
         { rel: 'preload', href: '/reigen_ag/Tania2_navidad.webp', as: 'image' },
         { rel: 'preload', href: '/reigen_ag/Tago_ruleta_navidad.webp', as: 'image' },
         // Favicons
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' }
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
       ]
     }
   },
