@@ -110,7 +110,7 @@ button {
 
 .dark {
   /* Background: Ultra dark neutral con mejor contraste */
-  --background: #0a0a0a;
+  --background: #030303;
   --foreground: #fafafa;
   /* Máximo contraste para texto */
 
@@ -120,52 +120,52 @@ button {
   --popover: #1a1a1a;
   --popover-foreground: #fafafa;
 
-  /* Primary: Rose vibrante unificado */
-  --primary: #f43f5e;
+  /* Primary: Aqua oscuro */
+  --primary: #065f73;
   --primary-foreground: #ffffff;
 
-  /* Secondary: Rose oscuro con mejor contraste */
-  --secondary: #881337;
-  --secondary-foreground: #fdfdfd;
+  /* Secondary: Neutro */
+  --secondary: #e5e5e5;
+  --secondary-foreground: #171717;
 
-  /* Muted: Neutral balanceado para elementos secundarios */
+  /* Muted: Neutro */
   --muted: #262626;
   --muted-foreground: #d4d4d8;
 
-  /* Accent: Rose intermedio para interacciones */
-  --accent: #be123c;
+  /* Accent: Aqua medio */
+  --accent: #0c7a8f;
   --accent-foreground: #ffffff;
 
-  /* Destructive: Rose intenso para alertas */
+  /* Destructive: Rojo */
   --destructive: #991b1b;
   --destructive-foreground: #fcf3f3;
 
-  /* Borders / inputs: Neutral con sutil tinte rose */
+  /* Borders / inputs: Neutro */
   --border: #404040;
   --input: #262626;
-  --ring: #f43f5e;
+  --ring: #065f73;
 
-  /* Charts: Paleta rose cohesiva */
-  --chart-1: #f43f5e;
-  --chart-2: #fb7185;
-  --chart-3: #fda4af;
-  --chart-4: #fecdd3;
-  --chart-5: #e11d48;
+  /* Charts: Neutro */
+  --chart-1: #525252;
+  --chart-2: #737373;
+  --chart-3: #a3a3a3;
+  --chart-4: #d4d4d4;
+  --chart-5: #e5e5e5;
 
-  /* Sidebar: Diferenciación clara con rose accent */
+  /* Sidebar: Neutro */
   --sidebar: #0f0f0f;
   --sidebar-foreground: #fafafa;
-  --sidebar-primary: #f43f5e;
+  --sidebar-primary: #065f73;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #be123c;
-  --sidebar-accent-foreground: #fda4af;
+  --sidebar-accent: #1a1a1a;
+  --sidebar-accent-foreground: #fafafa;
   --sidebar-border: #404040;
-  --sidebar-ring: #f43f5e;
+  --sidebar-ring: #065f73;
 
-  /* Scrollbar: Rose elegante */
+  /* Scrollbar: Neutro */
   --scrollbar-bg: #171717;
-  --scrollbar-thumb: #be123c;
-  --scrollbar-thumb-hover: #f43f5e;
+  --scrollbar-thumb: #525252;
+  --scrollbar-thumb-hover: #737373;
 }
 
 @layer base {

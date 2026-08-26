@@ -1,30 +1,25 @@
 import annyang from "annyang";
 
 if (annyang) {
-  // Función para eliminar tildes
   function eliminarTildes(texto) {
     return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   }
 
-  // Definir comandos
-  const commands = {
-    // Comandos para girar la ruleta
-    giralo: () => spinRuleta(),
-    giraldo: () => spinRuleta(),
-    miralo: () => spinRuleta(),
-    tiralo: () => spinRuleta(),
+  function spinRuleta() {
+    window.dispatchEvent(new CustomEvent("ruleta-spin"));
+  }
 
-    // Comandos para el troleo "depilate"
-    "te amo": () => playAudio("depilate.mp3"),
-    depilate: () => playAudio("depilate.mp3"),
+  function playAudio(audioFile) {
+    window.dispatchEvent(new CustomEvent("ruleta-play-audio", { detail: audioFile }));
+  }
 
-    // Comando para actualizar opciones
-    actualizalo: actualizarOpciones,
-    actualiza: actualizarOpciones,
-  };
+  function updateOptions(num) {
+    window.dispatchEvent(new CustomEvent("ruleta-update-options", { detail: num }));
+  }
 
-  function actualizarOpciones() {
-    const transcription = eliminarTildes(phrases[0].toLowerCase());
+  function actualizarOpciones(currentPhrases) {
+    if (!currentPhrases || !currentPhrases[0]) return;
+    const transcription = eliminarTildes(currentPhrases[0].toLowerCase());
     const numeros = {
       dos: 2,
       tres: 3,
@@ -71,7 +66,6 @@ if (annyang) {
       "cuarenta y cuatro": 44,
     };
 
-    // Buscar números escritos
     for (const [palabra, numero] of Object.entries(numeros)) {
       if (transcription.includes(palabra)) {
         updateOptions(numero);
@@ -79,7 +73,6 @@ if (annyang) {
       }
     }
 
-    // Buscar números en dígitos
     const numeroDigito = transcription.match(/\b([2-9]|[1-3][0-9]|4[0-4])\b/);
     if (numeroDigito) {
       const num = parseInt(numeroDigito[0]);
@@ -89,48 +82,36 @@ if (annyang) {
     }
   }
 
-  // Añadir comandos y empezar
+  const commands = {
+    giralo: () => spinRuleta(),
+    giraldo: () => spinRuleta(),
+    miralo: () => spinRuleta(),
+    tiralo: () => spinRuleta(),
+    "te amo": () => playAudio("depilate.mp3"),
+    depilate: () => playAudio("depilate.mp3"),
+    actualizalo: (currentPhrases) => actualizarOpciones(currentPhrases),
+    actualiza: (currentPhrases) => actualizarOpciones(currentPhrases),
+  };
+
   annyang.addCommands(commands);
   annyang.setLanguage("es-ES");
 
-  // Variable global para almacenar la última transcripción
-  let phrases = [];
-
-  // Agregar evento para mostrar la transcripción y ejecutar comandos
   annyang.addCallback("result", function (currentPhrases) {
-    phrases = currentPhrases;
-    const transcription = eliminarTildes(phrases[0].toLowerCase());
+    if (!currentPhrases || !currentPhrases[0]) return;
+    const transcription = eliminarTildes(currentPhrases[0].toLowerCase());
     console.log("Transcripción:", transcription);
 
-    // Revisar si la transcripción contiene alguno de los comandos
     for (const [command, action] of Object.entries(commands)) {
       if (transcription.includes(eliminarTildes(command.toLowerCase()))) {
         console.log("Comando detectado:", command);
-        action();
-        break; // Ejecutar solo el primer comando que coincida
+        action(currentPhrases);
+        break;
       }
     }
   });
 
   annyang.start();
   console.log("Comandos de voz activados");
-
-  // Funciones auxiliares
-  function spinRuleta() {
-    window.dispatchEvent(new CustomEvent("ruleta-spin"));
-    setTimeout(() => window.dispatchEvent(new CustomEvent("ruleta-spin")), 1200);
-    setTimeout(() => window.dispatchEvent(new CustomEvent("ruleta-spin")), 1500);
-    setTimeout(() => window.dispatchEvent(new CustomEvent("ruleta-spin")), 1900);
-    setTimeout(() => window.dispatchEvent(new CustomEvent("ruleta-spin")), 2200);
-  }
-
-  function playAudio(audioFile) {
-    window.dispatchEvent(new CustomEvent("ruleta-play-audio", { detail: audioFile }));
-  }
-
-  function updateOptions(num) {
-    window.dispatchEvent(new CustomEvent("ruleta-update-options", { detail: num }));
-  }
 } else {
   alert("El reconocimiento de voz no es compatible con tu navegador.");
 }

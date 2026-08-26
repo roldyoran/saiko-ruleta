@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Info, Rocket } from 'lucide-vue-next'
+import { Info, Rocket } from '@lucide/vue'
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 </script>
 

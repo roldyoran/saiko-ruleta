@@ -46,7 +46,7 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Link, Share, Copy } from 'lucide-vue-next'
+import { Link, Share, Copy } from '@lucide/vue'
 
 interface Props {
   shareLink: string

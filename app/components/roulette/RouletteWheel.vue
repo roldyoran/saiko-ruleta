@@ -1,52 +1,47 @@
 <template>
   <div class="relative">
-    <canvas ref="canvasRef" width="500" height="500" class="relative w-64 h-64 md:w-[500px] md:h-[500px]"></canvas>
+    <!-- Flecha indicadora (puntero) -->
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1 z-10 pointer-events-none">
+      <svg width="36" height="48" viewBox="0 0 36 48" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="pointerShadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.5"/>
+          </filter>
+        </defs>
+        <polygon
+          points="18,48 2,6 18,14 34,6"
+          fill="#f5f5f5"
+          stroke="#000000"
+          stroke-width="2.5"
+          stroke-linejoin="round"
+          filter="url(#pointerShadow)"
+        />
+      </svg>
+    </div>
 
-    <!-- Mostrar ganador -->
-    <transition name="fade-scale">
-      <div
-        v-if="isShowingWinner"
-        class="absolute inset-0 flex flex-col items-center justify-center rounded-full bg-black/40 shadow-[0_0_20px_10px_rgba(0,0,0,0.3)] backdrop-blur-sm"
-        :class="{
-          'bg-black/85': currentWinner === '11' || currentWinner === '13',
-        }"
-      >
-        <template v-if="isNamesMode">
-          <p
-            class="text-4xl font-bold text-white uppercase px-6 py-3 rounded-lg"
-            style="
-              -webkit-text-stroke: 1.5px rgba(0, 0, 0, 0.9);
-              text-shadow: 0 4px 10px rgba(0, 0, 0, 0.85);
-              background: rgba(0, 0, 0, 0.45);
-            "
-          >
-            {{ currentWinner }}
-          </p>
-        </template>
-        <template v-else>
-          <p
-            class="text-7xl font-bold text-white"
-            :class="{
-              'mb-4 text-8xl': currentWinner === '11' || currentWinner === '13',
-            }"
-          >
-            {{ currentWinner }}
-          </p>
-          <p v-if="currentWinner === '11'" class="text-3xl font-bold text-white">
-            Chupalo Entonces
-          </p>
-          <p v-if="currentWinner === '13'" class="text-2xl font-bold text-white">
-            Agarramela que me Crece
-          </p>
-        </template>
-      </div>
-    </transition>
+    <!-- Skeleton de carga -->
+    <div
+      v-if="!isLoaded"
+      class="w-64 h-64 md:w-[500px] md:h-[500px] rounded-full bg-neutral-800/50 border-4 border-[#212121] animate-pulse flex items-center justify-center"
+    >
+      <svg class="size-10 text-neutral-600 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+      </svg>
+    </div>
+
+    <!-- Contenedor de spin-wheel -->
+    <div
+      ref="wheelContainer"
+      class="w-64 h-64 md:w-[500px] md:h-[500px] rounded-full border-4 border-[#212121] overflow-hidden shadow-2xl"
+      :class="{ 'opacity-0 absolute': !isLoaded }"
+    ></div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue'
-import { toast } from 'vue-sonner'
+import { Wheel } from "spin-wheel"
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 
 // Props
 const props = defineProps({
@@ -58,13 +53,42 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  isShowingWinner: {
-    type: Boolean,
-    default: false,
+  // Configuración de la ruleta
+  itemColors: {
+    type: Array,
+    default: () => [],
   },
-  currentWinner: {
+  fontFamily: {
     type: String,
-    default: '',
+    default: 'Arial, sans-serif',
+  },
+  fontSizeMax: {
+    type: Number,
+    default: 18,
+  },
+  labelAlign: {
+    type: String,
+    default: 'right',
+  },
+  labelRadius: {
+    type: Number,
+    default: 0.75,
+  },
+  lineWidth: {
+    type: Number,
+    default: 2,
+  },
+  lineColor: {
+    type: String,
+    default: '#0a0a0a',
+  },
+  spinDuration: {
+    type: Number,
+    default: 4500,
+  },
+  revolutions: {
+    type: Number,
+    default: 8,
   },
 })
 
@@ -72,224 +96,146 @@ const props = defineProps({
 const emit = defineEmits(['winner-selected'])
 
 // Refs
-const canvasRef = ref(null)
-const ctx = ref(null)
-const startAngle = ref(0)
-const spinTimeout = ref(null)
-const spinAngleStart = ref(0)
-const spinTime = ref(0)
-const spinTimeTotal = ref(0)
+const wheelContainer = ref(null)
+let wheel = null
+const isLoaded = ref(false)
 
-// Ruleta Radios
-const insideRadius = ref(120)
-const textRadius = ref(190)
-const textAngule = ref(2)
+// Colores por defecto (paleta neutra oscura del HTML de referencia)
+const DEFAULT_COLORS = [
+  '#171717',
+  '#262626',
+  '#404040',
+  '#525252',
+  '#737373',
+]
 
-// Constantes Radios
-const OUTSIDE_RADIUS = 240
-
-// Computed
-const arc = computed(() => Math.PI / (props.options.length / 2))
-
-// Ajustar radios según el modo
-watch(
-  () => props.isNamesMode,
-  (newMode) => {
-    insideRadius.value = newMode ? 20 : 120
-    textAngule.value = newMode ? 45 : 2
-    textRadius.value = newMode ? 170 : 190
-    drawRouletteWheel()
-  },
-)
-
-// Utilidades de color
-const byte2Hex = (n) => {
-  const nybHexString = '0123456789ABCDEF'
-  return String(nybHexString.substr((n >> 4) & 0x0f, 1)) + nybHexString.substr(n & 0x0f, 1)
-}
-
-const RGB2Color = (r, g, b) => {
-  return '#' + byte2Hex(r) + byte2Hex(g) + byte2Hex(b)
-}
-
-const getColor = (item, maxitem) => {
-  const colors = [
-    { red: 255, green: 0, blue: 85 }, // Rosa intenso (amor/pasión)
-    { red: 255, green: 255, blue: 255 }, // Blanco (pureza/contraste)
-    { red: 180, green: 0, blue: 30 }, // Rojo oscuro (amor)
-    { red: 255, green: 182, blue: 193 }, // Rosa claro
-    { red: 100, green: 0, blue: 30 }, // Vino tinto oscuro
-  ]
-
-  const color = colors[item % colors.length]
-  return RGB2Color(
-    Math.min(255, Math.max(0, color.red)),
-    Math.min(255, Math.max(0, color.green)),
-    Math.min(255, Math.max(0, color.blue)),
-  )
-}
-
-// Funciones de dibujo
-const drawRouletteWheel = () => {
-  if (!canvasRef.value || !ctx.value || props.options.length === 0) return
-
-  ctx.value.clearRect(0, 0, 500, 500)
-  ctx.value.strokeStyle = 'black'
-  ctx.value.lineWidth = 2
-  ctx.value.font = props.isNamesMode ? 'bold 16px Helvetica, Arial' : 'bold 22px Helvetica, Arial'
-
-  for (let i = 0; i < props.options.length; i++) {
-    const angle = startAngle.value + i * arc.value
-    ctx.value.fillStyle = getColor(i, props.options.length)
-
-    // Dibujar segmento
-    ctx.value.beginPath()
-    ctx.value.arc(250, 250, OUTSIDE_RADIUS, angle, angle + arc.value, false)
-    ctx.value.arc(250, 250, insideRadius.value, angle + arc.value, angle, true)
-    ctx.value.lineWidth = 4
-    ctx.value.stroke()
-    ctx.value.fill()
-
-    // Dibujar texto
-    ctx.value.save()
-    ctx.value.shadowOffsetX = -1
-    ctx.value.shadowOffsetY = -1
-    ctx.value.shadowBlur = 0
-    ctx.value.shadowColor = 'rgb(0,0,0)'
-    ctx.value.lineWidth = 4
-    ctx.value.strokeStyle = 'black'
-    ctx.value.fillStyle = 'white'
-
-    ctx.value.translate(
-      250 + Math.cos(angle + arc.value / 2) * textRadius.value,
-      250 + Math.sin(angle + arc.value / 2) * textRadius.value,
-    )
-    ctx.value.rotate(angle + arc.value / 2 + Math.PI / textAngule.value)
-
-    const text = props.options[i]
-
-    // Medir el ancho del texto
-    const maxTextWidth = arc.value * textRadius.value * 0.9
-    const textWidth = ctx.value.measureText(text).width
-
-    // Si es muy largo, escalarlo para que quepa en el segmento
-    if (textWidth > maxTextWidth) {
-      const scaleFactor = maxTextWidth / textWidth
-      ctx.value.scale(scaleFactor, scaleFactor)
+// Construir items desde options
+const buildItems = (options) => {
+  return options.map((opt, i) => {
+    const color = props.itemColors[i] || DEFAULT_COLORS[i % DEFAULT_COLORS.length]
+    return {
+      label: String(opt),
+      backgroundColor: color,
+      weight: 1,
     }
-
-    // Centrar el texto
-    ctx.value.textAlign = 'center'
-    ctx.value.textBaseline = 'middle'
-
-    // Dibujar texto centrado
-    ctx.value.strokeText(text, 0, 0)
-    ctx.value.fillText(text, 0, 0)
-
-    ctx.value.restore()
-  }
-
-  // Dibujar flecha
-  ctx.value.fillStyle = 'white'
-  ctx.value.beginPath()
-  ctx.value.moveTo(250 - 4, 250 - (OUTSIDE_RADIUS + 5))
-  ctx.value.lineTo(250 + 4, 250 - (OUTSIDE_RADIUS + 5))
-  ctx.value.lineTo(250 + 4, 250 - (OUTSIDE_RADIUS - 5))
-  ctx.value.lineTo(250 + 9, 250 - (OUTSIDE_RADIUS - 5))
-  ctx.value.lineTo(250 + 0, 250 - (OUTSIDE_RADIUS - 13))
-  ctx.value.lineTo(250 - 9, 250 - (OUTSIDE_RADIUS - 5))
-  ctx.value.lineTo(250 - 4, 250 - (OUTSIDE_RADIUS - 5))
-  ctx.value.lineTo(250 - 4, 250 - (OUTSIDE_RADIUS + 5))
-  ctx.value.fill()
-}
-
-// Animación de la ruleta
-const easeOut = (t, b, c, d) => {
-  const ts = (t /= d) * t
-  const tc = ts * t
-  return b + c * (tc + -3 * ts + 3 * t)
-}
-
-const rotateWheel = () => {
-  spinTime.value += 30
-  if (spinTime.value >= spinTimeTotal.value) {
-    stopRotateWheel()
-    return
-  }
-
-  const spinAngle =
-    spinAngleStart.value - easeOut(spinTime.value, 0, spinAngleStart.value, spinTimeTotal.value)
-  startAngle.value += (spinAngle * Math.PI) / 180
-  drawRouletteWheel()
-  spinTimeout.value = setTimeout(rotateWheel, 30)
-}
-
-const stopRotateWheel = () => {
-  clearTimeout(spinTimeout.value)
-  const degrees = (startAngle.value * 180) / Math.PI + 90
-  const arcd = (arc.value * 180) / Math.PI
-  const index = Math.floor((360 - (degrees % 360)) / arcd)
-
-  // Emitir el ganador al componente padre
-  emit('winner-selected', {
-    index,
-    winner: props.options[index],
   })
 }
 
-// Método público para iniciar el giro
+// Inicializar la ruleta
+const initWheel = () => {
+  if (!wheelContainer.value) return
+
+  // Destruir wheel anterior si existe
+  if (wheel) {
+    wheel.remove()
+  }
+
+  isLoaded.value = false
+
+  wheel = new Wheel(wheelContainer.value, {
+    items: buildItems(props.options),
+    // Colores y estilo de texto
+    itemLabelColors: ['#ffffff'],
+    itemLabelFont: props.fontFamily,
+    itemLabelFontSizeMax: props.fontSizeMax,
+    itemLabelAlign: props.labelAlign,
+    itemLabelRadius: props.labelRadius,
+    itemLabelRadiusMax: 0.2,
+    itemLabelStrokeColor: '#000000',
+    itemLabelStrokeWidth: 3,
+    // Bordes entre items
+    lineWidth: props.lineWidth,
+    lineColor: props.lineColor,
+    // Geometría
+    pointerAngle: 0,
+    radius: 0.95,
+    // Comportamiento
+    isInteractive: false,
+    rotationResistance: -35,
+    // Callbacks
+    onRest: (event) => {
+      emit('winner-selected', {
+        index: event.currentIndex,
+        winner: props.options[event.currentIndex],
+      })
+    },
+    onCurrentIndexChange: () => {},
+  })
+
+  // Marcar como cargado después de un frame para asegurar render
+  requestAnimationFrame(() => {
+    isLoaded.value = true
+  })
+}
+
+// Método público para iniciar el giro (mínimo 8 vueltas)
 const spin = () => {
-  // Configurar parámetros de giro aleatorios
-  const nmajah = Math.floor(Math.random() * (12 - 4 + 1)) + 8
-  const numeroRandom2 = Math.floor(Math.random() * 17) + 1
-  spinAngleStart.value = Math.random() * nmajah + numeroRandom2
-  spinTime.value = 0
-  spinTimeTotal.value = Math.random() * 6 + 4 * 2000
+  if (!wheel) return
+
+  // Calcular un índice ganador aleatorio
+  const randomIndex = Math.floor(Math.random() * props.options.length)
+
+  // Usar spinToItem para controlar vueltas mínimas
+  wheel.spinToItem(
+    randomIndex,        // itemIndex - el ganador
+    props.spinDuration, // duration - configurable
+    true,               // spinToCenter - centrar en el item
+    props.revolutions,  // numberOfRevolutions - configurable
+    1,                  // direction - 1 = horario
+    null                // easingFunction - usar default
+  )
 
   // Reproducir sonido de giro
   const spinSound = document.getElementById('spinSound')
   if (spinSound) {
     spinSound.currentTime = 0
-    spinSound.play()
+    spinSound.play().catch(() => {})
   }
-
-  rotateWheel()
 }
 
-// Inicialización
-onMounted(() => {
-  if (canvasRef.value) {
-    ctx.value = canvasRef.value.getContext('2d')
-    drawRouletteWheel()
+// Método público para detener
+const stop = () => {
+  if (wheel) {
+    wheel.stop()
   }
-})
+}
 
-// Watchers
+// Watch para actualizar items cuando cambien las options
 watch(
   () => props.options,
-  () => {
-    if (!props.isShowingWinner) {
-      drawRouletteWheel()
+  (newOptions) => {
+    if (wheel && newOptions.length > 0) {
+      wheel.items = buildItems(newOptions)
     }
   },
-  { deep: true },
+  { deep: true }
 )
+
+// Watch para re-inicializar cuando cambien los parámetros de configuración visual
+watch(
+  () => [props.fontFamily, props.fontSizeMax, props.labelAlign, props.labelRadius, props.lineWidth, props.lineColor, props.itemColors],
+  () => {
+    initWheel()
+  },
+  { deep: true }
+)
+
+// Lifecycle
+onMounted(() => {
+  initWheel()
+})
+
+onUnmounted(() => {
+  if (wheel) {
+    wheel.remove()
+    wheel = null
+  }
+})
 
 // Exponer métodos públicos
 defineExpose({
   spin,
-  drawRouletteWheel,
+  stop,
+  initWheel,
 })
 </script>
-
-<style scoped>
-.fade-scale-enter-active,
-.fade-scale-leave-active {
-  transition: all 0.3s ease;
-}
-.fade-scale-enter-from,
-.fade-scale-leave-to {
-  opacity: 0;
-  transform: scale(0.95);
-}
-</style>

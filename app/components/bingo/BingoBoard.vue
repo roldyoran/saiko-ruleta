@@ -278,7 +278,7 @@ import {
   Trash2,
   Move,
   GripVertical
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 import confetti from 'canvas-confetti'
 
 interface BingoCell {

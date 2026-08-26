@@ -62,7 +62,7 @@ import {
   SelectContent,
   SelectItem,
 } from '@/components/ui/select'
-import { Trash2, Search } from 'lucide-vue-next'
+import { Trash2, Search } from '@lucide/vue'
 
 // Local v-model proxies so we can use v-model in template while keeping
 // the parent-driven props and emitting updates consistently.

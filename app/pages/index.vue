@@ -10,12 +10,35 @@
 
     <!-- Componente Principal de la Ruleta (wrapper relativo para posicionar el carousel) -->
     <div class="relative">
+      <!-- Placeholder cuando modo nombres y menos de 2 participantes -->
+      <div
+        v-if="isNamesMode && rouletteConfig.items.value.length < 2"
+        class="flex flex-col items-center justify-center w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] rounded-full border-2 border-dashed border-muted-foreground/30 text-center p-8"
+      >
+        <Users class="h-12 w-12 text-muted-foreground/40 mb-4" />
+        <p class="text-muted-foreground text-sm font-medium">
+          Agrega al menos 2 participantes
+        </p>
+        <p class="text-muted-foreground/60 text-xs mt-1">
+          para comenzar la ruleta
+        </p>
+      </div>
+
+      <!-- Ruleta -->
       <RouletteWheel
+        v-else
         ref="rouletteWheelRef"
         :options="options"
         :is-names-mode="isNamesMode"
-        :is-showing-winner="isShowingWinner"
-        :current-winner="currentWinner"
+        :item-colors="itemColors"
+        :font-family="rouletteConfig.settings.value.fontFamily"
+        :font-size-max="rouletteConfig.settings.value.fontSizeMax"
+        :label-align="rouletteConfig.settings.value.labelAlign"
+        :label-radius="rouletteConfig.settings.value.labelRadius"
+        :line-width="rouletteConfig.settings.value.lineWidth"
+        :line-color="rouletteConfig.settings.value.lineColor"
+        :spin-duration="rouletteConfig.settings.value.spinDuration"
+        :revolutions="rouletteConfig.settings.value.revolutions"
         @winner-selected="handleWinnerSelected"
       />
       <!-- Imagenes personajes que acompañan ls ruleta -->
@@ -107,25 +130,18 @@
       </div>
     </div>
 
-    <!-- Toggle de Modo -->
-    <ModeToggle :is-names-mode="isNamesMode" @toggle-mode="toggleNamesList" />
-
-    <!-- Panel de Nombres -->
-    <NamesPanel
-      ref="namesPanelRef"
-      :show-names-list="showNamesList"
-      :is-names-mode="isNamesMode"
-      :names-list="namesList"
-      @add-name="handleAddName"
-      @remove-name="handleRemoveName"
-      @clear-names="handleClearNames"
+    <!-- Panel de Participantes -->
+    <ModeToggle
+      @panel-open="onPanelOpen"
+      @panel-close="onPanelClose"
     />
 
     <!-- Controles -->
     <RouletteControls
       :is-names-mode="isNamesMode"
       :num-options="numOptions"
-      :names-count="namesList.length"
+      :names-count="rouletteConfig.items.value.length"
+      :is-spinning="isSpinning"
       @spin="handleSpin"
       @update-options="updateOptions"
     />
@@ -136,6 +152,15 @@
       <audio id="bell" src="audios/bell_ring.mp3"></audio>
       <!-- <audio id="cancion"></audio> -->
     </div>
+
+    <!-- Modal de Ganador -->
+    <WinnerModal
+      :is-open="showWinnerModal"
+      :winner="currentWinner"
+      :is-names-mode="isNamesMode"
+      @close="closeWinnerModal"
+    />
+
     <!-- Las imágenes de Tania ahora se precargan directamente en el componente principal -->
   </div>
 </template>
@@ -151,6 +176,7 @@ import {
 } from "vue";
 import {toast} from "vue-sonner";
 import { useAppMeta } from '@/composables/useAppMeta';
+import { useRouletteConfig } from '@/composables/useRouletteConfig';
 
 // Composables
 const { updateMeta } = useAppMeta({
@@ -160,13 +186,16 @@ const { updateMeta } = useAppMeta({
   type: 'website'
 });
 
+const rouletteConfig = useRouletteConfig();
+
 // Componentes de la ruleta (carga prioritaria)
 import RouletteWheel from "@/components/roulette/RouletteWheel.vue";
 import ModeToggle from "@/components/roulette/ModeToggle.vue";
-import NamesPanel from "@/components/roulette/NamesPanel.vue";
 import RouletteControls from "@/components/roulette/RouletteControls.vue";
+import WinnerModal from "@/components/roulette/WinnerModal.vue";
 import IconNav from "@/components/IconNav.vue";
 import Christmas from "@/components/backgrounds/christmas.vue";
+import { Users } from '@lucide/vue';
 
 // Solo lazy-load componentes no críticos
 const ImageCarousel = defineAsyncComponent(() =>
@@ -175,7 +204,6 @@ const ImageCarousel = defineAsyncComponent(() =>
 
 // Refs de componentes
 const rouletteWheelRef = ref(null);
-const namesPanelRef = ref(null);
 const carouselLeftRef = ref(null);
 const carouselRightRef = ref(null);
 
@@ -206,120 +234,62 @@ const taniaState = ref({
 });
 
 // Estado de la aplicación
-const showNamesList = ref(false);
 const isNamesMode = ref(false);
-const namesList = ref([]);
 const numOptions = ref(9);
 const winnerDisplayTimeout = ref(null);
-const isShowingWinner = ref(false);
+const showWinnerModal = ref(false);
 const currentWinner = ref("");
+const isSpinning = ref(false);
 
 // Constantes de tiempo
 const WINNER_DISPLAY_DURATION = 40000; // 40 segundos
 
-// computed para options (evita reasignaciones manuales)
+// computed para options (una sola fuente de verdad: rouletteConfig.items)
 const options = computed(() => {
   if (isNamesMode.value) {
-    return namesList.value.slice();
+    return rouletteConfig.items.value.map(i => i.label);
   }
   const clamped = Math.max(2, Math.min(44, Number(numOptions.value) || 9));
   return Array.from({length: clamped}, (_, i) => (i + 1).toString());
 });
 
-// Métodos para manejar el toggle de modo
-const toggleNamesList = async () => {
-  isNamesMode.value = !isNamesMode.value;
+// Colores por ítem desde la configuración (para RouletteWheel)
+const itemColors = computed(() => {
+  const defaults = ['#18181b', '#27272a', '#3f3f46', '#52525b', '#71717a']
+  return options.value.map((_, i) => {
+    return rouletteConfig.items.value[i]?.backgroundColor || defaults[i % defaults.length]
+  })
+})
 
-  if (isNamesMode.value) {
-    // Abrir panel y enfocar el input de nombres
-    showNamesList.value = true;
-    await nextTick();
-    if (namesPanelRef.value) {
-      namesPanelRef.value.focusInput();
-    }
-  } else {
-    // Volver a modo números
-    showNamesList.value = false;
-    updateOptions(numOptions.value);
+// Cuando cambian items desde el panel, activar modo nombres automáticamente
+const onItemsChanged = () => {
+  if (rouletteConfig.items.value.length >= 2 && !isNamesMode.value) {
+    isNamesMode.value = true;
   }
 };
 
-// Métodos para manejar la lista de nombres
-const handleAddName = (lines) => {
-  const added = [];
-  const skipped = [];
-
-  for (const line of lines) {
-    const nameUpper = line.toUpperCase();
-    if (
-      namesList.value.some(
-        (existingName) => existingName.toUpperCase() === nameUpper
-      )
-    ) {
-      skipped.push(line);
-    } else {
-      namesList.value.push(nameUpper);
-      added.push(line);
-    }
-  }
-
-  // Quitar ganador de pantalla
-  if (winnerDisplayTimeout.value) {
-    clearTimeout(winnerDisplayTimeout.value);
-    isShowingWinner.value = false;
-  }
-
-  if (added.length > 0) {
-    if (added.length === 1) {
-      toast.success(`"${added[0]}" agregado a la lista`);
-    } else {
-      toast.success(`${added.length} nombres agregados a la lista`);
-    }
-  }
-
-  if (skipped.length > 0) {
-    if (skipped.length === 1) {
-      toast.error(`El nombre "${skipped[0]}" ya existe y fue ignorado`);
-    } else {
-      toast.error(`${skipped.length} nombres ya existían y fueron ignorados`);
-    }
-  }
-
-  // options es computed y se actualizará automáticamente
+// Eventos del panel de configuración
+const onPanelOpen = () => {
+  isNamesMode.value = true;
 };
 
-const handleRemoveName = (index) => {
-  const removedName = namesList.value[index];
-
-  // Quitar ganador de pantalla
-  if (winnerDisplayTimeout.value) {
-    clearTimeout(winnerDisplayTimeout.value);
-    isShowingWinner.value = false;
-  }
-
-  namesList.value.splice(index, 1);
-  toast.success(`"${removedName}" eliminado de la lista`);
-
-  // options es computed y se actualizará automáticamente
-};
-
-const handleClearNames = () => {
-  const count = namesList.value.length;
-  namesList.value = [];
-  // options es computed y se actualizará automáticamente
-  toast.success(`${count} nombres eliminados de la lista`);
-
-  // Quitar ganador de pantalla
-  if (winnerDisplayTimeout.value) {
-    clearTimeout(winnerDisplayTimeout.value);
-    isShowingWinner.value = false;
+const onPanelClose = () => {
+  if (rouletteConfig.items.value.length < 2) {
+    isNamesMode.value = false;
   }
 };
 
 // Método para manejar cuando se selecciona un ganador
+const isProcessingWinner = ref(false);
 const handleWinnerSelected = ({index, winner}) => {
+  if (isProcessingWinner.value) return;
+  isProcessingWinner.value = true;
+
+  // Marcar que ya no está girando
+  isSpinning.value = false;
+
   currentWinner.value = winner;
-  isShowingWinner.value = true;
+  showWinnerModal.value = true;
 
   // Limpiar timeout existente
   if (winnerDisplayTimeout.value) {
@@ -345,12 +315,13 @@ const handleWinnerSelected = ({index, winner}) => {
     if (bell) bell.play().catch(() => {});
   }
 
-  toast.success(`¡El ganador es: ${currentWinner.value}!`);
+  toast.success(`¡El ganador es: ${currentWinner.value}!`, { id: 'winner' });
+};
 
-  // Configurar timeout para volver a la vista normal
-  winnerDisplayTimeout.value = setTimeout(() => {
-    isShowingWinner.value = false;
-  }, WINNER_DISPLAY_DURATION);
+// Cerrar modal de ganador
+const closeWinnerModal = () => {
+  showWinnerModal.value = false;
+  isProcessingWinner.value = false;
 };
 
 // Métodos principales
@@ -358,7 +329,7 @@ const updateOptions = (newNumOptions) => {
   // Quitar ganador de pantalla
   if (winnerDisplayTimeout.value) {
     clearTimeout(winnerDisplayTimeout.value);
-    isShowingWinner.value = false;
+    showWinnerModal.value = false;
   }
 
   if (!isNaN(newNumOptions)) {
@@ -368,15 +339,18 @@ const updateOptions = (newNumOptions) => {
 };
 
 const handleSpin = () => {
-  if (isNamesMode.value && namesList.value.length < 2) {
-    toast.error("Agrega al menos 2 nombres para girar la ruleta");
+  if (isNamesMode.value && rouletteConfig.items.value.length < 2) {
+    toast.error("Agrega al menos 2 participantes para girar la ruleta");
     return;
   }
 
   if (winnerDisplayTimeout.value) {
     clearTimeout(winnerDisplayTimeout.value);
-    isShowingWinner.value = false;
+    showWinnerModal.value = false;
   }
+
+  isProcessingWinner.value = false;
+  isSpinning.value = true;
 
   // Cambiar imagen de Tania al girar usando el sistema optimizado
   taniaImageManager.switchToSecondary(200);
@@ -577,7 +551,6 @@ const updateOptionsinNameStatus = (n) => {
   if (isNamesMode.value) {
     // Si estamos en modo nombres, cambiar a modo números
     isNamesMode.value = false;
-    showNamesList.value = false;
     updateOptions(n);
   } else {
     updateOptions(n);

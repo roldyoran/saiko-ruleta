@@ -139,7 +139,7 @@ import {
   FileText, 
   FileQuestion, 
   Lightbulb
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 
 interface Props {
   options: string[]

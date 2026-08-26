@@ -1,64 +1,47 @@
 <template>
-  <TooltipProvider>
-    <Card class="fixed top-4 right-4 z-50 p-2 cursor-pointer">
-      <transition name="fade-scale">
-        <div
-          class="flex items-center gap-3 transition-all"
-          @keydown.enter.prevent="toggleMode"
-          @keydown.space.prevent="toggleMode"
+  <RouletteConfigPanel
+    ref="configPanelRef"
+    @update:open="onPanelChange"
+  >
+    <template #trigger>
+      <Card class="fixed top-4 right-4 z-50 p-2 cursor-pointer">
+        <Button
+          variant="ghost"
+          size="icon"
+          class="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
         >
-          <Badge
-            :variant="isNamesMode ? 'default' : 'secondary'"
-            class="flex items-center gap-1 cursor-pointer select-none"
-            role="button"
-            tabindex="0"
-            @click="toggleMode"
-          >
-            <span v-if="!isNamesMode"><Hash class="h-3 w-3" /></span>
-            <span v-else><Users class="h-3 w-3" /></span>
-            <!-- <span>{{ isNamesMode ? 'Nombres' : 'Números' }}</span> -->
-          </Badge>
-          <div>
-            <Switch :model-value="isNamesMode" @update:model-value="toggleMode" />
-          </div>
-        </div>
-      </transition>
-    </Card>
-  </TooltipProvider>
+          <Users class="h-3.5 w-3.5" />
+        </Button>
+      </Card>
+    </template>
+  </RouletteConfigPanel>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Switch } from '@/components/ui/switch'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Hash, Users } from 'lucide-vue-next'
+import { Button } from '@/components/ui/button'
+import { Users } from '@lucide/vue'
+import RouletteConfigPanel from './RouletteConfigPanel.vue'
 
-// Props
-const props = defineProps({
-  isNamesMode: {
-    type: Boolean,
-    default: false,
-  },
+const emit = defineEmits(['panel-open', 'panel-close'])
+
+const configPanelRef = ref(null)
+
+function onPanelChange(open) {
+  if (open) {
+    emit('panel-open')
+  } else {
+    emit('panel-close')
+  }
+}
+
+defineExpose({
+  open: () => {
+    if (configPanelRef.value) {
+      configPanelRef.value.isOpen = true
+      configPanelRef.value.focusInput()
+    }
+  }
 })
-
-// Emits
-const emit = defineEmits(['toggle-mode'])
-
-// Métodos
-const toggleMode = () => {
-  emit('toggle-mode')
-}
 </script>
-
-<style scoped>
-.fade-scale-enter-active,
-.fade-scale-leave-active {
-  transition: all 0.3s ease;
-}
-.fade-scale-enter-from,
-.fade-scale-leave-to {
-  opacity: 0;
-  transform: scale(0.95);
-}
-</style>

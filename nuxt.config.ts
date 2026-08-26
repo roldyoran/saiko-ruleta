@@ -18,7 +18,7 @@ export default defineNuxtConfig({
     classSuffix: '',
     preference: 'dark'
   },
-  css: ['./app/assets/css/main.css'],
+  css: ['~/assets/css/main.css'],
 
   // Configuración global de metadatos
   app: {
@@ -59,9 +59,10 @@ export default defineNuxtConfig({
     build: {
       rollupOptions: {
         output: {
-          manualChunks: {
-            // Separar el carousel en su propio chunk
-            carousel: ['@/components/ImageCarousel.vue'],
+          manualChunks(id) {
+            if (id.includes('ImageCarousel')) {
+              return 'carousel'
+            }
           }
         }
       }

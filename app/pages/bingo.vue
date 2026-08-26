@@ -86,7 +86,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
-import { Settings } from 'lucide-vue-next'
+import { Settings } from '@lucide/vue'
 import { toast } from 'vue-sonner'
 import { useAppMeta } from '@/composables/useAppMeta'
 
@@ -508,14 +508,6 @@ const copyToClipboard = async (): Promise<void> => {
   try {
     if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
       await navigator.clipboard.writeText(shareLink.value)
-    } else {
-      // fallback
-      const ta = document.createElement('textarea')
-      ta.value = shareLink.value
-      document.body.appendChild(ta)
-      ta.select()
-      document.execCommand('copy')
-      document.body.removeChild(ta)
     }
     copied.value = true
     setTimeout(() => copied.value = false, 2000)

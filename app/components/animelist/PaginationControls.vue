@@ -111,7 +111,7 @@ import {
   SelectItem,
 } from '@/components/ui/select'
 import { Progress } from '@/components/ui/progress'
-import { ChevronsLeft, ChevronsRight, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { ChevronsLeft, ChevronsRight, ChevronLeft, ChevronRight } from '@lucide/vue'
 
 const localPage = ref(props.currentPage)
 watch(localPage, (v) => emit('update:currentPage', v))

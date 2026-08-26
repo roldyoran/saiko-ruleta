@@ -1,12 +1,12 @@
 <template>
-  <div class="mt-4 flex w-max-4xl flex-col gap-4 px-2 sm:flex-row">
+  <div class="mt-4 flex w-max-4xl flex-col gap-4 px-2 sm:flex-row sm:items-center">
     <!-- Control de cantidad (visible solo en modo números) -->
     <NumberField
       v-if="!isNamesMode"
       :model-value="numOptions"
       :min="2"
       :max="44"
-      class="flex-1 border-none shadow-sm font-bold bg-pink-900 hover:bg-pink-700 rounded-md transition-all"
+      class="flex-1 border-none shadow-sm font-bold bg-primary/80 hover:bg-primary rounded-md transition-all"
       @update:model-value="updateOptions"
     >
       <NumberFieldContent>
@@ -19,12 +19,11 @@
     <!-- Botón Girar -->
     <Button
       @click="handleSpin"
-      :disabled="isNamesMode && namesCount < 2"
-      
+      :disabled="(isNamesMode && namesCount < 2) || isSpinning"
       class="flex-1 font-bold rounded-lg text-lg shadow-sm"
     >
-      <RotateCcw class="mr-2 h-4 w-4" />
-      GIRAR
+      <RotateCcw class="mr-2 h-4 w-4" :class="{ 'animate-spin': isSpinning }" />
+      {{ isSpinning ? 'GIRANDO...' : 'GIRAR' }}
     </Button>
   </div>
 </template>
@@ -38,9 +37,8 @@ import {
   NumberFieldIncrement,
   NumberFieldInput,
 } from '@/components/ui/number-field'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { RotateCcw } from 'lucide-vue-next'
-import { toast } from 'vue-sonner'
+
+import { RotateCcw } from '@lucide/vue'
 
 // Props
 const props = defineProps({
@@ -56,18 +54,23 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
+  isSpinning: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 // Emits
-const emit = defineEmits(['spin', 'update-options'])
+const emit = defineEmits([
+  'spin',
+  'update-options',
+])
 
 // Métodos
 const handleSpin = () => {
-  if (props.isNamesMode && props.namesCount < 2) {
-    toast.error('Agrega al menos 2 nombres para girar la ruleta')
-    return
+  if (!props.isSpinning) {
+    emit('spin')
   }
-  emit('spin')
 }
 
 const updateOptions = (newValue) => {

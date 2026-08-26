@@ -1,6 +1,28 @@
 <script setup lang="ts">
 // import { RouterLink } from 'vue-router'
-import { Instagram, Play, Image, List, Dices } from 'lucide-vue-next'
+import { h, defineComponent } from 'vue'
+import { Play, Image, List, Dices } from '@lucide/vue'
+
+const InstagramIcon = defineComponent({
+  render() {
+    return h('svg', {
+      xmlns: 'http://www.w3.org/2000/svg',
+      width: 24,
+      height: 24,
+      viewBox: '0 0 24 24',
+      fill: 'none',
+      stroke: 'currentColor',
+      'stroke-width': 2,
+      'stroke-linecap': 'round',
+      'stroke-linejoin': 'round'
+    }, [
+      h('path', { stroke: 'none', d: 'M0 0h24v24H0z', fill: 'none' }),
+      h('path', { d: 'M4 8a4 4 0 0 1 4 -4h8a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-8a4 4 0 0 1 -4 -4l0 -8' }),
+      h('path', { d: 'M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0' }),
+      h('path', { d: 'M16.5 7.5v.01' })
+    ])
+  }
+})
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface NavItem {
@@ -25,7 +47,7 @@ const defaultItems: NavItem[] = [
   {
     href: 'https://www.instagram.com/roldyoran',
     ariaLabel: 'Instagram',
-    icon: Instagram,
+    icon: InstagramIcon,
     targetBlank: true,
     iconClass: 'text-rose-500 w-6 h-6',
     tooltip: 'Ver Instagram',
