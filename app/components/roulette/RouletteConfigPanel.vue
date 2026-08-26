@@ -89,7 +89,8 @@
                     v-for="(item, index) in items"
                     :key="index"
                     class="flex items-center gap-2 bg-muted/30 border border-input/50 rounded-md px-2 py-2 text-xs hover:bg-muted/50 transition-colors"
-                                    <!-- Color picker styled as a color wheel that triggers a dialog modal -->
+                  >
+                    <!-- Color picker styled as a color wheel that triggers a dialog modal -->
                     <button
                       type="button"
                       @click="openColorPickerModal(index)"
