@@ -5,7 +5,11 @@
     @update:open="onPanelChange"
   >
     <template #trigger="{ toggle }">
-      <Card class="fixed top-4 right-4 z-50 p-2 cursor-pointer" @click="toggle">
+      <Card
+        v-if="!panelOpen"
+        class="fixed top-4 right-4 z-50 p-2 cursor-pointer"
+        @click="toggle"
+      >
         <Button
           variant="ghost"
           size="icon"
@@ -35,8 +39,10 @@ defineProps({
 })
 
 const configPanelRef = ref(null)
+const panelOpen = ref(false)
 
 function onPanelChange(open) {
+  panelOpen.value = open
   if (open) {
     emit('panel-open')
   } else {
