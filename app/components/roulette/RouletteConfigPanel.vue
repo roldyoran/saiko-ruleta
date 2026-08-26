@@ -10,7 +10,7 @@
 
     <SheetContent
       side="right"
-      :overlay-class="'bg-transparent' + (preventClose ? ' pointer-events-none' : '')"
+      overlay-class="bg-transparent pointer-events-none"
       class="w-full sm:max-w-sm flex flex-col gap-0 p-0 overflow-hidden backdrop-blur-2xl bg-black/95 border-l border-zinc-800"
     >
       <SheetHeader class="px-5 pt-5 pb-3 border-b border-zinc-800">
