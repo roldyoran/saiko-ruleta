@@ -4,8 +4,8 @@
     :prevent-close="preventClose"
     @update:open="onPanelChange"
   >
-    <template #trigger>
-      <Card class="fixed top-4 right-4 z-50 p-2 cursor-pointer">
+    <template #trigger="{ toggle }">
+      <Card class="fixed top-4 right-4 z-50 p-2 cursor-pointer" @click="toggle">
         <Button
           variant="ghost"
           size="icon"

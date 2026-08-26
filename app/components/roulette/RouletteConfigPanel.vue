@@ -1,30 +1,36 @@
 <template>
-  <Sheet v-model:open="isOpen" @update:open="onOpenChange" :close-on-outside-click="!preventClose">
-    <SheetTrigger as-child>
-      <slot name="trigger">
-        <Button variant="outline" size="icon" class="h-8 w-8">
-          <Settings class="h-4 w-4" />
-        </Button>
-      </slot>
-    </SheetTrigger>
+  <!-- Trigger slot -->
+  <slot name="trigger" :toggle="togglePanel" />
 
-    <SheetContent
-      side="right"
-      overlay-class="bg-transparent pointer-events-none"
-      class="w-full sm:max-w-sm flex flex-col gap-0 p-0 overflow-hidden backdrop-blur-2xl bg-black/95 border-l border-zinc-800"
-    >
-      <SheetHeader class="px-5 pt-5 pb-3 border-b border-zinc-800">
-        <SheetTitle class="text-base text-white">Configuración</SheetTitle>
-        <SheetDescription class="text-xs text-zinc-400">
-          Parámetros de la ruleta.
-        </SheetDescription>
-      </SheetHeader>
+  <!-- Panel teleportado al body para evitar z-index issues, sin overlay que bloquee clicks -->
+  <Teleport to="body">
+    <!-- Panel lateral -->
+    <Transition name="slide-right">
+      <div
+        v-if="isOpen"
+        class="fixed inset-y-0 right-0 z-50 w-full sm:max-w-sm flex flex-col gap-0 overflow-hidden backdrop-blur-2xl bg-black/95 border-l border-zinc-800 shadow-2xl"
+      >
+        <!-- Header -->
+        <div class="px-5 pt-5 pb-3 border-b border-zinc-800 flex items-start justify-between">
+          <div>
+            <h2 class="text-base text-white font-semibold">Configuración</h2>
+            <p class="text-xs text-zinc-400 mt-0.5">Parámetros de la ruleta.</p>
+          </div>
+          <button
+            v-if="!preventClose"
+            @click="closePanel"
+            class="text-zinc-400 hover:text-white transition-colors p-1 rounded"
+          >
+            <X class="h-4 w-4" />
+          </button>
+        </div>
 
-      <ScrollArea class="flex-1 overflow-y-auto">
-        <div class="flex flex-col gap-4 px-5 py-4">
+        <!-- Contenido scrolleable -->
+        <ScrollArea class="flex-1 overflow-y-auto">
+          <div class="flex flex-col gap-4 px-5 py-4">
 
-          <!-- Agregar Participante -->
-          <div class="space-y-2">
+            <!-- Agregar Participante -->
+            <div class="space-y-2">
               <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Agregar Participante
               </h3>
@@ -90,7 +96,6 @@
                     :key="index"
                     class="flex items-center gap-2 bg-muted/30 border border-input/50 rounded-md px-2 py-2 text-xs hover:bg-muted/50 transition-colors"
                   >
-                    <!-- Color picker styled as a color wheel that triggers a dialog modal -->
                     <button
                       type="button"
                       @click="openColorPickerModal(index)"
@@ -98,7 +103,6 @@
                       :style="{ backgroundColor: item.backgroundColor }"
                       :title="'Color de ' + item.label"
                     >
-                      <!-- Subtle inner dot or radial lines to simulate a wheel -->
                       <div class="absolute inset-0 pointer-events-none rounded-full border border-white/20"></div>
                     </button>
                     <span class="flex-1 truncate text-foreground font-medium">{{ item.label }}</span>
@@ -113,7 +117,7 @@
                 </div>
               </ScrollArea>
 
-              <!-- Modal dialog containing the chromatic color wheel -->
+              <!-- Modal color picker -->
               <Dialog v-model:open="showColorPicker">
                 <DialogContent class="sm:max-w-xs p-5 bg-zinc-950 border border-zinc-800 text-white flex flex-col items-center gap-4">
                   <DialogHeader class="w-full text-center">
@@ -151,156 +155,149 @@
 
             <Separator />
 
-          <!-- Texto y Alineación -->
-          <div class="space-y-2.5">
-            <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Texto y Alineación</h3>
+            <!-- Texto y Alineación -->
+            <div class="space-y-2.5">
+              <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Texto y Alineación</h3>
 
-            <div class="grid grid-cols-2 gap-2">
-              <div class="space-y-1">
-                <Label class="text-[11px] text-muted-foreground">Alineación</Label>
-                <Select v-model="settings.labelAlign">
-                  <SelectTrigger class="h-8 text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="right">Exterior</SelectItem>
-                    <SelectItem value="left">Centro</SelectItem>
-                    <SelectItem value="center">Medio</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div class="grid grid-cols-2 gap-2">
+                <div class="space-y-1">
+                  <Label class="text-[11px] text-muted-foreground">Alineación</Label>
+                  <Select v-model="settings.labelAlign">
+                    <SelectTrigger class="h-8 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="right">Exterior</SelectItem>
+                      <SelectItem value="left">Centro</SelectItem>
+                      <SelectItem value="center">Medio</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div class="space-y-1">
+                  <Label class="text-[11px] text-muted-foreground">Radio Texto</Label>
+                  <Input
+                    v-model.number="settings.labelRadius"
+                    type="number"
+                    :min="0.1"
+                    :max="0.95"
+                    step="0.05"
+                    class="text-xs h-8"
+                  />
+                </div>
               </div>
+
               <div class="space-y-1">
-                <Label class="text-[11px] text-muted-foreground">Radio Texto</Label>
+                <Label class="text-[11px] text-muted-foreground">Tamaño Máx.</Label>
                 <Input
-                  v-model.number="settings.labelRadius"
-                  type="number"
-                  :min="0.1"
-                  :max="0.95"
-                  step="0.05"
-                  class="text-xs h-8"
-                />
-              </div>
-            </div>
-
-            <div class="space-y-1">
-              <Label class="text-[11px] text-muted-foreground">Tamaño Máx.</Label>
-              <Input
-                v-model.number="settings.fontSizeMax"
-                type="number"
-                :min="8"
-                :max="60"
-                class="text-xs h-8"
-              />
-            </div>
-          </div>
-
-          <Separator />
-
-          <!-- Parámetros Giro -->
-          <div class="space-y-2.5">
-            <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Parámetros Giro</h3>
-
-            <div class="grid grid-cols-2 gap-2">
-              <div class="space-y-1">
-                <Label class="text-[11px] text-muted-foreground">Ancho Líneas</Label>
-                <Input
-                  v-model.number="settings.lineWidth"
-                  type="number"
-                  :min="0"
-                  :max="20"
-                  class="text-xs h-8"
-                />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-[11px] text-muted-foreground">Color Borde</Label>
-                <input
-                  type="color"
-                  v-model="settings.lineColor"
-                  class="w-full h-8 rounded cursor-pointer border border-input bg-transparent"
-                >
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2">
-              <div class="space-y-1">
-                <Label class="text-[11px] text-muted-foreground">Duración (ms)</Label>
-                <Input
-                  v-model.number="settings.spinDuration"
-                  type="number"
-                  :min="1000"
-                  :max="15000"
-                  step="250"
-                  class="text-xs h-8"
-                />
-              </div>
-              <div class="space-y-1">
-                <Label class="text-[11px] text-muted-foreground">Vueltas mín. (≥ 8)</Label>
-                <Input
-                  v-model.number="settings.revolutions"
+                  v-model.number="settings.fontSizeMax"
                   type="number"
                   :min="8"
-                  :max="30"
+                  :max="60"
                   class="text-xs h-8"
                 />
               </div>
             </div>
-          </div>
 
-          <Separator />
+            <Separator />
 
-          <!-- JSON & Backup -->
-          <Accordion type="single" collapsible>
-            <AccordionItem value="json-tools" class="border-0">
-              <AccordionTrigger class="text-xs font-semibold text-muted-foreground uppercase tracking-wider py-0 hover:no-underline">
-                JSON & Backup
-              </AccordionTrigger>
-              <AccordionContent class="pt-3 flex flex-col gap-3">
-                <div class="grid grid-cols-2 gap-2">
-                  <Button variant="outline" size="sm" class="text-xs h-8" @click="exportConfig">
-                    <Download class="h-3 w-3 mr-1" /> Exportar
-                  </Button>
-                  <label class="inline-flex items-center justify-center gap-1 text-xs h-8 px-3 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors">
-                    <Upload class="h-3 w-3" /> Cargar
-                    <input type="file" accept=".json" class="hidden" @change="handleImport">
-                  </label>
-                </div>
+            <!-- Parámetros Giro -->
+            <div class="space-y-2.5">
+              <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Parámetros Giro</h3>
 
-                <div class="space-y-2">
-                  <Label class="text-[11px] text-muted-foreground">Editar JSON Directo</Label>
-                  <Textarea
-                    v-model="jsonText"
-                    class="w-full h-32 text-[11px] font-mono resize-y"
-                    placeholder='[{"label":"NOMBRE","backgroundColor":"#1a1a2e","labelColor":"#ffffff"}]'
+              <div class="grid grid-cols-2 gap-2">
+                <div class="space-y-1">
+                  <Label class="text-[11px] text-muted-foreground">Ancho Líneas</Label>
+                  <Input
+                    v-model.number="settings.lineWidth"
+                    type="number"
+                    :min="0"
+                    :max="20"
+                    class="text-xs h-8"
                   />
-                  <Button variant="outline" size="sm" class="text-xs h-8 w-full" @click="loadFromJson">
-                    Cargar desde JSON
-                  </Button>
                 </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+                <div class="space-y-1">
+                  <Label class="text-[11px] text-muted-foreground">Color Borde</Label>
+                  <input
+                    type="color"
+                    v-model="settings.lineColor"
+                    class="w-full h-8 rounded cursor-pointer border border-input bg-transparent"
+                  >
+                </div>
+              </div>
 
-        </div>
-      </ScrollArea>
-    </SheetContent>
-  </Sheet>
+              <div class="grid grid-cols-2 gap-2">
+                <div class="space-y-1">
+                  <Label class="text-[11px] text-muted-foreground">Duración (ms)</Label>
+                  <Input
+                    v-model.number="settings.spinDuration"
+                    type="number"
+                    :min="1000"
+                    :max="15000"
+                    step="250"
+                    class="text-xs h-8"
+                  />
+                </div>
+                <div class="space-y-1">
+                  <Label class="text-[11px] text-muted-foreground">Vueltas mín. (≥ 8)</Label>
+                  <Input
+                    v-model.number="settings.revolutions"
+                    type="number"
+                    :min="8"
+                    :max="30"
+                    class="text-xs h-8"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            <!-- JSON & Backup -->
+            <Accordion type="single" collapsible>
+              <AccordionItem value="json-tools" class="border-0">
+                <AccordionTrigger class="text-xs font-semibold text-muted-foreground uppercase tracking-wider py-0 hover:no-underline">
+                  JSON & Backup
+                </AccordionTrigger>
+                <AccordionContent class="pt-3 flex flex-col gap-3">
+                  <div class="grid grid-cols-2 gap-2">
+                    <Button variant="outline" size="sm" class="text-xs h-8" @click="exportConfig">
+                      <Download class="h-3 w-3 mr-1" /> Exportar
+                    </Button>
+                    <label class="inline-flex items-center justify-center gap-1 text-xs h-8 px-3 rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors">
+                      <Upload class="h-3 w-3" /> Cargar
+                      <input type="file" accept=".json" class="hidden" @change="handleImport">
+                    </label>
+                  </div>
+
+                  <div class="space-y-2">
+                    <Label class="text-[11px] text-muted-foreground">Editar JSON Directo</Label>
+                    <Textarea
+                      v-model="jsonText"
+                      class="w-full h-32 text-[11px] font-mono resize-y"
+                      placeholder='[{"label":"NOMBRE","backgroundColor":"#1a1a2e","labelColor":"#ffffff"}]'
+                    />
+                    <Button variant="outline" size="sm" class="text-xs h-8 w-full" @click="loadFromJson">
+                      Cargar desde JSON
+                    </Button>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+
+          </div>
+        </ScrollArea>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
 import { toast } from 'vue-sonner'
-import { Download, Upload, Users, Trash2, Settings } from '@lucide/vue'
+import { Download, Upload, Users, Trash2, X } from '@lucide/vue'
 import ColorPicker from '@radial-color-picker/vue-color-picker'
 import '@radial-color-picker/vue-color-picker/dist/vue-color-picker.min.css'
 
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet'
 import {
   Dialog,
   DialogContent,
@@ -377,11 +374,10 @@ function openColorPickerModal(index: number) {
 
 function onHueInput(hue: number) {
   activeHue.value = hue
-  const hex = hslToHex(hue, 100, 20) // Neutral dark saturation & lightness for theme consistency
+  const hex = hslToHex(hue, 100, 20)
   updateItemColor(activeItemIndex.value, hex)
 }
 
-// Convert Hex to HSL
 function hexToHSL(hex: string) {
   hex = hex.replace(/^#/, '')
   let r = parseInt(hex.substring(0, 2), 16) / 255
@@ -409,7 +405,6 @@ function hexToHSL(hex: string) {
   }
 }
 
-// Convert HSL to Hex
 function hslToHex(h: number, s: number, l: number) {
   l /= 100
   const a = s * Math.min(l, 1 - l) / 100
@@ -423,13 +418,21 @@ function hslToHex(h: number, s: number, l: number) {
 
 const itemCount = computed(() => items.value.length)
 
-function onOpenChange(val: boolean) {
-  if (!val && props.preventClose) {
-    isOpen.value = true
-    return
-  }
-  emit('update:open', val)
+function togglePanel() {
+  if (isOpen.value && props.preventClose) return
+  isOpen.value = !isOpen.value
+  emit('update:open', isOpen.value)
 }
+
+function closePanel() {
+  if (props.preventClose) return
+  isOpen.value = false
+  emit('update:open', false)
+}
+
+watch(isOpen, (val) => {
+  emit('update:open', val)
+})
 
 watch(
   () => [...items.value],
@@ -519,3 +522,18 @@ defineExpose({
   focusInput,
 })
 </script>
+
+<style scoped>
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: transform 0.3s ease;
+}
+.slide-right-enter-from,
+.slide-right-leave-to {
+  transform: translateX(100%);
+}
+.slide-right-enter-to,
+.slide-right-leave-from {
+  transform: translateX(0%);
+}
+</style>
