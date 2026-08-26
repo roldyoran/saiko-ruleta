@@ -17,7 +17,6 @@
             <p class="text-xs text-zinc-400 mt-0.5">Parámetros de la ruleta.</p>
           </div>
           <button
-            v-if="!preventClose"
             @click="closePanel"
             class="text-zinc-400 hover:text-white transition-colors p-1 rounded"
           >
@@ -425,7 +424,6 @@ function togglePanel() {
 }
 
 function closePanel() {
-  if (props.preventClose) return
   isOpen.value = false
   emit('update:open', false)
 }
