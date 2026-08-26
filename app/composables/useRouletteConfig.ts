@@ -44,6 +44,16 @@ const items = ref<RouletteItem[]>([])
 const settings = ref<RouletteSettings>({ ...DEFAULT_SETTINGS })
 let initialized = false
 
+function sortItems() {
+  items.value.sort((a, b) => {
+    const aIsNum = /^\d/.test(a.label)
+    const bIsNum = /^\d/.test(b.label)
+    if (aIsNum && !bIsNum) return 1
+    if (!aIsNum && bIsNum) return -1
+    return a.label.localeCompare(b.label, 'es', { sensitivity: 'base' })
+  })
+}
+
 function getRandomColor(): string {
   const usedColors = items.value.map(i => i.backgroundColor)
   const available = NEUTRAL_PALETTE.filter(c => !usedColors.includes(c))
@@ -58,6 +68,7 @@ function loadConfig() {
     const parsed = JSON.parse(raw)
     if (parsed.items && Array.isArray(parsed.items)) {
       items.value = parsed.items
+      sortItems()
     }
     if (parsed.settings) {
       settings.value = { ...DEFAULT_SETTINGS, ...parsed.settings }
@@ -89,6 +100,7 @@ export function useRouletteConfig() {
       backgroundColor: getRandomColor(),
       labelColor: '#ffffff',
     })
+    sortItems()
     return true
   }
 
@@ -108,6 +120,7 @@ export function useRouletteConfig() {
 
   const setItems = (newItems: RouletteItem[]) => {
     items.value = newItems
+    sortItems()
   }
 
   const exportConfig = () => {
@@ -131,9 +144,11 @@ export function useRouletteConfig() {
           if (imported.items && imported.settings) {
             items.value = imported.items
             settings.value = { ...DEFAULT_SETTINGS, ...imported.settings }
+            sortItems()
             resolve(true)
           } else if (Array.isArray(imported)) {
             items.value = imported
+            sortItems()
             resolve(true)
           } else {
             resolve(false)

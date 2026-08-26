@@ -155,99 +155,109 @@
             <Separator />
 
             <!-- Texto y Alineación -->
-            <div class="space-y-2.5">
-              <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Texto y Alineación</h3>
+            <Accordion type="single" collapsible>
+              <AccordionItem value="text-align" class="border-0">
+                <AccordionTrigger class="text-xs font-semibold text-muted-foreground uppercase tracking-wider py-0 hover:no-underline">
+                  Texto y Alineación
+                </AccordionTrigger>
+                <AccordionContent class="pt-3 flex flex-col gap-3">
+                  <div class="grid grid-cols-2 gap-2">
+                    <div class="space-y-1">
+                      <Label class="text-[11px] text-muted-foreground">Alineación</Label>
+                      <Select v-model="settings.labelAlign">
+                        <SelectTrigger class="h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="right">Exterior</SelectItem>
+                          <SelectItem value="left">Centro</SelectItem>
+                          <SelectItem value="center">Medio</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div class="space-y-1">
+                      <Label class="text-[11px] text-muted-foreground">Radio Texto</Label>
+                      <Input
+                        v-model.number="settings.labelRadius"
+                        type="number"
+                        :min="0.1"
+                        :max="0.95"
+                        step="0.05"
+                        class="text-xs h-8"
+                      />
+                    </div>
+                  </div>
 
-              <div class="grid grid-cols-2 gap-2">
-                <div class="space-y-1">
-                  <Label class="text-[11px] text-muted-foreground">Alineación</Label>
-                  <Select v-model="settings.labelAlign">
-                    <SelectTrigger class="h-8 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="right">Exterior</SelectItem>
-                      <SelectItem value="left">Centro</SelectItem>
-                      <SelectItem value="center">Medio</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div class="space-y-1">
-                  <Label class="text-[11px] text-muted-foreground">Radio Texto</Label>
-                  <Input
-                    v-model.number="settings.labelRadius"
-                    type="number"
-                    :min="0.1"
-                    :max="0.95"
-                    step="0.05"
-                    class="text-xs h-8"
-                  />
-                </div>
-              </div>
-
-              <div class="space-y-1">
-                <Label class="text-[11px] text-muted-foreground">Tamaño Máx.</Label>
-                <Input
-                  v-model.number="settings.fontSizeMax"
-                  type="number"
-                  :min="8"
-                  :max="60"
-                  class="text-xs h-8"
-                />
-              </div>
-            </div>
+                  <div class="space-y-1">
+                    <Label class="text-[11px] text-muted-foreground">Tamaño Máx.</Label>
+                    <Input
+                      v-model.number="settings.fontSizeMax"
+                      type="number"
+                      :min="8"
+                      :max="60"
+                      class="text-xs h-8"
+                    />
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
 
             <Separator />
 
             <!-- Parámetros Giro -->
-            <div class="space-y-2.5">
-              <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Parámetros Giro</h3>
+            <Accordion type="single" collapsible>
+              <AccordionItem value="spin-params" class="border-0">
+                <AccordionTrigger class="text-xs font-semibold text-muted-foreground uppercase tracking-wider py-0 hover:no-underline">
+                  Parámetros Giro
+                </AccordionTrigger>
+                <AccordionContent class="pt-3 flex flex-col gap-3">
+                  <div class="grid grid-cols-2 gap-2">
+                    <div class="space-y-1">
+                      <Label class="text-[11px] text-muted-foreground">Ancho Líneas</Label>
+                      <Input
+                        v-model.number="settings.lineWidth"
+                        type="number"
+                        :min="0"
+                        :max="20"
+                        class="text-xs h-8"
+                      />
+                    </div>
+                    <div class="space-y-1">
+                      <Label class="text-[11px] text-muted-foreground">Color Borde</Label>
+                      <input
+                        type="color"
+                        v-model="settings.lineColor"
+                        class="w-full h-8 rounded cursor-pointer border border-input bg-transparent"
+                      >
+                    </div>
+                  </div>
 
-              <div class="grid grid-cols-2 gap-2">
-                <div class="space-y-1">
-                  <Label class="text-[11px] text-muted-foreground">Ancho Líneas</Label>
-                  <Input
-                    v-model.number="settings.lineWidth"
-                    type="number"
-                    :min="0"
-                    :max="20"
-                    class="text-xs h-8"
-                  />
-                </div>
-                <div class="space-y-1">
-                  <Label class="text-[11px] text-muted-foreground">Color Borde</Label>
-                  <input
-                    type="color"
-                    v-model="settings.lineColor"
-                    class="w-full h-8 rounded cursor-pointer border border-input bg-transparent"
-                  >
-                </div>
-              </div>
-
-              <div class="grid grid-cols-2 gap-2">
-                <div class="space-y-1">
-                  <Label class="text-[11px] text-muted-foreground">Duración (ms)</Label>
-                  <Input
-                    v-model.number="settings.spinDuration"
-                    type="number"
-                    :min="1000"
-                    :max="15000"
-                    step="250"
-                    class="text-xs h-8"
-                  />
-                </div>
-                <div class="space-y-1">
-                  <Label class="text-[11px] text-muted-foreground">Vueltas mín. (≥ 8)</Label>
-                  <Input
-                    v-model.number="settings.revolutions"
-                    type="number"
-                    :min="8"
-                    :max="30"
-                    class="text-xs h-8"
-                  />
-                </div>
-              </div>
-            </div>
+                  <div class="grid grid-cols-2 gap-2">
+                    <div class="space-y-1">
+                      <Label class="text-[11px] text-muted-foreground">Duración (ms)</Label>
+                      <Input
+                        v-model.number="settings.spinDuration"
+                        type="number"
+                        :min="1000"
+                        :max="15000"
+                        step="250"
+                        class="text-xs h-8"
+                      />
+                    </div>
+                    <div class="space-y-1">
+                      <Label class="text-[11px] text-muted-foreground">Vueltas mín. (≥ 8)</Label>
+                      <Input
+                        v-model.number="settings.revolutions"
+                        type="number"
+                        :min="8"
+                        :max="30"
+                        class="text-xs h-8"
+                      />
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
 
             <Separator />
 
