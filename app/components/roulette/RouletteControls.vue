@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-4 flex w-max-4xl flex-col gap-4 px-2 sm:flex-row sm:items-center">
+  <div class="mt-4 flex w-max-4xl flex-col gap-4 px-2 sm:flex-row sm:items-center" :class="{ 'relative z-[60]': isNamesMode }">
     <!-- Control de cantidad (visible solo en modo números) -->
     <NumberField
       v-if="!isNamesMode"

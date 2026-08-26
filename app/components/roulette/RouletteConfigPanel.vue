@@ -1,5 +1,5 @@
 <template>
-  <Sheet v-model:open="isOpen" @update:open="onOpenChange">
+  <Sheet v-model:open="isOpen" @update:open="onOpenChange" :close-on-outside-click="!preventClose">
     <SheetTrigger as-child>
       <slot name="trigger">
         <Button variant="outline" size="icon" class="h-8 w-8">
@@ -332,6 +332,13 @@ import {
 import { useRouletteConfig } from '@/composables/useRouletteConfig'
 
 const { items, settings, addItem, removeItem, updateItemColor, clearItems, setItems, exportConfig, importConfig } = useRouletteConfig()
+
+const props = defineProps({
+  preventClose: {
+    type: Boolean,
+    default: false,
+  },
+})
 
 const emit = defineEmits(['items-changed', 'update:open'])
 

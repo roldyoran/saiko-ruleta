@@ -1,6 +1,7 @@
 <template>
   <RouletteConfigPanel
     ref="configPanelRef"
+    :prevent-close="preventClose"
     @update:open="onPanelChange"
   >
     <template #trigger>
@@ -25,6 +26,13 @@ import { Users } from '@lucide/vue'
 import RouletteConfigPanel from './RouletteConfigPanel.vue'
 
 const emit = defineEmits(['panel-open', 'panel-close'])
+
+defineProps({
+  preventClose: {
+    type: Boolean,
+    default: false,
+  },
+})
 
 const configPanelRef = ref(null)
 

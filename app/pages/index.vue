@@ -132,6 +132,7 @@
 
     <!-- Panel de Participantes -->
     <ModeToggle
+      :prevent-close="isNamesMode && rouletteConfig.items.value.length >= 2"
       @panel-open="onPanelOpen"
       @panel-close="onPanelClose"
     />
@@ -274,9 +275,7 @@ const onPanelOpen = () => {
 };
 
 const onPanelClose = () => {
-  if (rouletteConfig.items.value.length < 2) {
-    isNamesMode.value = false;
-  }
+  isNamesMode.value = false;
 };
 
 // Método para manejar cuando se selecciona un ganador
