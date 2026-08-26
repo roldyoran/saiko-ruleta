@@ -274,7 +274,9 @@ const onPanelOpen = () => {
 };
 
 const onPanelClose = () => {
-  isNamesMode.value = false;
+  if (rouletteConfig.items.value.length < 2) {
+    isNamesMode.value = false;
+  }
 };
 
 // Método para manejar cuando se selecciona un ganador
