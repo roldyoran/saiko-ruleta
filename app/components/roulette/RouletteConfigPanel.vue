@@ -11,11 +11,11 @@
     <SheetContent
       side="right"
       overlay-class="bg-transparent"
-      class="w-full sm:max-w-sm flex flex-col gap-0 p-0 overflow-hidden backdrop-blur-xl bg-black/80"
+      class="w-full sm:max-w-sm flex flex-col gap-0 p-0 overflow-hidden backdrop-blur-2xl bg-black/95 border-l border-zinc-800"
     >
-      <SheetHeader class="px-5 pt-5 pb-3 border-b">
-        <SheetTitle class="text-base">Configuración</SheetTitle>
-        <SheetDescription class="text-xs">
+      <SheetHeader class="px-5 pt-5 pb-3 border-b border-zinc-800">
+        <SheetTitle class="text-base text-white">Configuración</SheetTitle>
+        <SheetDescription class="text-xs text-zinc-400">
           Parámetros de la ruleta.
         </SheetDescription>
       </SheetHeader>
@@ -90,17 +90,23 @@
                     :key="index"
                     class="flex items-center gap-2 bg-muted/30 border border-input/50 rounded-md px-2 py-2 text-xs hover:bg-muted/50 transition-colors"
                   >
-                    <input
-                      type="color"
-                      :value="item.backgroundColor"
-                      @input="handleColorChange(index, $event)"
-                      class="w-6 h-6 rounded shrink-0 cursor-pointer border-0 bg-transparent p-0 hover:ring-2 hover:ring-ring/50"
-                      :title="'Color de ' + item.label"
-                    >
+                    <!-- Color picker styled as a color wheel -->
+                    <div class="relative w-6 h-6 rounded-full overflow-hidden shrink-0 border border-zinc-700/50 shadow-inner flex items-center justify-center">
+                      <input
+                        type="color"
+                        :value="item.backgroundColor"
+                        @input="handleColorChange(index, $event)"
+                        class="absolute w-[150%] h-[150%] rounded-full cursor-pointer border-0 p-0 appearance-none scale-150"
+                        style="background: none;"
+                        :title="'Color de ' + item.label"
+                      >
+                      <!-- Subtle inner dot or radial lines to simulate a wheel -->
+                      <div class="absolute inset-0 pointer-events-none rounded-full border border-white/20"></div>
+                    </div>
                     <span class="flex-1 truncate text-foreground font-medium">{{ item.label }}</span>
                     <button
                       @click="handleRemoveItem(index)"
-                      class="text-muted-foreground hover:text-destructive transition-colors px-1.5 py-1 rounded hover:bg-destructive/10 cursor-pointer"
+                      class="text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-all px-1.5 py-1 rounded cursor-pointer"
                       :title="'Eliminar ' + item.label"
                     >
                       <Trash2 class="h-3 w-3" />
@@ -113,10 +119,10 @@
                 v-if="itemCount > 0"
                 variant="destructive"
                 size="sm"
-                class="w-full text-xs h-7"
+                class="w-full text-xs h-7 bg-red-600 text-white font-semibold transition-all hover:bg-red-500 hover:scale-[1.01] hover:shadow-[0_0_12px_rgba(239,68,68,0.4)] active:scale-95"
                 @click="handleClearAll"
               >
-                <Trash2 class="h-3 w-3 mr-1" /> Limpiar lista ({{ itemCount }})
+                <Trash2 class="h-3 w-3 mr-1 text-white stroke-[2.5]" /> Limpiar lista ({{ itemCount }})
               </Button>
             </div>
 
