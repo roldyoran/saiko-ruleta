@@ -55,17 +55,6 @@ export default defineNuxtConfig({
     plugins: [
       tailwindcss(),
     ],
-    build: {
-      rollupOptions: {
-        output: {
-          manualChunks(id) {
-            if (id.includes('ImageCarousel')) {
-              return 'carousel'
-            }
-          }
-        }
-      }
-    }
   },
   shadcn: {
     /**
