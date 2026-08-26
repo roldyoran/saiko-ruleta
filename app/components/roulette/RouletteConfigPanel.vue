@@ -89,20 +89,17 @@
                     v-for="(item, index) in items"
                     :key="index"
                     class="flex items-center gap-2 bg-muted/30 border border-input/50 rounded-md px-2 py-2 text-xs hover:bg-muted/50 transition-colors"
-                  >
-                    <!-- Color picker styled as a color wheel -->
-                    <div class="relative w-6 h-6 rounded-full overflow-hidden shrink-0 border border-zinc-700/50 shadow-inner flex items-center justify-center">
-                      <input
-                        type="color"
-                        :value="item.backgroundColor"
-                        @input="handleColorChange(index, $event)"
-                        class="absolute w-[150%] h-[150%] rounded-full cursor-pointer border-0 p-0 appearance-none scale-150"
-                        style="background: none;"
-                        :title="'Color de ' + item.label"
-                      >
+                                    <!-- Color picker styled as a color wheel that triggers a dialog modal -->
+                    <button
+                      type="button"
+                      @click="openColorPickerModal(index)"
+                      class="relative w-6 h-6 rounded-full overflow-hidden shrink-0 border border-zinc-700/50 shadow-inner flex items-center justify-center cursor-pointer transition-transform hover:scale-105 active:scale-95"
+                      :style="{ backgroundColor: item.backgroundColor }"
+                      :title="'Color de ' + item.label"
+                    >
                       <!-- Subtle inner dot or radial lines to simulate a wheel -->
                       <div class="absolute inset-0 pointer-events-none rounded-full border border-white/20"></div>
-                    </div>
+                    </button>
                     <span class="flex-1 truncate text-foreground font-medium">{{ item.label }}</span>
                     <button
                       @click="handleRemoveItem(index)"
@@ -114,6 +111,31 @@
                   </div>
                 </div>
               </ScrollArea>
+
+              <!-- Modal dialog containing the chromatic color wheel -->
+              <Dialog v-model:open="showColorPicker">
+                <DialogContent class="sm:max-w-xs p-5 bg-zinc-950 border border-zinc-800 text-white flex flex-col items-center gap-4">
+                  <DialogHeader class="w-full text-center">
+                    <DialogTitle class="text-sm font-semibold">Seleccionar Color</DialogTitle>
+                    <p class="text-xs text-zinc-400">Participante: {{ activeItemLabel }}</p>
+                  </DialogHeader>
+
+                  <div class="flex justify-center items-center py-4 bg-zinc-900/50 rounded-lg w-full">
+                    <ColorPicker
+                      :hue="activeHue"
+                      @input="onHueInput"
+                    />
+                  </div>
+
+                  <div class="flex items-center gap-3 w-full justify-between mt-1">
+                    <div class="flex items-center gap-2">
+                      <div class="w-5 h-5 rounded-full border border-zinc-700" :style="{ backgroundColor: activeColorHex }"></div>
+                      <span class="text-xs font-mono">{{ activeColorHex.toUpperCase() }}</span>
+                    </div>
+                    <Button size="sm" class="h-7 text-xs" @click="showColorPicker = false">Aceptar</Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
 
               <Button
                 v-if="itemCount > 0"
@@ -267,6 +289,8 @@
 import { ref, computed, watch, nextTick } from 'vue'
 import { toast } from 'vue-sonner'
 import { Download, Upload, Users, Trash2, Settings } from '@lucide/vue'
+import ColorPicker from '@radial-color-picker/vue-color-picker'
+import '@radial-color-picker/vue-color-picker/dist/vue-color-picker.min.css'
 
 import {
   Sheet,
@@ -276,6 +300,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -310,6 +340,79 @@ const namesMultiline = ref(true)
 const jsonText = ref('[]')
 const nameInputRef = ref<HTMLInputElement | HTMLTextAreaElement | null>(null)
 
+// Radial Color Picker modal logic
+const showColorPicker = ref(false)
+const activeItemIndex = ref(-1)
+const activeHue = ref(0)
+
+const activeItemLabel = computed(() => {
+  if (activeItemIndex.value >= 0 && items.value[activeItemIndex.value]) {
+    return items.value[activeItemIndex.value].label
+  }
+  return ''
+})
+
+const activeColorHex = computed(() => {
+  if (activeItemIndex.value >= 0 && items.value[activeItemIndex.value]) {
+    return items.value[activeItemIndex.value].backgroundColor
+  }
+  return '#ffffff'
+})
+
+function openColorPickerModal(index: number) {
+  activeItemIndex.value = index
+  const hexColor = items.value[index].backgroundColor
+  const { h } = hexToHSL(hexColor)
+  activeHue.value = h
+  showColorPicker.value = true
+}
+
+function onHueInput(hue: number) {
+  activeHue.value = hue
+  const hex = hslToHex(hue, 100, 20) // Neutral dark saturation & lightness for theme consistency
+  updateItemColor(activeItemIndex.value, hex)
+}
+
+// Convert Hex to HSL
+function hexToHSL(hex: string) {
+  hex = hex.replace(/^#/, '')
+  let r = parseInt(hex.substring(0, 2), 16) / 255
+  let g = parseInt(hex.substring(2, 4), 16) / 255
+  let b = parseInt(hex.substring(4, 6), 16) / 255
+
+  let max = Math.max(r, g, b), min = Math.min(r, g, b)
+  let h = 0, s = 0, l = (max + min) / 2
+
+  if (max !== min) {
+    let d = max - min
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break
+      case g: h = (b - r) / d + 2; break
+      case b: h = (r - g) / d + 4; break
+    }
+    h /= 6
+  }
+
+  return {
+    h: Math.round(h * 360),
+    s: Math.round(s * 100),
+    l: Math.round(l * 100)
+  }
+}
+
+// Convert HSL to Hex
+function hslToHex(h: number, s: number, l: number) {
+  l /= 100
+  const a = s * Math.min(l, 1 - l) / 100
+  const f = (n: number) => {
+    const k = (n + h / 30) % 12
+    const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1)
+    return Math.round(255 * color).toString(16).padStart(2, '0')
+  }
+  return `#${f(0)}${f(8)}${f(4)}`
+}
+
 const itemCount = computed(() => items.value.length)
 
 function onOpenChange(val: boolean) {
@@ -323,10 +426,6 @@ watch(
   },
   { deep: true, immediate: true }
 )
-
-function handleColorChange(index: number, event: Event) {
-  updateItemColor(index, (event.target as HTMLInputElement).value)
-}
 
 function handleRemoveItem(index: number) {
   removeItem(index)
