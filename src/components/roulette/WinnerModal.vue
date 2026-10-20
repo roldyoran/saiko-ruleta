@@ -9,7 +9,7 @@
         <div
           class="w-16 h-16 bg-neutral-800 border border-neutral-700 rounded-full flex items-center justify-center shadow-inner"
         >
-          <span class="text-3xl">🏆</span>
+          <Trophy class="h-8 w-8 text-amber-400" />
         </div>
 
         <!-- Label + Ganador -->
@@ -60,6 +60,7 @@
 
 <script setup>
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Trophy } from "@lucide/vue";
 
 const props = defineProps({
   isOpen: {

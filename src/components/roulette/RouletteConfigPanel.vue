@@ -417,6 +417,7 @@ function togglePanel() {
 }
 
 function closePanel() {
+  if (!isOpen.value) return;
   isOpen.value = false;
   emit("update:open", false);
 }

@@ -12,25 +12,10 @@
     <Button
       variant="ghost"
       size="icon"
+      title="Abrir configuración"
       class="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
     >
-      <Users class="h-3.5 w-3.5" />
-    </Button>
-  </Card>
-
-  <!-- Botón para alternar modo (solo visible cuando hay items y el panel está cerrado) -->
-  <Card
-    v-if="!panelOpen && itemsCount >= 2"
-    class="fixed top-14 right-4 z-50 p-2 cursor-pointer"
-    @click="toggleMode"
-  >
-    <Button
-      variant="ghost"
-      size="icon"
-      class="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
-      :title="isNamesMode ? 'Cambiar a modo números' : 'Cambiar a modo participantes'"
-    >
-      <component :is="isNamesMode ? Hash : Users" class="h-3.5 w-3.5" />
+      <LifeBuoy class="h-3.5 w-3.5" />
     </Button>
   </Card>
 </template>
@@ -39,7 +24,7 @@
 import { ref } from "vue";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Hash } from "@lucide/vue";
+import { LifeBuoy } from "@lucide/vue";
 import RouletteConfigPanel from "./RouletteConfigPanel.vue";
 
 const emit = defineEmits(["panel-open", "panel-close", "mode-change", "items-changed"]);
@@ -48,10 +33,6 @@ const props = defineProps({
   isNamesMode: {
     type: Boolean,
     default: false,
-  },
-  itemsCount: {
-    type: Number,
-    default: 0,
   },
 });
 
@@ -73,11 +54,14 @@ function openPanel() {
   }
 }
 
-function toggleMode() {
-  emit("mode-change", props.isNamesMode ? "numbers" : "names");
+function closePanel() {
+  if (configPanelRef.value) {
+    configPanelRef.value.close();
+  }
 }
 
 defineExpose({
   open: openPanel,
+  close: closePanel,
 });
 </script>

@@ -9,6 +9,7 @@
       :model-value="numOptions"
       :min="2"
       :max="44"
+      :disabled="isSpinning"
       class="flex-1 border-none shadow-sm font-bold bg-primary/80 hover:bg-primary rounded-md transition-all"
       @update:model-value="updateOptions"
     >

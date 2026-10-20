@@ -117,8 +117,8 @@
 
     <!-- Panel de Participantes -->
     <ModeToggle
+      ref="modeToggleRef"
       :is-names-mode="isNamesMode"
-      :items-count="rouletteConfig.items.value.length"
       @panel-open="onPanelOpen"
       @panel-close="onPanelClose"
       @mode-change="onChangeMode"
@@ -186,6 +186,7 @@ const ImageCarousel = defineAsyncComponent(() => import("@/components/ImageCarou
 
 // Refs de componentes
 const rouletteWheelRef = ref(null);
+const modeToggleRef = ref(null);
 const carouselLeftRef = ref(null);
 const carouselRightRef = ref(null);
 
@@ -332,6 +333,8 @@ const closeWinnerModal = () => {
 
 // Métodos principales
 const updateOptions = (newNumOptions) => {
+  // Ignorar cambios mientras la ruleta está girando (el input está deshabilitado)
+  if (isSpinning.value) return;
   // Quitar ganador de pantalla
   if (winnerDisplayTimeout.value) {
     clearTimeout(winnerDisplayTimeout.value);
@@ -349,6 +352,12 @@ const handleSpin = () => {
     toast.error("Agrega al menos 2 participantes para girar la ruleta");
     return;
   }
+
+  // Minimizar el panel de configuración al girar (el giro por voz también
+  // pasa por aquí). Se conserva el modo actual para no alterar el sorteo:
+  // cerrar el panel restaura `previousMode`, así que se sincroniza antes.
+  previousMode.value = isNamesMode.value;
+  modeToggleRef.value?.close?.();
 
   if (winnerDisplayTimeout.value) {
     clearTimeout(winnerDisplayTimeout.value);
