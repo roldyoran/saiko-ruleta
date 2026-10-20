@@ -2,7 +2,8 @@
 // (números y participantes). Única fuente para los hex que el canvas
 // (spin-wheel) necesita. En CSS usa los tokens `@theme` (berry/cream…).
 export const NOEL_CANDY_RED = "#d90429";
-export const NOEL_CANDY_BERRY = "#7f1d1d";
+/** Etiqueta sobre crema: el mismo rojo vivido (4.66:1, AA). */
+export const NOEL_CANDY_BERRY = "#d90429";
 /** Etiqueta sobre rojo: marfil cálido. */
 export const NOEL_LABEL_CREAM = "#f5f1e8";
 /** Contorno de etiqueta: carbón cálido. */

@@ -71,6 +71,23 @@ SPA Vue 3 + vue-router + Tailwind 4, sin SSR ni backend. Toolchain Vite+ 1.3.0
 - `bingo.vue` comparte tableros por query `?bingo=` con APIs nativas
   (`window.location`/`history`); `animelist.vue` sincroniza filtros con
   `router.replace({ query })`.
+
+## Commits (Conventional Commits, en español)
+
+- Formato: `tipo(alcance): descripción breve en minúsculas e imperativo`.
+- Tipos: `feat` (función), `fix` (bug), `refactor`, `style` (visual/formato
+  sin lógica), `perf`, `docs`, `chore`, `build`, `deps`.
+- Alcance = área del repo: `ruleta`, `bingo`, `galeria`, `tema`, `build`,
+  `docs`, `deps`. Sin alcance solo si es transversal (`chore: ...`).
+- Subject ≤ 72 caracteres; cuerpo opcional con bullets de qué/por qué.
+- Ejemplos:
+  - `feat(ruleta): alterna rojo y crema en todos los modos`
+  - `fix(build): renombra app.vue a App.vue para Linux`
+  - `style(tema): aviva dorado y rojo manteniendo AA`
+- Un commit por cambio lógico; nunca mezclar `feat` con `fix` ajeno.
+- No commitear ni pushear sin permiso explícito del usuario.
+- El hook pre-commit corre `vp check --fix`; no usar `--no-verify` salvo
+  el caso documentado arriba (commit gigante en Windows con verde previo).
 - Tema navideño "Medianoche" en `src/assets/css/main.css` (bloque `.dark`):
   fondo pino casi negro, primario dorado `gold-400`, acento pino, rojo baya
   para destructive. Paleta propia en `@theme` (`gold/pine/berry/frost/cream/
