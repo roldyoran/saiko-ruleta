@@ -68,7 +68,7 @@
 <script setup>
 import { Wheel } from "spin-wheel";
 import { ref, onMounted, onUnmounted, watch } from "vue";
-import { NOEL_CANDY_RED, NOEL_LABEL_CREAM, NOEL_LABEL_STROKE, NOEL_LINE } from "@/lib/noel-palette";
+import { NOEL_CANDY_RED, NOEL_LABEL_CREAM, NOEL_LABEL_STROKE } from "@/lib/noel-palette";
 
 // Props
 const props = defineProps({
@@ -111,7 +111,7 @@ const props = defineProps({
   },
   lineColor: {
     type: String,
-    default: NOEL_LINE,
+    default: "#000000",
   },
   spinDuration: {
     type: Number,

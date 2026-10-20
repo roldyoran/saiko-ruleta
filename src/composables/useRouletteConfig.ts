@@ -4,11 +4,10 @@ import {
   NOEL_CANDY_LABEL,
   NOEL_CANDY_RED,
   NOEL_LABEL_CREAM,
-  NOEL_LINE,
 } from "@/lib/noel-palette";
 
 const STORAGE_KEY = "roulette-config";
-const CONFIG_VERSION = 2;
+const CONFIG_VERSION = 3;
 
 export interface RouletteItem {
   label: string;
@@ -33,7 +32,7 @@ const DEFAULT_SETTINGS: RouletteSettings = {
   fontSizeMax: 40,
   labelRadius: 0.6,
   lineWidth: 6,
-  lineColor: NOEL_LINE,
+  lineColor: "#000000",
   spinDuration: 4500,
   revolutions: 8,
 };
@@ -70,10 +69,11 @@ function loadConfig() {
     }
     if (parsed.settings) {
       settings.value = { ...DEFAULT_SETTINGS, ...parsed.settings };
-      // Migración v2: números más grandes sin borrar la lista ni el resto
-      // de ajustes del usuario.
+      // Migración v3: números grandes + borde negro sin borrar la lista
+      // ni el resto de ajustes del usuario.
       if (parsed.version !== CONFIG_VERSION) {
         settings.value.fontSizeMax = DEFAULT_SETTINGS.fontSizeMax;
+        settings.value.lineColor = DEFAULT_SETTINGS.lineColor;
       }
     }
   } catch {

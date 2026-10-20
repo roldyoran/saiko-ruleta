@@ -8,8 +8,6 @@ export const NOEL_CANDY_BERRY = "#d90429";
 export const NOEL_LABEL_CREAM = "#f5f1e8";
 /** Contorno de etiqueta: carbón cálido. */
 export const NOEL_LABEL_STROKE = "#1c1917";
-/** Línea divisoria entre segmentos: bronce. */
-export const NOEL_LINE = "#3d2c10";
 
 /** Fondos por índice: rojo, crema, rojo, crema… */
 export const NOEL_CANDY_BG: string[] = [NOEL_CANDY_RED, NOEL_LABEL_CREAM];
