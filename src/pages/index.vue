@@ -3,18 +3,6 @@
     <!-- <Background /> -->
     <Christmas />
 
-    <!-- Ambiente: focos radiales cálidos sobre el fondo (sutil, solo atmósfera) -->
-    <div aria-hidden="true" class="pointer-events-none absolute inset-0 overflow-hidden">
-      <div
-        class="absolute -top-32 left-1/2 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-pine-500/10 blur-[130px] animate-breathe"
-      />
-      <div
-        class="absolute bottom-0 left-1/2 h-[380px] w-[860px] -translate-x-1/2 rounded-full bg-gold-500/10 blur-[140px]"
-      />
-      <div class="absolute top-1/3 -left-24 h-72 w-72 rounded-full bg-berry-600/10 blur-[110px]" />
-      <div class="absolute top-1/4 -right-24 h-72 w-72 rounded-full bg-berry-600/10 blur-[110px]" />
-    </div>
-
     <!-- Icon navigation for testing -->
     <IconNav class="absolute top-7 left-4 z-40" />
 
@@ -37,6 +25,7 @@
         :options="options"
         :is-names-mode="isNamesMode"
         :item-colors="itemColors"
+        :item-label-colors="itemLabels"
         :font-family="rouletteConfig.settings.value.fontFamily"
         :font-size-max="rouletteConfig.settings.value.fontSizeMax"
         :label-align="rouletteConfig.settings.value.labelAlign"
@@ -172,7 +161,12 @@ import { ref, onMounted, onUnmounted, nextTick, computed, defineAsyncComponent }
 import { toast } from "vue-sonner";
 import { useAppMeta } from "@/composables/useAppMeta";
 import { useRouletteConfig } from "@/composables/useRouletteConfig";
-import { NOEL_NUMBER_DEFAULTS } from "@/lib/noel-palette";
+import {
+  NOEL_CANDY_BG,
+  NOEL_CANDY_LABEL,
+  NOEL_CANDY_RED,
+  NOEL_LABEL_CREAM,
+} from "@/lib/noel-palette";
 
 // Composables
 const { updateMeta } = useAppMeta({
@@ -249,12 +243,17 @@ const options = computed(() => {
   return Array.from({ length: clamped }, (_, i) => (i + 1).toString());
 });
 
-// Colores por ítem desde la configuración (para RouletteWheel)
+// Caramelo en TODOS los modos: rojo/crema alternados por posición,
+// con etiqueta a juego (crema sobre rojo, baya sobre crema).
 const itemColors = computed(() => {
-  // En modo números se ciclan las joyas navideñas de la paleta compartida.
-  const defaults = NOEL_NUMBER_DEFAULTS;
   return options.value.map((_, i) => {
-    return rouletteConfig.items.value[i]?.backgroundColor || defaults[i % defaults.length];
+    return NOEL_CANDY_BG[i % NOEL_CANDY_BG.length] ?? NOEL_CANDY_RED;
+  });
+});
+
+const itemLabels = computed(() => {
+  return options.value.map((_, i) => {
+    return NOEL_CANDY_LABEL[i % NOEL_CANDY_LABEL.length] ?? NOEL_LABEL_CREAM;
   });
 });
 

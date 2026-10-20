@@ -169,7 +169,7 @@
                 v-if="itemCount > 0"
                 variant="destructive"
                 size="sm"
-                class="w-full text-xs h-7 bg-destructive text-destructive-foreground font-semibold transition-all hover:bg-berry-500 hover:scale-[1.01] hover:shadow-glow-berry active:scale-95"
+                class="w-full text-xs h-7 bg-destructive text-destructive-foreground font-semibold transition-all hover:bg-berry-500 hover:scale-[1.01] active:scale-95"
                 @click="handleClearAll"
               >
                 <Trash2 class="h-3 w-3 mr-1 text-white stroke-[2.5]" /> Limpiar lista ({{

@@ -1,159 +1,221 @@
 <template>
-  <div class="-z-50 snow-scene animate-gradient">
-    <!-- Reduced snowflakes for better performance -->
-    <span v-for="n in 8" :key="n" class="flake" />
+  <div class="snow-scene" aria-hidden="true">
+    <!-- Copos fijos: sin JS, solo animación CSS (transform + opacity = GPU) -->
+    <span v-for="n in 14" :key="n" class="flake" />
   </div>
 </template>
 
 <script setup lang="ts">
-// No script logic required — pure visual component
+// Sin lógica: visual puro y optimizado.
 </script>
 
 <style scoped>
-/* Simplified gradient animation - reduced complexity */
-@keyframes gradient {
-  0%,
-  100% {
-    background-position: 0% 50%;
+/* Caída con vaivén lateral: un solo keyframe por copo */
+@keyframes snowfall {
+  0% {
+    transform: translate3d(0, -5vh, 0);
+    opacity: 0;
+  }
+  8% {
+    opacity: var(--peak, 0.85);
+  }
+  25% {
+    transform: translate3d(var(--sway, 20px), 25vh, 0);
   }
   50% {
-    background-position: 100% 50%;
+    transform: translate3d(calc(var(--sway, 20px) * -0.6), 55vh, 0);
+    opacity: var(--peak, 0.85);
+  }
+  75% {
+    transform: translate3d(var(--sway, 20px), 80vh, 0);
+  }
+  92% {
+    opacity: var(--peak, 0.85);
+  }
+  100% {
+    transform: translate3d(calc(var(--sway, 20px) * -0.3), 105vh, 0);
+    opacity: 0;
   }
 }
 
-/* Simpler gradient with reduced animation complexity */
-.animate-gradient {
-  background: linear-gradient(
-    45deg,
-    var(--background) 0%,
-    var(--muted) 50%,
-    var(--background) 100%
-  );
-  background-size: 200% 200%;
-  animation: gradient 60s ease-in-out infinite;
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
+/* Parpadeo sutil para algunos copos (segunda animación, misma capa) */
+@keyframes twinkle {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.6);
+  }
 }
 
-/* Container covers the whole area of the parent */
 .snow-scene {
   position: absolute;
   inset: 0;
-  pointer-events: none;
   overflow: hidden;
-  --flake-color: rgba(255, 255, 255, 0.9);
+  pointer-events: none;
 }
 
-/* Simplified flake style - reduced visual effects for better performance */
 .flake {
   position: absolute;
-  top: -5vh;
+  top: 0;
   display: block;
-  width: 4px;
-  height: 4px;
-  background: var(--flake-color);
-  border-radius: 50%;
-  opacity: 0.8;
-  will-change: transform;
-  animation: fall linear infinite;
+  border-radius: 9999px;
+  background: radial-gradient(circle, #ffffff 0%, rgba(255, 255, 255, 0.7) 60%, transparent 100%);
+  will-change: transform, opacity;
+  animation: snowfall linear infinite;
 }
 
-/* Simplified animation - only vertical fall with slight horizontal drift */
-@keyframes fall {
-  0% {
-    transform: translateY(-5vh) translateX(0);
-    opacity: 0;
-  }
-  10% {
-    opacity: 0.8;
-  }
-  90% {
-    opacity: 0.8;
-  }
-  100% {
-    transform: translateY(105vh) translateX(var(--drift, 20px));
-    opacity: 0;
-  }
-}
-
-/* Simplified flake variations - only 8 flakes with basic positioning */
+/* Variaciones: posición, tamaño, vaivén, duración y brillo máximo */
 .flake:nth-child(1) {
-  left: 10%;
-  --drift: 15px;
-  animation-duration: 8s;
-  animation-delay: 0s;
+  left: 4%;
+  width: 5px;
+  height: 5px;
+  --sway: 24px;
+  --peak: 0.9;
+  animation-duration: 11s;
 }
 .flake:nth-child(2) {
-  left: 25%;
-  --drift: -10px;
-  animation-duration: 12s;
+  left: 12%;
+  width: 3px;
+  height: 3px;
+  --sway: -18px;
+  --peak: 0.6;
+  animation-duration: 14s;
   animation-delay: 2s;
+  filter: blur(0.6px);
 }
 .flake:nth-child(3) {
-  left: 40%;
-  --drift: 25px;
+  left: 20%;
+  width: 6px;
+  height: 6px;
+  --sway: 30px;
+  --peak: 0.95;
   animation-duration: 10s;
   animation-delay: 1s;
+  animation-name: snowfall, twinkle;
+  animation-duration: 10s, 3s;
 }
 .flake:nth-child(4) {
-  left: 55%;
-  --drift: -20px;
-  animation-duration: 14s;
-  animation-delay: 3s;
+  left: 28%;
+  width: 4px;
+  height: 4px;
+  --sway: -24px;
+  --peak: 0.75;
+  animation-duration: 13s;
+  animation-delay: 4s;
 }
 .flake:nth-child(5) {
-  left: 70%;
-  --drift: 12px;
-  animation-duration: 9s;
+  left: 36%;
+  width: 3px;
+  height: 3px;
+  --sway: 16px;
+  --peak: 0.55;
+  animation-duration: 16s;
   animation-delay: 0.5s;
+  filter: blur(0.6px);
 }
 .flake:nth-child(6) {
-  left: 85%;
-  --drift: -15px;
-  animation-duration: 11s;
+  left: 44%;
+  width: 7px;
+  height: 7px;
+  --sway: -30px;
+  --peak: 1;
+  animation-duration: 9s;
   animation-delay: 1.5s;
+  animation-name: snowfall, twinkle;
+  animation-duration: 9s, 2.4s;
 }
 .flake:nth-child(7) {
-  left: 20%;
-  --drift: 30px;
-  animation-duration: 13s;
-  animation-delay: 2.5s;
+  left: 52%;
+  width: 4px;
+  height: 4px;
+  --sway: 20px;
+  --peak: 0.7;
+  animation-duration: 12s;
+  animation-delay: 3s;
 }
 .flake:nth-child(8) {
-  left: 75%;
-  --drift: -25px;
-  animation-duration: 15s;
+  left: 60%;
+  width: 5px;
+  height: 5px;
+  --sway: -16px;
+  --peak: 0.85;
+  animation-duration: 11s;
   animation-delay: 0.8s;
 }
+.flake:nth-child(9) {
+  left: 68%;
+  width: 3px;
+  height: 3px;
+  --sway: 26px;
+  --peak: 0.5;
+  animation-duration: 15s;
+  animation-delay: 2.5s;
+  filter: blur(0.6px);
+}
+.flake:nth-child(10) {
+  left: 76%;
+  width: 6px;
+  height: 6px;
+  --sway: -22px;
+  --peak: 0.9;
+  animation-duration: 10s;
+  animation-delay: 5s;
+  animation-name: snowfall, twinkle;
+  animation-duration: 10s, 3.6s;
+}
+.flake:nth-child(11) {
+  left: 84%;
+  width: 4px;
+  height: 4px;
+  --sway: 18px;
+  --peak: 0.7;
+  animation-duration: 13s;
+  animation-delay: 1.2s;
+}
+.flake:nth-child(12) {
+  left: 91%;
+  width: 5px;
+  height: 5px;
+  --sway: -28px;
+  --peak: 0.85;
+  animation-duration: 12s;
+  animation-delay: 3.8s;
+}
+.flake:nth-child(13) {
+  left: 8%;
+  width: 4px;
+  height: 4px;
+  --sway: 22px;
+  --peak: 0.65;
+  animation-duration: 14s;
+  animation-delay: 6s;
+  filter: blur(0.6px);
+}
+.flake:nth-child(14) {
+  left: 96%;
+  width: 6px;
+  height: 6px;
+  --sway: -20px;
+  --peak: 0.9;
+  animation-duration: 11s;
+  animation-delay: 2.2s;
+  animation-name: snowfall, twinkle;
+  animation-duration: 11s, 2.8s;
+}
 
-/* Performance optimizations */
 @media (prefers-reduced-motion: reduce) {
-  .flake,
-  .animate-gradient {
-    animation: none !important;
-  }
   .flake {
-    opacity: 0.3;
+    animation: none;
+    opacity: 0.25;
   }
 }
 
-/* Additional mobile optimizations */
+/* En móvil, la mitad de copos: menos píxeles a componer */
 @media (max-width: 768px) {
-  .flake {
-    width: 3px;
-    height: 3px;
-    opacity: 0.6;
-  }
-  .animate-gradient {
-    animation-duration: 120s; /* Slower animation on mobile */
-  }
-}
-
-/* Reduce animations on low-end devices */
-@media (max-width: 480px) {
-  .snow-scene {
-    display: none; /* Hide on very small screens to save resources */
+  .flake:nth-child(n + 8) {
+    display: none;
   }
 }
 </style>

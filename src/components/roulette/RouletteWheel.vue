@@ -7,16 +7,10 @@
           <filter id="pointerShadow" x="-20%" y="-20%" width="140%" height="140%">
             <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.5" />
           </filter>
-          <linearGradient id="pointerGold" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" style="stop-color: var(--color-gold-100)" />
-            <stop offset="0.5" style="stop-color: var(--color-gold-400)" />
-            <stop offset="1" style="stop-color: var(--color-gold-600)" />
-          </linearGradient>
         </defs>
         <polygon
           points="18,48 2,6 18,14 34,6"
-          fill="url(#pointerGold)"
-          style="stroke: var(--color-berry-700)"
+          style="fill: var(--color-gold-400); stroke: var(--color-berry-700)"
           stroke-width="2.5"
           stroke-linejoin="round"
           filter="url(#pointerShadow)"
@@ -26,7 +20,7 @@
 
     <!-- Anillo caramelo navideño alrededor de la ruleta -->
     <div
-      class="rounded-full p-1.5 shadow-glow-gold-lg"
+      class="rounded-full p-1.5"
       style="
         background: repeating-conic-gradient(
           var(--color-berry-500) 0deg 9deg,
@@ -74,12 +68,7 @@
 <script setup>
 import { Wheel } from "spin-wheel";
 import { ref, onMounted, onUnmounted, watch } from "vue";
-import {
-  NOEL_LABEL_CREAM,
-  NOEL_LABEL_STROKE,
-  NOEL_LINE,
-  NOEL_NUMBER_DEFAULTS,
-} from "@/lib/noel-palette";
+import { NOEL_CANDY_RED, NOEL_LABEL_CREAM, NOEL_LABEL_STROKE, NOEL_LINE } from "@/lib/noel-palette";
 
 // Props
 const props = defineProps({
@@ -95,6 +84,10 @@ const props = defineProps({
   itemColors: {
     type: Array,
     default: () => [],
+  },
+  itemLabelColors: {
+    type: Array,
+    default: () => [NOEL_LABEL_CREAM],
   },
   fontFamily: {
     type: String,
@@ -138,17 +131,19 @@ const wheelContainer = ref(null);
 let wheel = null;
 const isLoaded = ref(false);
 
-// Colores por defecto: joyas navideñas de la paleta compartida
-// (solo fallback; el padre suele pasar `itemColors`).
-const DEFAULT_COLORS = NOEL_NUMBER_DEFAULTS;
+// Fallback caramelo (el padre siempre pasa `itemColors`/`itemLabelColors`).
+const DEFAULT_BG = NOEL_CANDY_RED;
+const DEFAULT_LABEL = NOEL_LABEL_CREAM;
 
 // Construir items desde options
 const buildItems = (options) => {
   return options.map((opt, i) => {
-    const color = props.itemColors[i] || DEFAULT_COLORS[i % DEFAULT_COLORS.length];
+    const color = props.itemColors[i] || DEFAULT_BG;
+    const labelColor = props.itemLabelColors[i] || DEFAULT_LABEL;
     return {
       label: String(opt),
       backgroundColor: color,
+      labelColor,
       weight: 1,
     };
   });
@@ -254,6 +249,7 @@ watch(
     props.lineWidth,
     props.lineColor,
     props.itemColors,
+    props.itemLabelColors,
   ],
   () => {
     initWheel();

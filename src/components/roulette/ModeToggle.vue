@@ -8,11 +8,7 @@
   />
 
   <!-- Botón para abrir panel de configuración -->
-  <Card
-    v-if="!panelOpen"
-    class="fixed top-4 right-4 z-50 p-2 cursor-pointer border-gold-500/25 shadow-glow-gold"
-    @click="openPanel"
-  >
+  <Card v-if="!panelOpen" class="fixed top-4 right-4 z-50 p-2 cursor-pointer" @click="openPanel">
     <Button
       variant="ghost"
       size="icon"

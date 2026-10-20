@@ -1,6 +1,6 @@
 <template>
   <div
-    class="mt-6 flex w-64 md:w-[500px] flex-col gap-3 px-2 sm:flex-row sm:items-stretch"
+    class="mt-5 flex w-64 md:w-[420px] flex-col gap-2.5 px-2 sm:flex-row sm:items-stretch"
     :class="{ 'relative z-[60]': isNamesMode }"
   >
     <!-- Control de cantidad (visible solo en modo números) -->
@@ -10,23 +10,23 @@
       :min="2"
       :max="44"
       :disabled="isSpinning"
-      class="flex-1 rounded-2xl border-2 border-gold-500/40 bg-card/80 shadow-glow-gold"
+      class="w-full sm:w-32 flex-none rounded-xl border border-gold-500/30 bg-card/80"
       @update:model-value="updateOptions"
     >
       <NumberFieldContent>
-        <NumberFieldDecrement class="text-gold-400" />
+        <NumberFieldDecrement class="text-gold-400/70" />
         <NumberFieldInput
-          class="h-14 border-0 bg-transparent font-display text-xl font-black text-gold-300 shadow-none"
+          class="h-11 border-0 bg-transparent font-display text-lg font-extrabold text-gold-300 shadow-none"
         />
-        <NumberFieldIncrement class="text-gold-400" />
+        <NumberFieldIncrement class="text-gold-400/70" />
       </NumberFieldContent>
     </NumberField>
 
-    <!-- Botón Girar: dorado metálico 3D, el único protagonista de color -->
+    <!-- Botón Girar: dorado plano, compacto -->
     <Button
       @click="handleSpin"
       :disabled="(isNamesMode && namesCount < 2) || isSpinning"
-      class="h-14 flex-1 rounded-2xl border-b-4 border-gold-700 bg-linear-to-b from-gold-200 via-gold-400 to-gold-600 font-display text-xl font-black uppercase tracking-widest text-espresso-950 shadow-glow-gold transition-all hover:brightness-110 active:translate-y-[2px] active:border-b-0 disabled:shadow-none"
+      class="h-11 flex-1 rounded-xl border-b-4 border-gold-700 bg-gold-400 font-display text-base font-extrabold uppercase tracking-widest text-espresso-950 transition-all hover:bg-gold-300 active:translate-y-[2px] active:border-b-0"
     >
       <RotateCcw class="mr-2 h-4 w-4" :class="{ 'animate-spin': isSpinning }" />
       {{ isSpinning ? "GIRANDO..." : "GIRAR" }}

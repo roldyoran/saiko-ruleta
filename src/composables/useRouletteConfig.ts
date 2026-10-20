@@ -1,9 +1,10 @@
 import { ref, watch } from "vue";
 import {
+  NOEL_CANDY_BG,
+  NOEL_CANDY_LABEL,
+  NOEL_CANDY_RED,
   NOEL_LABEL_CREAM,
   NOEL_LINE,
-  NOEL_SEGMENT_COLORS,
-  NOEL_SEGMENT_FALLBACK,
 } from "@/lib/noel-palette";
 
 const STORAGE_KEY = "roulette-config";
@@ -52,12 +53,10 @@ function sortItems() {
   });
 }
 
-function getRandomColor(): string {
-  const usedColors = items.value.map((i) => i.backgroundColor);
-  const available = NOEL_SEGMENT_COLORS.filter((c) => !usedColors.includes(c));
-  const pool = available.length > 0 ? available : NOEL_SEGMENT_COLORS;
-  const color = pool[Math.floor(Math.random() * pool.length)];
-  return color ?? NOEL_SEGMENT_FALLBACK;
+// Caramelo por posición: al agregar, el siguiente color del ciclo
+// rojo/crema para que la lista nazca alternada.
+function getCandySlot(index: number): number {
+  return index % NOEL_CANDY_BG.length;
 }
 
 function loadConfig() {
@@ -103,10 +102,11 @@ export function useRouletteConfig() {
   const addItem = (label: string) => {
     const trimmed = label.trim();
     if (!trimmed) return false;
+    const slot = getCandySlot(items.value.length);
     items.value.push({
       label: trimmed.toUpperCase(),
-      backgroundColor: getRandomColor(),
-      labelColor: NOEL_LABEL_CREAM,
+      backgroundColor: NOEL_CANDY_BG[slot] ?? NOEL_CANDY_RED,
+      labelColor: NOEL_CANDY_LABEL[slot] ?? NOEL_LABEL_CREAM,
     });
     sortItems();
     return true;
@@ -179,6 +179,5 @@ export function useRouletteConfig() {
     setItems,
     exportConfig,
     importConfig,
-    getRandomColor,
   };
 }
