@@ -1,3 +1,5 @@
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/outfit";
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -68,6 +70,55 @@ button {
   }
 }
 
+@theme {
+  /* Paleta navideña "Medianoche": dorado protagonista, pino de soporte,
+     baya solo para detalles. Genera utilidades como text-gold-400,
+     bg-pine-700, border-berry-500 (con modificadores de opacidad). */
+  --color-gold-100: #fff3c4;
+  --color-gold-200: #ffe08a;
+  --color-gold-300: #ffd028;
+  --color-gold-400: #f2b705;
+  --color-gold-500: #d99a06;
+  --color-gold-600: #a86e04;
+  --color-gold-700: #7c5205;
+  --color-pine-300: #7fd6a8;
+  --color-pine-500: #17b26a;
+  --color-pine-700: #0e7a4e;
+  --color-pine-900: #0b2b26;
+  --color-berry-400: #fb4d6d;
+  --color-berry-500: #e11d48;
+  --color-berry-600: #be123c;
+  --color-berry-700: #881337;
+  --color-frost-300: #c2d3e0;
+  --color-cream-100: #f5f1e8;
+  --color-champagne-200: #e8dcc8;
+  --color-espresso-950: #1c1917;
+
+  /* Tipografía: Inter para texto, Outfit para display (ganador, GIRAR). */
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+
+  /* Sombras cálidas (el negro puro da profundidad sin vida) */
+  --shadow-glow-gold: 0 0 24px rgb(242 183 5 / 0.4);
+  --shadow-glow-gold-lg: 0 0 48px rgb(242 183 5 / 0.45), 0 0 120px rgb(242 183 5 / 0.2);
+  --shadow-glow-berry: 0 0 32px rgb(203 29 44 / 0.55);
+
+  /* Respiración lenta para los focos ambientales (lujo = movimiento lento) */
+  --animate-breathe: breathe 9s ease-in-out infinite;
+
+  @keyframes breathe {
+    0%,
+    100% {
+      opacity: 0.55;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.06);
+    }
+  }
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -109,63 +160,84 @@ button {
 }
 
 .dark {
-  /* Background: Ultra dark neutral con mejor contraste */
-  --background: #030303;
-  --foreground: #fafafa;
-  /* Máximo contraste para texto */
+  /* Tema navideño "Medianoche" vívido: fondo pino casi negro,
+     texto marfil cálido (luz de vela) en vez de blanco puro. */
+  --background: #070b09;
+  --foreground: #f5f1e8;
 
-  /* Cards / popovers: Elevación sutil con mejor separación */
-  --card: #171717;
-  --card-foreground: #fafafa;
-  --popover: #1a1a1a;
-  --popover-foreground: #fafafa;
+  /* Cards / popovers: pino oscuro para separar del fondo */
+  --card: #101915;
+  --card-foreground: #f5f1e8;
+  --popover: #121a15;
+  --popover-foreground: #f5f1e8;
 
-  /* Primary: Aqua oscuro */
-  --primary: #065f73;
-  --primary-foreground: #ffffff;
+  /* Primary: dorado vivo. Texto carbón sobre dorado = 9.6:1 (AAA) */
+  --primary: #f2b705;
+  --primary-foreground: #1c1917;
 
-  /* Secondary: Neutro */
-  --secondary: #e5e5e5;
-  --secondary-foreground: #171717;
+  /* Secondary: champán dorado para contraste con el primario */
+  --secondary: #f2ddad;
+  --secondary-foreground: #1c1917;
 
-  /* Muted: Neutro */
-  --muted: #262626;
-  --muted-foreground: #d4d4d8;
+  /* Muted: pino apagado con texto marfil grisáceo claro (≈11:1) */
+  --muted: #1c2420;
+  --muted-foreground: #d3ccbd;
 
-  /* Accent: Aqua medio */
-  --accent: #0c7a8f;
-  --accent-foreground: #ffffff;
+  /* Accent: verde esmeralda pino (texto marfil ≈ 4.8:1, AA) */
+  --accent: #0c7a53;
+  --accent-foreground: #f5f1e8;
 
-  /* Destructive: Rojo */
-  --destructive: #991b1b;
-  --destructive-foreground: #fcf3f3;
+  /* Destructive: rojo vivo (texto marfil ≈ 5:1, AA) */
+  --destructive: #cb1d2c;
+  --destructive-foreground: #f7f2e7;
 
-  /* Borders / inputs: Neutro */
-  --border: #404040;
-  --input: #262626;
-  --ring: #065f73;
+  /* Borders / inputs: bronce */
+  --border: #3a3325;
+  --input: #1c2420;
+  --ring: #f2b705;
 
-  /* Charts: Neutro */
-  --chart-1: #525252;
-  --chart-2: #737373;
-  --chart-3: #a3a3a3;
-  --chart-4: #d4d4d4;
-  --chart-5: #e5e5e5;
+  /* Charts: dorado, esmeralda, rojo, escarcha, champán */
+  --chart-1: #f2b705;
+  --chart-2: #17b26a;
+  --chart-3: #e11d48;
+  --chart-4: #c2d3e0;
+  --chart-5: #f2ddad;
 
-  /* Sidebar: Neutro */
-  --sidebar: #0f0f0f;
-  --sidebar-foreground: #fafafa;
-  --sidebar-primary: #065f73;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1a1a1a;
-  --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: #404040;
-  --sidebar-ring: #065f73;
+  /* Sidebar */
+  --sidebar: #0a0e0c;
+  --sidebar-foreground: #f5f1e8;
+  --sidebar-primary: #f2b705;
+  --sidebar-primary-foreground: #1c1917;
+  --sidebar-accent: #16241c;
+  --sidebar-accent-foreground: #f5f1e8;
+  --sidebar-border: #3a3325;
+  --sidebar-ring: #f2b705;
 
-  /* Scrollbar: Neutro */
-  --scrollbar-bg: #171717;
-  --scrollbar-thumb: #525252;
-  --scrollbar-thumb-hover: #737373;
+  /* Scrollbar: bronce */
+  --scrollbar-bg: #101915;
+  --scrollbar-thumb: #6b5f3a;
+  --scrollbar-thumb-hover: #d99a06;
+}
+
+/* Dorado metálico: 5 paradas alternando luz/sombra (con 2 se ve plano).
+   Solo para jerarquía: nombre del ganador, titulares clave. */
+@utility text-gold-shine {
+  background-image: linear-gradient(
+    135deg,
+    var(--color-gold-600) 0%,
+    var(--color-gold-100) 28%,
+    var(--color-gold-500) 50%,
+    var(--color-gold-200) 72%,
+    var(--color-gold-700) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Grano sutil (2-4 %): convierte superficies planas en terciopelo. */
+@utility bg-noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
 }
 
 @layer base {
@@ -174,7 +246,7 @@ button {
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-medium antialiased;
   }
 
   /* Global custom scrollbars (WebKit + Firefox) */
@@ -203,5 +275,11 @@ button {
 
   *::-webkit-scrollbar-thumb:hover {
     background: var(--scrollbar-thumb-hover);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-breathe {
+      animation: none;
+    }
   }
 }

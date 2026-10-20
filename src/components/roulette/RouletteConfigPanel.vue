@@ -5,17 +5,17 @@
     <Transition name="slide-right">
       <div
         v-if="isOpen"
-        class="fixed inset-y-0 right-0 z-50 w-full sm:max-w-sm flex flex-col gap-0 overflow-hidden backdrop-blur-2xl bg-black/95 border-l border-zinc-800 shadow-2xl"
+        class="fixed inset-y-0 right-0 z-50 w-full sm:max-w-sm flex flex-col gap-0 overflow-hidden backdrop-blur-2xl bg-card/95 border-l border-border shadow-2xl"
       >
         <!-- Header -->
-        <div class="px-5 pt-5 pb-3 border-b border-zinc-800 flex items-start justify-between">
+        <div class="px-5 pt-5 pb-3 border-b border-border flex items-start justify-between">
           <div>
-            <h2 class="text-base text-white font-semibold">Configuración</h2>
-            <p class="text-xs text-zinc-400 mt-0.5">Parámetros de la ruleta.</p>
+            <h2 class="text-base text-foreground font-bold">Configuración</h2>
+            <p class="text-xs text-muted-foreground mt-0.5">Parámetros de la ruleta.</p>
           </div>
           <button
             @click="closePanel"
-            class="text-zinc-400 hover:text-white transition-colors p-1 rounded"
+            class="text-muted-foreground hover:text-foreground transition-colors p-1 rounded"
           >
             <X class="h-4 w-4" />
           </button>
@@ -26,7 +26,7 @@
           <div class="flex flex-col gap-4 px-5 py-4">
             <!-- Modo de la Ruleta -->
             <div class="space-y-2">
-              <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <h3 class="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                 Modo de la Ruleta
               </h3>
               <div class="grid grid-cols-2 gap-2">
@@ -61,7 +61,7 @@
 
             <!-- Agregar Participante -->
             <div class="space-y-2">
-              <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              <h3 class="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                 Agregar Participante
               </h3>
 
@@ -107,7 +107,7 @@
             <!-- Lista de Participantes -->
             <div class="space-y-2">
               <div class="flex items-center justify-between">
-                <h3 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <h3 class="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                   Participantes
                 </h3>
                 <Badge variant="secondary" class="text-[10px] font-mono px-2 py-0.5">
@@ -130,7 +130,7 @@
                   >
                     <button
                       type="button"
-                      class="relative w-6 h-6 rounded-full overflow-hidden shrink-0 border border-zinc-700/50 shadow-inner flex items-center justify-center cursor-pointer transition-transform hover:scale-105 active:scale-95"
+                      class="relative w-6 h-6 rounded-full overflow-hidden shrink-0 border border-border shadow-inner flex items-center justify-center cursor-pointer transition-transform hover:scale-105 active:scale-95"
                       :style="{ backgroundColor: item.backgroundColor }"
                       :title="'Color de ' + item.label"
                       @click="openNativeColorPicker(index)"
@@ -169,7 +169,7 @@
                 v-if="itemCount > 0"
                 variant="destructive"
                 size="sm"
-                class="w-full text-xs h-7 bg-red-600 text-white font-semibold transition-all hover:bg-red-500 hover:scale-[1.01] hover:shadow-[0_0_12px_rgba(239,68,68,0.4)] active:scale-95"
+                class="w-full text-xs h-7 bg-destructive text-destructive-foreground font-semibold transition-all hover:bg-berry-500 hover:scale-[1.01] hover:shadow-glow-berry active:scale-95"
                 @click="handleClearAll"
               >
                 <Trash2 class="h-3 w-3 mr-1 text-white stroke-[2.5]" /> Limpiar lista ({{
@@ -184,7 +184,7 @@
             <Accordion type="single" collapsible>
               <AccordionItem value="text-align" class="border-0">
                 <AccordionTrigger
-                  class="text-xs font-semibold text-muted-foreground uppercase tracking-wider py-0 hover:no-underline"
+                  class="text-xs font-bold text-muted-foreground uppercase tracking-wider py-0 hover:no-underline"
                 >
                   Texto y Alineación
                 </AccordionTrigger>
@@ -236,7 +236,7 @@
             <Accordion type="single" collapsible>
               <AccordionItem value="spin-params" class="border-0">
                 <AccordionTrigger
-                  class="text-xs font-semibold text-muted-foreground uppercase tracking-wider py-0 hover:no-underline"
+                  class="text-xs font-bold text-muted-foreground uppercase tracking-wider py-0 hover:no-underline"
                 >
                   Parámetros Giro
                 </AccordionTrigger>
@@ -295,7 +295,7 @@
             <Accordion type="single" collapsible>
               <AccordionItem value="json-tools" class="border-0">
                 <AccordionTrigger
-                  class="text-xs font-semibold text-muted-foreground uppercase tracking-wider py-0 hover:no-underline"
+                  class="text-xs font-bold text-muted-foreground uppercase tracking-wider py-0 hover:no-underline"
                 >
                   JSON & Backup
                 </AccordionTrigger>
@@ -317,7 +317,7 @@
                     <Textarea
                       v-model="jsonText"
                       class="w-full h-32 text-[11px] font-mono resize-y"
-                      placeholder='[{"label":"NOMBRE","backgroundColor":"#1a1a2e","labelColor":"#ffffff"}]'
+                      placeholder='[{"label":"NOMBRE","backgroundColor":"#0f5132","labelColor":"#f5f1e8"}]'
                     />
                     <Button
                       variant="outline"

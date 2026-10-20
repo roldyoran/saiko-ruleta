@@ -3,7 +3,7 @@
     <LavaLamp />
     <section v-for="[temporada, usuarios] in Object.entries(data)" :key="temporada">
       <h1
-        class="py-4 text-3xl bg-clip-text text-transparent bg-linear-to-r from-[#e94fe1] to-[#f37018] font-extrabold flex items-center justify-center"
+        class="py-4 text-3xl font-black font-display bg-clip-text text-transparent bg-linear-to-r from-gold-400 to-berry-500 flex items-center justify-center"
       >
         {{ temporada }}
       </h1>

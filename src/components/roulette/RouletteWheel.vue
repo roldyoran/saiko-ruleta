@@ -7,11 +7,16 @@
           <filter id="pointerShadow" x="-20%" y="-20%" width="140%" height="140%">
             <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.5" />
           </filter>
+          <linearGradient id="pointerGold" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" style="stop-color: var(--color-gold-100)" />
+            <stop offset="0.5" style="stop-color: var(--color-gold-400)" />
+            <stop offset="1" style="stop-color: var(--color-gold-600)" />
+          </linearGradient>
         </defs>
         <polygon
           points="18,48 2,6 18,14 34,6"
-          fill="#f5f5f5"
-          stroke="#000000"
+          fill="url(#pointerGold)"
+          style="stroke: var(--color-berry-700)"
           stroke-width="2.5"
           stroke-linejoin="round"
           filter="url(#pointerShadow)"
@@ -19,45 +24,62 @@
       </svg>
     </div>
 
-    <!-- Skeleton de carga -->
+    <!-- Anillo caramelo navideño alrededor de la ruleta -->
     <div
-      v-if="!isLoaded"
-      class="w-64 h-64 md:w-[500px] md:h-[500px] rounded-full bg-neutral-800/50 border-4 border-[#212121] animate-pulse flex items-center justify-center"
+      class="rounded-full p-1.5 shadow-glow-gold-lg"
+      style="
+        background: repeating-conic-gradient(
+          var(--color-berry-500) 0deg 9deg,
+          var(--color-cream-100) 9deg 18deg
+        );
+      "
     >
-      <svg
-        class="size-10 text-neutral-600 animate-spin"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
+      <!-- Skeleton de carga -->
+      <div
+        v-if="!isLoaded"
+        class="w-64 h-64 md:w-[500px] md:h-[500px] rounded-full bg-pine-900/80 animate-pulse flex items-center justify-center"
       >
-        <circle
-          class="opacity-25"
-          cx="12"
-          cy="12"
-          r="10"
-          stroke="currentColor"
-          stroke-width="4"
-        ></circle>
-        <path
-          class="opacity-75"
-          fill="currentColor"
-          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-        ></path>
-      </svg>
-    </div>
+        <svg
+          class="size-10 text-gold-400 animate-spin"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+          ></path>
+        </svg>
+      </div>
 
-    <!-- Contenedor de spin-wheel -->
-    <div
-      ref="wheelContainer"
-      class="w-64 h-64 md:w-[500px] md:h-[500px] rounded-full border-4 border-[#212121] overflow-hidden shadow-2xl"
-      :class="{ 'opacity-0 absolute': !isLoaded }"
-    ></div>
+      <!-- Contenedor de spin-wheel -->
+      <div
+        ref="wheelContainer"
+        class="w-64 h-64 md:w-[500px] md:h-[500px] rounded-full overflow-hidden"
+        :class="{ 'opacity-0 absolute': !isLoaded }"
+      ></div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { Wheel } from "spin-wheel";
 import { ref, onMounted, onUnmounted, watch } from "vue";
+import {
+  NOEL_LABEL_CREAM,
+  NOEL_LABEL_STROKE,
+  NOEL_LINE,
+  NOEL_NUMBER_DEFAULTS,
+} from "@/lib/noel-palette";
 
 // Props
 const props = defineProps({
@@ -76,7 +98,7 @@ const props = defineProps({
   },
   fontFamily: {
     type: String,
-    default: "Arial, sans-serif",
+    default: '"Outfit Variable", Arial, sans-serif',
   },
   fontSizeMax: {
     type: Number,
@@ -96,7 +118,7 @@ const props = defineProps({
   },
   lineColor: {
     type: String,
-    default: "#0a0a0a",
+    default: NOEL_LINE,
   },
   spinDuration: {
     type: Number,
@@ -116,8 +138,9 @@ const wheelContainer = ref(null);
 let wheel = null;
 const isLoaded = ref(false);
 
-// Colores por defecto (paleta neutra oscura del HTML de referencia)
-const DEFAULT_COLORS = ["#171717", "#262626", "#404040", "#525252", "#737373"];
+// Colores por defecto: joyas navideñas de la paleta compartida
+// (solo fallback; el padre suele pasar `itemColors`).
+const DEFAULT_COLORS = NOEL_NUMBER_DEFAULTS;
 
 // Construir items desde options
 const buildItems = (options) => {
@@ -145,13 +168,13 @@ const initWheel = () => {
   wheel = new Wheel(wheelContainer.value, {
     items: buildItems(props.options),
     // Colores y estilo de texto
-    itemLabelColors: ["#ffffff"],
+    itemLabelColors: [NOEL_LABEL_CREAM],
     itemLabelFont: props.fontFamily,
     itemLabelFontSizeMax: props.fontSizeMax,
     itemLabelAlign: props.labelAlign,
     itemLabelRadius: props.labelRadius,
     itemLabelRadiusMax: 0.2,
-    itemLabelStrokeColor: "#000000",
+    itemLabelStrokeColor: NOEL_LABEL_STROKE,
     itemLabelStrokeWidth: 3,
     // Bordes entre items
     lineWidth: props.lineWidth,

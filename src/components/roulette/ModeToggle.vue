@@ -8,12 +8,16 @@
   />
 
   <!-- Botón para abrir panel de configuración -->
-  <Card v-if="!panelOpen" class="fixed top-4 right-4 z-50 p-2 cursor-pointer" @click="openPanel">
+  <Card
+    v-if="!panelOpen"
+    class="fixed top-4 right-4 z-50 p-2 cursor-pointer border-gold-500/25 shadow-glow-gold"
+    @click="openPanel"
+  >
     <Button
       variant="ghost"
       size="icon"
       title="Abrir configuración"
-      class="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+      class="h-7 w-7 p-0 text-gold-400 hover:text-gold-200"
     >
       <LifeBuoy class="h-3.5 w-3.5" />
     </Button>

@@ -10,6 +10,12 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+  server: {
+    port: 5224,
+  },
+  preview: {
+    port: 5224,
+  },
   staged: {
     "*": "vp check --fix",
   },

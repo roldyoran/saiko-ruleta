@@ -77,7 +77,7 @@ const defaultItems: NavItem[] = [
     to: "/bingo",
     ariaLabel: "Bingo",
     icon: Dices,
-    iconClass: "hover:text-emerald-500 w-6 h-6",
+    iconClass: "hover:text-gold-400 w-6 h-6",
     tooltip: "Jugar bingo",
   },
 ];

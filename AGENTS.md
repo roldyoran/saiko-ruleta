@@ -71,3 +71,9 @@ SPA Vue 3 + vue-router + Tailwind 4, sin SSR ni backend. Toolchain Vite+ 1.3.0
 - `bingo.vue` comparte tableros por query `?bingo=` con APIs nativas
   (`window.location`/`history`); `animelist.vue` sincroniza filtros con
   `router.replace({ query })`.
+- Tema navideño "Medianoche" en `src/assets/css/main.css` (bloque `.dark`):
+  fondo pino casi negro, primario dorado `gold-400`, acento pino, rojo baya
+  para destructive. Paleta propia en `@theme` (`gold/pine/berry/frost/cream/
+  champagne` con escala numérica). En componentes usa siempre tokens
+  (`bg-primary`, `text-gold-400`, `border-border`); prohibidos hex/arbitrary
+  nuevos (`bg-[#...]`, `from-[#...]`).

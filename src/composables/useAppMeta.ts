@@ -139,7 +139,7 @@ export const useAppMeta = (pageMetadata: PageMetadata = {}) => {
       },
       {
         name: "theme-color",
-        content: "#e11d48", // Color rosa de tu tema
+        content: "#7f1d1d", // Rojo baya del tema navideño
       },
     ],
 

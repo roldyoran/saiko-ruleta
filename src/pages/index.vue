@@ -3,6 +3,18 @@
     <!-- <Background /> -->
     <Christmas />
 
+    <!-- Ambiente: focos radiales cálidos sobre el fondo (sutil, solo atmósfera) -->
+    <div aria-hidden="true" class="pointer-events-none absolute inset-0 overflow-hidden">
+      <div
+        class="absolute -top-32 left-1/2 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-pine-500/10 blur-[130px] animate-breathe"
+      />
+      <div
+        class="absolute bottom-0 left-1/2 h-[380px] w-[860px] -translate-x-1/2 rounded-full bg-gold-500/10 blur-[140px]"
+      />
+      <div class="absolute top-1/3 -left-24 h-72 w-72 rounded-full bg-berry-600/10 blur-[110px]" />
+      <div class="absolute top-1/4 -right-24 h-72 w-72 rounded-full bg-berry-600/10 blur-[110px]" />
+    </div>
+
     <!-- Icon navigation for testing -->
     <IconNav class="absolute top-7 left-4 z-40" />
 
@@ -11,11 +23,11 @@
       <!-- Placeholder cuando modo nombres y menos de 2 participantes -->
       <div
         v-if="isNamesMode && rouletteConfig.items.value.length < 2"
-        class="w-64 h-64 md:w-[500px] md:h-[500px] rounded-full border-2 border-dashed border-muted-foreground/30 flex flex-col items-center justify-center text-center p-8"
+        class="w-64 h-64 md:w-[500px] md:h-[500px] rounded-full border-2 border-dashed border-gold-500/30 flex flex-col items-center justify-center text-center p-8"
       >
-        <Users class="h-12 w-12 text-muted-foreground/40 mb-4" />
-        <p class="text-muted-foreground text-sm font-medium">Agrega al menos 2 participantes</p>
-        <p class="text-muted-foreground/60 text-xs mt-1">para comenzar la ruleta</p>
+        <Users class="h-12 w-12 text-gold-400/60 mb-4" />
+        <p class="text-muted-foreground text-sm font-semibold">Agrega al menos 2 participantes</p>
+        <p class="text-muted-foreground/80 text-xs mt-1">para comenzar la ruleta</p>
       </div>
 
       <!-- Ruleta -->
@@ -160,6 +172,7 @@ import { ref, onMounted, onUnmounted, nextTick, computed, defineAsyncComponent }
 import { toast } from "vue-sonner";
 import { useAppMeta } from "@/composables/useAppMeta";
 import { useRouletteConfig } from "@/composables/useRouletteConfig";
+import { NOEL_NUMBER_DEFAULTS } from "@/lib/noel-palette";
 
 // Composables
 const { updateMeta } = useAppMeta({
@@ -238,7 +251,8 @@ const options = computed(() => {
 
 // Colores por ítem desde la configuración (para RouletteWheel)
 const itemColors = computed(() => {
-  const defaults = ["#18181b", "#27272a", "#3f3f46", "#52525b", "#71717a"];
+  // En modo números se ciclan las joyas navideñas de la paleta compartida.
+  const defaults = NOEL_NUMBER_DEFAULTS;
   return options.value.map((_, i) => {
     return rouletteConfig.items.value[i]?.backgroundColor || defaults[i % defaults.length];
   });

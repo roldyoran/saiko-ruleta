@@ -100,7 +100,7 @@ url: 'https://saiko-ruleta.vercel.app', // ← Cambiar por tu dominio real
 
 ## 🎮 Para probar ahora mismo:
 
-1. **Ve a**: la URL de `vp dev` (p. ej. `http://localhost:5173/bingo`)
+1. **Ve a**: la URL de `vp dev` (p. ej. `http://localhost:5224/bingo`)
 2. **Abre DevTools** (F12) → Elements → `<head>`
 3. **Navega** entre páginas para ver cambios en `<title>` y metas en tiempo real
 4. **Busca**: `og:`, `twitter:`, `application/ld+json`

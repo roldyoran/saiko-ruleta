@@ -1,6 +1,13 @@
 import { ref, watch } from "vue";
+import {
+  NOEL_LABEL_CREAM,
+  NOEL_LINE,
+  NOEL_SEGMENT_COLORS,
+  NOEL_SEGMENT_FALLBACK,
+} from "@/lib/noel-palette";
 
 const STORAGE_KEY = "roulette-config";
+const CONFIG_VERSION = 2;
 
 export interface RouletteItem {
   label: string;
@@ -20,48 +27,15 @@ export interface RouletteSettings {
 }
 
 const DEFAULT_SETTINGS: RouletteSettings = {
-  fontFamily: "Arial, sans-serif",
+  fontFamily: '"Outfit Variable", Arial, sans-serif',
   labelAlign: "right",
-  fontSizeMax: 24,
+  fontSizeMax: 40,
   labelRadius: 0.6,
   lineWidth: 6,
-  lineColor: "#0a0a0a",
+  lineColor: NOEL_LINE,
   spinDuration: 4500,
   revolutions: 8,
 };
-
-const NEUTRAL_PALETTE: string[] = [
-  "#0c0c0c",
-  "#141414",
-  "#1a1a1a",
-  "#212121",
-  "#2a2a2a",
-  "#0f1218",
-  "#151a24",
-  "#1b2230",
-  "#222a38",
-  "#2a3342",
-  "#121010",
-  "#1a1616",
-  "#221e1e",
-  "#2b2626",
-  "#342f2f",
-  "#0d1117",
-  "#161b22",
-  "#1c2128",
-  "#21262d",
-  "#272d35",
-  "#0a0f14",
-  "#101820",
-  "#152028",
-  "#1a2830",
-  "#1f3038",
-  "#100e1a",
-  "#18152a",
-  "#201c3a",
-  "#28234a",
-  "#302b5a",
-];
 
 // Singleton
 const items = ref<RouletteItem[]>([]);
@@ -80,10 +54,10 @@ function sortItems() {
 
 function getRandomColor(): string {
   const usedColors = items.value.map((i) => i.backgroundColor);
-  const available = NEUTRAL_PALETTE.filter((c) => !usedColors.includes(c));
-  const pool = available.length > 0 ? available : NEUTRAL_PALETTE;
+  const available = NOEL_SEGMENT_COLORS.filter((c) => !usedColors.includes(c));
+  const pool = available.length > 0 ? available : NOEL_SEGMENT_COLORS;
   const color = pool[Math.floor(Math.random() * pool.length)];
-  return color ?? "#0c0c0c";
+  return color ?? NOEL_SEGMENT_FALLBACK;
 }
 
 function loadConfig() {
@@ -97,6 +71,11 @@ function loadConfig() {
     }
     if (parsed.settings) {
       settings.value = { ...DEFAULT_SETTINGS, ...parsed.settings };
+      // Migración v2: números más grandes sin borrar la lista ni el resto
+      // de ajustes del usuario.
+      if (parsed.version !== CONFIG_VERSION) {
+        settings.value.fontSizeMax = DEFAULT_SETTINGS.fontSizeMax;
+      }
     }
   } catch {
     // ignore corrupt data
@@ -107,6 +86,7 @@ function saveConfig() {
   localStorage.setItem(
     STORAGE_KEY,
     JSON.stringify({
+      version: CONFIG_VERSION,
       items: items.value,
       settings: settings.value,
     }),
@@ -126,7 +106,7 @@ export function useRouletteConfig() {
     items.value.push({
       label: trimmed.toUpperCase(),
       backgroundColor: getRandomColor(),
-      labelColor: "#ffffff",
+      labelColor: NOEL_LABEL_CREAM,
     });
     sortItems();
     return true;
