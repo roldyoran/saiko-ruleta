@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Saiko Ruleta</title>
+    <meta
+      name="description"
+      content="Aplicación de ruleta interactiva, bingo y más juegos divertidos para streamers y comunidades."
+    />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-TileColor" content="#e11d48" />
+    <meta name="theme-color" content="#e11d48" />
+    <link rel="preload" href="/reigen_ag/Tania1_navidad.webp" as="image" />
+    <link rel="preload" href="/reigen_ag/Tania2_navidad.webp" as="image" />
+    <link rel="preload" href="/reigen_ag/Tago_ruleta_navidad.webp" as="image" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <script>
+      // La app es solo modo oscuro: aplicar la clase antes del primer pintado
+      // para evitar flash de tema claro (reemplaza a @nuxtjs/color-mode).
+      document.documentElement.classList.add("dark");
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
